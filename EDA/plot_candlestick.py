@@ -10,10 +10,11 @@ data_dir = r'C:\Users\ALIENWARE\Desktop\COMP396\COMP396-Group-Project\DATA\PART1
 
 # [修复 2] 定义图表输出文件夹 (将在 eda/ 文件夹下创建一个 'charts' 子文件夹)
 # 我们使用相对路径，这更规范
-output_dir = 'eda/charts'
+output_dir = 'eda/charts/candlesticks'  # <-- 已修改：添加了 'candlesticks' 子文件夹
 
 # --- 2. 准备工作 ---
 # 创建输出文件夹 (如果它还不存在的话)
+# os.makedirs 会自动创建所有必需的中间文件夹 (eda, charts, candlesticks)
 os.makedirs(output_dir, exist_ok=True)
 
 # 查找所有要处理的 CSV 文件
@@ -58,10 +59,10 @@ for csv_file_path in csv_files:
         # 检查必要的列是否存在
         required_cols = ['open', 'high', 'low', 'close']
         if not all(col in df.columns for col in required_cols):
-            print(f"  [跳过] '{file_name}' 缺少必要的列 (Open, High, Low, Close)。")
+            print(f"   [跳过] '{file_name}' 缺少必要的列 (Open, High, Low, Close)。")
             continue  # 跳过这个文件，继续下一个
 
-        # 3. 定义输出文件路径 (e.g., "eda/charts/01.png")
+        # 3. 定义输出文件路径 (e.g., "eda/charts/candlesticks/01.png")
         output_file_path = os.path.join(
             output_dir,
             file_name.replace('.csv', '.png')  # 将 .csv 后缀替换为 .png
@@ -80,11 +81,11 @@ for csv_file_path in csv_files:
             savefig=output_file_path  # <-- 告诉 mplfinance 保存文件，而不是显示
         )
 
-        print(f"  [成功] 已保存图表到: {output_file_path}")
+        print(f"   [成功] 已保存图表到: {output_file_path}")
 
     except Exception as e:
         # 捕获所有可能的错误 (e.g., 空文件, 格式错误)
-        print(f"  [失败] 处理 '{file_name}' 时出错: {e}")
+        print(f"   [失败] 处理 '{file_name}' 时出错: {e}")
 
 print("-" * 30)
 print(f"批量处理完成。所有图表均已保存在 '{output_dir}' 文件夹中。")
