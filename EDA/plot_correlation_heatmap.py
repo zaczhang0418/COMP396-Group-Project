@@ -1,95 +1,133 @@
-# 导入我们需要的工具包
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import seaborn as sns # 导入
 import os
-import glob
 import sys
-import seaborn as sns # 导入 Task 4 需要的库 
+import glob 
 
-# --- 1. 定义文件夹路径 (使用相对路径，保持跨平台兼容性) ---
-DATA_DIR = 'DATA/PART1'
-# W5 概要要求保存为一张图表 
-OUTPUT_FILE = 'eda/charts/correlation_heatmap.png' 
+# -----------------------------------------------------------------
+# (数据加载函数，从 C 计划复制过来，保持不变)
+# -----------------------------------------------------------------
+def load_and_merge_data(data_directory="./DATA/PART1/"):
+    csv_files_path = os.path.join(data_directory, "*.csv")
+    files = glob.glob(csv_files_path)
+    if not files:
+        print(f"警告：在 '{data_directory}' 中没有找到 .csv 文件。")
+        return pd.DataFrame() 
+    dfs = {}
+    for f in files:
+        asset_name = os.path.basename(f).split('.')[0]
+        try:
+            data = pd.read_csv(
+                f, parse_dates=['Index'], index_col='Index'
+            )
+            data.columns = data.columns.str.strip().str.strip('"')
+            data.rename(columns={
+                'Open': 'open', 'High': 'high', 'Low': 'low',
+                'Close': 'close', 'Volume': 'volume'
+            }, inplace=True)
+            if 'close' in data.columns:
+                df = data[['close']].rename(columns={'close': asset_name})
+                dfs[asset_name] = df
+            else:
+                print(f" 警告: {asset_name}.csv 缺少 'close' 列，已跳过。")
+        except Exception as e:
+            print(f" 警告: 加载 {f} 出错: {e}")
+    if not dfs:
+        return pd.DataFrame()
+    df_list = list(dfs.values())
+    if not df_list:
+        return pd.DataFrame()
+    merged = df_list[0]
+    for df_to_join in df_list[1:]:
+        merged = merged.join(df_to_join, how='inner') 
+    merged.sort_index(inplace=True) 
+    return merged
 
-# 确保 charts 文件夹存在
-os.makedirs('eda/charts', exist_ok=True)
+def calculate_log_returns(merged_df): 
+    return np.log(merged_df / merged_df.shift(1)).dropna()
+# -----------------------------------------------------------------
+# (数据加载函数结束)
+# -----------------------------------------------------------------
 
-# --- 2. 准备工作 ---
-csv_files = glob.glob(os.path.join(DATA_DIR, '*.csv'))
 
-if not csv_files:
-    print(f"错误：在 '{DATA_DIR}' 文件夹里没有找到任何 .csv 文件。")
-    sys.exit()
+# --- 1. API 函数 (给 Notebook 调用) ---
 
-print(f"找到了 {len(csv_files)} 个 CSV 文件。开始计算跨资产相关性...")
+def plot_correlation_heatmap(log_returns_df):
+    """
+    (供 Notebook 调用)
+    计算并绘制对数收益率的相关性热力图，并直接 'show()'。
+    """
+    if log_returns_df.empty:
+        print(f" 警告: 收益率数据为空，跳过绘图。")
+        return
 
-# 创建一个空的 DataFrame 用于存储所有资产的对数收益率
-all_returns = pd.DataFrame() 
-
-# --- 3. 循环处理每一个文件 ---
-for csv_file_path in csv_files:
-    file_name = os.path.basename(csv_file_path)
+    print("--- 正在计算相关性矩阵 ---")
+    correlation_matrix = log_returns_df.corr()
     
-    try:
-        # 1. [!! 关键修正 !!] 使用 K 线图脚本中标准的数据加载和清洗流程
-        data = pd.read_csv(
-            csv_file_path,
-            parse_dates=['Index'],
-            index_col='Index'
-        )
-        data.columns = data.columns.str.strip().str.strip('"')
-        data.rename(columns={
-            'Open': 'open',
-            'High': 'high',
-            'Low': 'low',
-            'Close': 'close',
-            'Volume': 'volume'
-        }, inplace=True)
+    plt.figure(figsize=(10, 8))
+    sns.heatmap(
+        correlation_matrix, 
+        annot=True,       # 在图上显示数值
+        cmap='coolwarm',  # 使用冷暖色调
+        fmt=".2f",        # 格式化数值为两位小数
+        linewidths=.5,
+        linecolor='black'
+    )
+    plt.title('Cross-Asset Log Returns Correlation Heatmap')
+    plt.show()
 
-        if 'close' not in data.columns:
-            print(f"   [跳过] '{file_name}' 缺少 'close' 列。")
-            continue
+def save_correlation_heatmap(log_returns_df, save_path=""):
+    """
+    (供本地运行调用)
+    绘制图表并 'savefig()' 到指定路径。
+    """
+    if log_returns_df.empty:
+        print(f" 警告: 收益率数据为空，跳过保存。")
+        return
+        
+    print("--- 正在计算相关性矩阵 ---")
+    correlation_matrix = log_returns_df.corr()
+    print(correlation_matrix) # 在本地运行时打印矩阵
+    
+    fig, ax = plt.subplots(figsize=(10, 8))
+    sns.heatmap(
+        correlation_matrix, 
+        annot=True, 
+        cmap='coolwarm', 
+        fmt=".2f", 
+        linewidths=.5,
+        linecolor='black',
+        ax=ax # 传入 ax
+    )
+    ax.set_title('Cross-Asset Log Returns Correlation Heatmap')
+    
+    os.makedirs(os.path.dirname(save_path), exist_ok=True)
+    plt.savefig(save_path, bbox_inches='tight')
+    print(f"  图表已保存到: {save_path}")
+    plt.close(fig)
 
-        # 2. 计算对数收益率
-        log_returns = np.log(data['close'] / data['close'].shift(1))
 
-        # 3. 将 Log_Returns 列添加到 all_returns DataFrame 中
-        # (使用文件名作为列名，e.g., '01', '02')
-        column_name = file_name.replace('.csv', '')
-        all_returns[column_name] = log_returns
-
-    except Exception as e:
-        print(f"   [失败] 处理 '{file_name}' 时出错: {e}")
-
-# --- 4. 计算并绘制相关性矩阵 ---
-
-# 清理 NaN 值 (第一行收益率是 NaN)
-returns_clean = all_returns.dropna()
-
-if returns_clean.empty:
-    print("错误：计算所有收益率后，DataFrame 为空。无法生成热力图。")
-    sys.exit()
-
-# 计算相关性矩阵 [cite: 53]
-correlation_matrix = returns_clean.corr()
-
-print("--- 资产相关性矩阵 (Correlation Matrix) ---")
-print(correlation_matrix)
-
-# 绘制热力图
-plt.figure(figsize=(10, 8))
-sns.heatmap(
-    correlation_matrix, 
-    annot=True,          # 在图上显示数值
-    cmap='coolwarm',     # 使用冷暖色调
-    fmt=".2f",           # 格式化数值为两位小数
-    linewidths=.5,
-    linecolor='black'
-)
-plt.title('Cross-Asset Log Returns Correlation Heatmap')
-
-# 5. [!! 关键修正 !!] 保存图表，而不是 plt.show()
-plt.savefig(OUTPUT_FILE)
-print(f"--- 相关性热力图已保存到: {OUTPUT_FILE} ---")
-plt.close()
+# --- 2. 本地运行块 (Standalone Runner) ---
+if __name__ == "__main__":
+    
+    print("--- 正在以独立模式运行 (Correlation Heatmap Plotter) ---")
+    
+    DATA_PATH = "./DATA/PART1/" 
+    # 你的原始输出路径 (使用我们修正的 EDA 路径)
+    SAVE_FILE = "./EDA/charts/correlation_heatmap.png" 
+    
+    print(f"正在从 '{DATA_PATH}' 加载数据...")
+    merged_prices = load_and_merge_data(DATA_PATH) 
+    log_returns = calculate_log_returns(merged_prices)
+    
+    if not log_returns.empty:
+        print("✅ 数据加载、合并、计算收益率完毕。")
+        print(f"正在生成相关性热力图并保存到 '{SAVE_FILE}'...")
+        
+        save_correlation_heatmap(log_returns, save_path=SAVE_FILE)
+            
+        print("--- 本地运行完毕 ---")
+    else:
+        print("未能加载测试数据，请检查 DATA_PATH。")

@@ -2,53 +2,29 @@ import pandas as pd
 import mplfinance as mpf
 import sys
 import os
-import glob  # 导入 glob 库来查找文件
+import glob 
 
-# --- 1. 定义你的文件夹路径 ---
-# [修复 1] 定义数据来源文件夹 (DATA\PART1)
-data_dir = r'C:\Users\ALIENWARE\Desktop\COMP396\COMP396-Group-Project\DATA\PART1'
+# -----------------------------------------------------------------
+# (这个脚本是独立的，它不依赖 eda_data_loader.py)
+# -----------------------------------------------------------------
 
-# [修复 2] 定义图表输出文件夹 (将在 eda/ 文件夹下创建一个 'charts' 子文件夹)
-# 我们使用相对路径，这更规范
-output_dir = 'eda/charts/candlesticks'  # <-- 已修改：添加了 'candlesticks' 子文件夹
+# --- 1. 独立的数据加载器 (Helper Function) ---
+# 这个加载器是 K 线图专用的，因为它保留了 OHLCV
 
-# --- 2. 准备工作 ---
-# 创建输出文件夹 (如果它还不存在的话)
-# os.makedirs 会自动创建所有必需的中间文件夹 (eda, charts, candlesticks)
-os.makedirs(output_dir, exist_ok=True)
-
-# 查找所有要处理的 CSV 文件
-# os.path.join 会智能地处理路径分隔符 ( \ 或 / )
-# *.csv 是一个通配符，意思是 "匹配所有以 .csv 结尾的文件"
-csv_files = glob.glob(os.path.join(data_dir, '*.csv'))
-
-if not csv_files:
-    print(f"错误: 在 '{data_dir}' 中没有找到任何 .csv 文件。")
-    print("请检查 'data_dir' 变量的路径是否正确。")
-    sys.exit(1)
-
-print(f"找到了 {len(csv_files)} 个 CSV 文件。开始批量处理...")
-print(f"图表将保存到: {os.path.abspath(output_dir)}")
-print("-" * 30)
-
-# --- 3. 循环处理所有文件 ---
-for csv_file_path in csv_files:
-    # os.path.basename 会从完整路径中提取文件名 (e.g., "01.csv")
-    file_name = os.path.basename(csv_file_path)
-
+def load_single_asset_ohlcv(csv_file_path):
+    """
+    加载并清洗*单个* CSV 文件，返回可用于 K 线图的 OHLCV DataFrame。
+    """
     try:
-        print(f"Processing: {file_name} ...")
-
-        # 1. 加载数据 (使用 'Index' 列作为日期索引)
-        df = pd.read_csv(
+        data = pd.read_csv(
             csv_file_path,
             parse_dates=['Index'],
             index_col='Index'
         )
-
-        # 2. 准备数据 (清理并重命名列)
-        df.columns = df.columns.str.strip().str.strip('"')
-        df.rename(columns={
+        
+        # 你的标准清洗流程 (非常好)
+        data.columns = data.columns.str.strip().str.strip('"')
+        data.rename(columns={
             'Open': 'open',
             'High': 'high',
             'Low': 'low',
@@ -56,36 +32,101 @@ for csv_file_path in csv_files:
             'Volume': 'volume'
         }, inplace=True)
 
-        # 检查必要的列是否存在
         required_cols = ['open', 'high', 'low', 'close']
-        if not all(col in df.columns for col in required_cols):
-            print(f"   [跳过] '{file_name}' 缺少必要的列 (Open, High, Low, Close)。")
-            continue  # 跳过这个文件，继续下一个
-
-        # 3. 定义输出文件路径 (e.g., "eda/charts/candlesticks/01.png")
-        output_file_path = os.path.join(
-            output_dir,
-            file_name.replace('.csv', '.png')  # 将 .csv 后缀替换为 .png
-        )
-
-        # 4. 绘制 K 线图并保存 (!! 核心变更 !!)
-        mpf.plot(
-            df,
-            type='candle',
-            style='yahoo',
-            title=f'Candlestick Chart - {file_name}',  # 英文标题
-            ylabel='Price ($)',
-            volume=True,
-            ylabel_lower='Volume',
-            figratio=(16, 9),
-            savefig=output_file_path  # <-- 告诉 mplfinance 保存文件，而不是显示
-        )
-
-        print(f"   [成功] 已保存图表到: {output_file_path}")
+        if not all(col in data.columns for col in required_cols):
+            print(f"  [跳过] {os.path.basename(csv_file_path)} 缺少必要的 OHLC 列。")
+            return None # 返回 None
+            
+        return data
 
     except Exception as e:
-        # 捕获所有可能的错误 (e.g., 空文件, 格式错误)
-        print(f"   [失败] 处理 '{file_name}' 时出错: {e}")
+        print(f"  [失败] 加载 {os.path.basename(csv_file_path)} 时出错: {e}")
+        return None
 
-print("-" * 30)
-print(f"批量处理完成。所有图表均已保存在 '{output_dir}' 文件夹中。")
+# --- 2. API 函数 (给 Notebook 调用) ---
+
+def plot_candlestick(ohlcv_df, asset_name):
+    """
+    (供 Notebook 调用)
+    绘制 K 线图并直接 'show()' (在 Notebook 中会内联显示)。
+    """
+    if ohlcv_df is None or ohlcv_df.empty:
+        print(f" 警告: {asset_name} 的 OHLCV 数据为空，跳过绘图。")
+        return
+
+    print(f"--- 正在绘制 K 线图: {asset_name} ---")
+    
+    mpf.plot(
+        ohlcv_df,
+        type='candle',
+        style='yahoo',
+        title=f'Candlestick Chart - {asset_name}',
+        ylabel='Price ($)',
+        volume=True,
+        ylabel_lower='Volume',
+        figratio=(16, 9)
+        # 注意：没有 'savefig' 参数，它会自动 'show()'
+    )
+
+def save_candlestick_plot(ohlcv_df, asset_name, save_path=""):
+    """
+    (供本地运行调用)
+    绘制图表并 'savefig()' 到指定路径。
+    """
+    if ohlcv_df is None or ohlcv_df.empty:
+        print(f" 警告: {asset_name} 数据为空，跳过保存。")
+        return
+
+    os.makedirs(os.path.dirname(save_path), exist_ok=True)
+    
+    mpf.plot(
+        ohlcv_df,
+        type='candle',
+        style='yahoo',
+        title=f'Candlestick Chart - {asset_name}',
+        ylabel='Price ($)',
+        volume=True,
+        ylabel_lower='Volume',
+        figratio=(16, 9),
+        savefig=save_path # <-- 核心区别
+    )
+    print(f"  图表已保存到: {save_path}")
+    # mplfinance 在保存时会自动 'close()' 图表
+
+
+# --- 3. 本地运行块 (Standalone Runner) ---
+# (这基本就是你原来的脚本，只是现在它调用了上面的函数)
+if __name__ == "__main__":
+    
+    print("--- 正在以独立模式运行 (Candlestick Plotter) ---")
+    
+    # [修复] 总是使用相对路径，而不是绝对路径
+    DATA_PATH = "./DATA/PART1/" 
+    SAVE_DIR = "./EDA/charts/candlesticks/" # 你的原始输出路径
+    
+    print(f"正在从 '{DATA_PATH}' 加载数据...")
+    csv_files = glob.glob(os.path.join(DATA_PATH, '*.csv'))
+
+    if not csv_files:
+        print(f"错误：在 '{DATA_PATH}' 文件夹里没有找到任何 .csv 文件。")
+        sys.exit(1)
+    
+    print(f"找到了 {len(csv_files)} 个 CSV 文件。开始批量处理...")
+    
+    for csv_file_path in csv_files:
+        file_name = os.path.basename(csv_file_path)
+        asset_name = file_name.replace('.csv', '')
+        
+        print(f"--- 正在处理: {file_name} ---")
+        
+        # 1. 加载单个文件
+        ohlcv_data = load_single_asset_ohlcv(csv_file_path)
+        
+        if ohlcv_data is not None:
+            # 2. 定义保存路径
+            save_file_path = os.path.join(SAVE_DIR, f"{asset_name}_candlestick.png")
+            
+            # 3. 调用“保存”函数
+            save_candlestick_plot(ohlcv_data, asset_name, save_path=save_file_path)
+            
+    print("--- 本地运行完毕 ---")

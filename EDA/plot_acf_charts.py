@@ -1,88 +1,142 @@
-# 导入我们需要的工具包
 import pandas as pd
-import os
-import glob
 import numpy as np
 import matplotlib.pyplot as plt
-import sys  # 导入 sys 库
-# 导入 "任务 2" 特别需要的工具包
-from statsmodels.graphics.tsaplots import plot_acf
+import seaborn as sns
+import os
+import sys
+import glob 
 
-# --- 1. 定义文件夹路径 (使用相对路径，保持跨平台兼容性) ---
-# 假设我们总是在项目根目录 (COMP396-Group-Project) 运行
-DATA_DIR = 'DATA/PART1'
-OUTPUT_DIR = 'eda/charts/acf' # 这是任务书上要求保存的地方 [cite: 26]
+# 导入 ACFPACF 绘图工具
+from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
 
-# --- 2. 准备工作 ---
-# 确保保存结果的文件夹存在
-os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-# 找到所有要处理的 CSV 数据文件
-csv_files = glob.glob(os.path.join(DATA_DIR, '*.csv'))
+# -----------------------------------------------------------------
+# (数据加载函数，从 C 计划复制过来，保持不变)
+# -----------------------------------------------------------------
+def load_and_merge_data(data_directory="./DATA/PART1/"):
+    csv_files_path = os.path.join(data_directory, "*.csv")
+    files = glob.glob(csv_files_path)
+    if not files:
+        print(f"警告：在 '{data_directory}' 中没有找到 .csv 文件。")
+        return pd.DataFrame() 
+    dfs = {}
+    for f in files:
+        asset_name = os.path.basename(f).split('.')[0]
+        try:
+            data = pd.read_csv(
+                f, parse_dates=['Index'], index_col='Index'
+            )
+            data.columns = data.columns.str.strip().str.strip('"')
+            data.rename(columns={
+                'Open': 'open', 'High': 'high', 'Low': 'low',
+                'Close': 'close', 'Volume': 'volume'
+            }, inplace=True)
+            if 'close' in data.columns:
+                df = data[['close']].rename(columns={'close': asset_name})
+                dfs[asset_name] = df
+            else:
+                print(f" 警告: {asset_name}.csv 缺少 'close' 列，已跳过。")
+        except Exception as e:
+            print(f" 警告: 加载 {f} 出错: {e}")
+    if not dfs:
+        return pd.DataFrame()
+    df_list = list(dfs.values())
+    if not df_list:
+        return pd.DataFrame()
+    merged = df_list[0]
+    for df_to_join in df_list[1:]:
+        merged = merged.join(df_to_join, how='inner') 
+    merged.sort_index(inplace=True) 
+    return merged
 
-# 检查一下是否找到了文件
-if not csv_files:
-    print(f"错误：在 '{DATA_DIR}' 文件夹里没有找到任何 .csv 文件。")
-    print("请检查你的路径是否正确。")
-    sys.exit() # 如果没找到文件，就退出程序
+def calculate_log_returns(merged_df): 
+    return np.log(merged_df / merged_df.shift(1)).dropna()
+# -----------------------------------------------------------------
+# (数据加载函数结束)
+# -----------------------------------------------------------------
 
-print(f"找到了 {len(csv_files)} 个 CSV 文件。开始处理 ACF 分析...")
 
-# --- 3. 循环处理每一个文件 ---
-for csv_file_path in csv_files:
-    # 从完整路径里提取出文件名 (比如 '01.csv')
-    file_name = os.path.basename(csv_file_path)
+# --- 1. API 函数 (给 Notebook 调用) ---
+
+def plot_acf_pacf(log_returns_series, asset_name, lags=40):
+    """
+    (供 Notebook 调用)
+    为给定的资产对数收益率绘制 ACF 和 PACF 图，并直接 'show()'。
+    [已升级: 同时绘制 ACF 和 PACF]
+    """
+    if log_returns_series.empty:
+        print(f" 警告: {asset_name} 的收益率数据为空，跳过绘图。")
+        return
+
+    print(f"--- ACF/PACF 分析: {asset_name} ---")
     
-    try:
-        print(f"--- 正在处理: {file_name} ---")
+    # 创建一个 2x1 的子图
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 8))
+    
+    # 绘制 ACF
+    plot_acf(log_returns_series, lags=lags, ax=ax1, title=f'Autocorrelation (ACF) - {asset_name}')
+    ax1.grid(True)
+    
+    # 绘制 PACF
+    plot_pacf(log_returns_series, lags=lags, ax=ax2, title=f'Partial Autocorrelation (PACF) - {asset_name}')
+    ax2.grid(True)
+    
+    plt.tight_layout() # 自动调整子图间距
+    plt.show()
 
-        # 1. [!! 关键修正 !!] 使用 K 线图脚本中标准的数据加载和清洗流程
-        data = pd.read_csv(
-            csv_file_path,
-            parse_dates=['Index'],
-            index_col='Index'
-        )
-        data.columns = data.columns.str.strip().str.strip('"')
-        data.rename(columns={
-            'Open': 'open',
-            'High': 'high',
-            'Low': 'low',
-            'Close': 'close',
-            'Volume': 'volume'
-        }, inplace=True)
+def save_acf_pacf_plot(log_returns_series, asset_name, lags=40, save_path=""):
+    """
+    (供本地运行调用)
+    绘制图表并 'savefig()' 到指定路径。
+    """
+    if log_returns_series.empty:
+        print(f" 警告: {asset_name} 数据为空，跳过保存。")
+        return
 
-        if 'close' not in data.columns:
-            print(f"   [跳过] '{file_name}' 缺少 'close' 列。")
-            continue
+    # 创建一个 2x1 的子图
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 8))
+    
+    # 绘制 ACF
+    plot_acf(log_returns_series, lags=lags, ax=ax1, title=f'Autocorrelation (ACF) - {asset_name}')
+    ax1.grid(True)
+    
+    # 绘制 PACF
+    plot_pacf(log_returns_series, lags=lags, ax=ax2, title=f'Partial Autocorrelation (PACF) - {asset_name}')
+    ax2.grid(True)
+
+    plt.tight_layout()
+    
+    os.makedirs(os.path.dirname(save_path), exist_ok=True)
+    plt.savefig(save_path, bbox_inches='tight')
+    print(f"  图表已保存到: {save_path}")
+    plt.close(fig)
+
+
+# --- 2. 本地运行块 (Standalone Runner) ---
+if __name__ == "__main__":
+    
+    print("--- 正在以独立模式运行 (ACF/PACF Plotter) ---")
+    
+    DATA_PATH = "./DATA/PART1/" 
+    SAVE_DIR = "./EDA/charts/acf/" # 你的原始输出路径
+    LAG_PERIODS = 40 # 默认看 40 期
+    
+    print(f"正在从 '{DATA_PATH}' 加载数据...")
+    merged_prices = load_and_merge_data(DATA_PATH) 
+    log_returns = calculate_log_returns(merged_prices)
+    
+    if not log_returns.empty:
+        print("✅ 数据加载、合并、计算收益率完毕。")
+        print(f"正在为所有资产生成 ACF/PACF 图并保存到 '{SAVE_DIR}'...")
+        
+        for asset_name in log_returns.columns:
+            print(f"  正在处理: {asset_name}")
+            asset_returns_series = log_returns[asset_name].dropna()
             
-        # 2. 计算对数收益率 (Log Returns) [cite: 9, 23]
-        # (使用我们清洗后的 'close' 列)
-        log_returns = np.log(data['close'] / data['close'].shift(1))
-
-        # 去掉第一个 NaN 值
-        log_returns = log_returns.dropna()
-
-        if log_returns.empty:
-            print(f"   [跳过] '{file_name}' 计算收益率后为空。")
-            continue
-
-        # --- 4. 绘图 (ACF Charts) --- [cite: 25]
-        fig, ax = plt.subplots(figsize=(10, 6)) # 创建一个图表
-
-        # 使用 statsmodels 来画 ACF 图
-        # 我们画 20 期的滞后 (lags=20)，这样你可以清楚地看到 Lag 1
-        plot_acf(log_returns, lags=20, ax=ax, title=f'Autocorrelation (ACF) - {file_name}')
-
-        # 5. 保存图表
-        # 把文件名里的 .csv 换成 .png
-        output_filename = file_name.replace('.csv', '_acf.png')
-        output_path = os.path.join(OUTPUT_DIR, output_filename)
-
-        plt.savefig(output_path)
-        print(f"   ACF 图表已保存到: {output_path}")
-        plt.close(fig) # 关闭图表
-
-    except Exception as e:
-        print(f"   [失败] 处理 '{file_name}' 时出错: {e}")
-
-print("--- 所有文件处理完毕！ ---")
+            save_file_path = os.path.join(SAVE_DIR, f"{asset_name}_acf_pacf.png") # 文件名已更新
+            
+            save_acf_pacf_plot(asset_returns_series, asset_name, lags=LAG_PERIODS, save_path=save_file_path)
+            
+        print("--- 本地运行完毕 ---")
+    else:
+        print("未能加载测试数据，请检查 DATA_PATH。")
