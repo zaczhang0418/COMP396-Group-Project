@@ -1,15 +1,20 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import seaborn as sns
+import seaborn as sns 
 import os
 import glob
 from scipy import stats
+import sys # 确保导入 sys
 
 # --- 配置 ---
-CHARTS_BASE_DIR = "charts"
+# [路径修复] 我们的 'charts' 文件夹在 'EDA' 内部
+CHARTS_BASE_DIR = "./EDA/charts" 
 VOLUME_SAVE_DIR = os.path.join(CHARTS_BASE_DIR, "volume_analysis") # 新子文件夹
-DATA_DIR_PATH = "../DATA/PART1/" # 脚本在 EDA/，数据在上一级
+
+# [路径修复] 当从根目录运行时，路径是 './' 而不是 '../'
+DATA_DIR_PATH = "./DATA/PART1/" 
+# ---
 
 # --- 策略参数 ---
 RSI_PERIOD = 14
@@ -20,6 +25,7 @@ FORWARD_RETURN_DAYS = 5
 
 # -------------------------------------------------------------------
 # --- 辅助函数 (自包含) ---
+# (这些函数 100% 正确，无需改动)
 
 def calculate_rsi(series, period=RSI_PERIOD):
     """ (从 plot_rsi_analysis.py 复制而来) """
@@ -28,6 +34,9 @@ def calculate_rsi(series, period=RSI_PERIOD):
     loss = -delta.where(delta < 0, 0)
     avg_gain = gain.ewm(com=period - 1, min_periods=period).mean()
     avg_loss = loss.ewm(com=period - 1, min_periods=period).mean()
+    if avg_loss.all() == 0:
+         # 避免除以零，返回中性值
+        return pd.Series(index=series.index, data=50)
     rs = avg_gain / avg_loss
     rsi = 100 - (100 / (1 + rs))
     return rsi
@@ -36,35 +45,29 @@ def calculate_mfi(high, low, close, volume, period=MFI_PERIOD):
     """
     使用纯 pandas 计算 MFI (资金流指标)。
     """
-    # 1. 典型价格 (Typical Price)
     typical_price = (high + low + close) / 3
-    
-    # 2. 原始资金流 (Raw Money Flow)
     raw_money_flow = typical_price * volume
-    
-    # 3. 资金流方向 (Positive/Negative Money Flow)
     price_change = typical_price.diff(1)
     
     pos_money_flow = raw_money_flow.where(price_change > 0, 0)
     neg_money_flow = raw_money_flow.where(price_change < 0, 0)
     
-    # 4. 14 日资金流
     pos_mf_sum = pos_money_flow.rolling(window=period, min_periods=period).sum()
     neg_mf_sum = neg_money_flow.rolling(window=period, min_periods=period).sum()
     
-    # 5. MFI
-    if neg_mf_sum.all() == 0: # 避免除以零
-        return pd.Series(index=high.index, data=100)
-        
-    money_ratio = pos_mf_sum / neg_mf_sum
+    # [修复] 避免除以零
+    money_ratio = pos_mf_sum / (neg_mf_sum + 1e-9) # 添加一个极小值
     mfi = 100 - (100 / (1 + money_ratio))
     
+    # 将 MFI 限制在 0-100 范围内 (滚动计算可能产生小误差)
+    mfi = mfi.clip(0, 100)
     return mfi
 
 # -------------------------------------------------------------------
 
 def analyze_volume_signal(df, asset_name, save_dir):
     """
+    (此函数 100% 正确，无需改动)
     对 *单个资产* 的 RSI vs RSI+MFI 信号进行对比分析。
     """
     print(f"  Analyzing Volume-Filtered Signals for {asset_name}...")
@@ -145,7 +148,7 @@ def main():
     """
     主执行函数：独立加载数据，循环处理。
     """
-    print("--- 正在运行 Volume 信号分析脚本 (独立版) ---")
+    print("--- 正在运行 Volume 信号分析脚本 (独立版) [Zac 已修复路径] ---")
     
     os.makedirs(VOLUME_SAVE_DIR, exist_ok=True)
     print(f"Charts & stats will be saved to: {VOLUME_SAVE_DIR}")
@@ -156,6 +159,7 @@ def main():
     
     if not files:
         print(f"❌ 错误: 在 '{DATA_DIR_PATH}' 中没有找到 .csv 文件。")
+        print(f"   (绝对路径检查: {os.path.abspath(DATA_DIR_PATH)})")
         return
 
     print(f"Found {len(files)} assets. Processing...")
@@ -164,7 +168,7 @@ def main():
     for f in files:
         asset_name = os.path.basename(f).split('.')[0]
         try:
-            # 3. 复制你 loader 里的清洗逻辑
+            # 3. 复制你 loader 里的清洗逻辑 (这是正确的)
             df = pd.read_csv(
                 f, 
                 parse_dates=['Index'],

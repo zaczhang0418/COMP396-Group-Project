@@ -6,12 +6,11 @@ import os
 import sys
 import glob 
 
-# 导入 ACFPACF 绘图工具
-from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
-
+# --- 优化点 1: 导入 'acf', 'pacf' 和 'adfuller' (来自队友) ---
+from statsmodels.tsa.stattools import acf, pacf, adfuller
 
 # -----------------------------------------------------------------
-# (数据加载函数，从 C 计划复制过来，保持不变)
+# (数据加载函数，使用我们昨天的“最终修复版-老师的逻辑”)
 # -----------------------------------------------------------------
 def load_and_merge_data(data_directory="./DATA/PART1/"):
     csv_files_path = os.path.join(data_directory, "*.csv")
@@ -24,119 +23,225 @@ def load_and_merge_data(data_directory="./DATA/PART1/"):
         asset_name = os.path.basename(f).split('.')[0]
         try:
             data = pd.read_csv(
-                f, parse_dates=['Index'], index_col='Index'
+                f, 
+                parse_dates=['Index'], 
+                index_col=None, # [我们的修复] 不设置 index_col
+                thousands=','   # [我们的修复] 处理逗号
             )
             data.columns = data.columns.str.strip().str.strip('"')
             data.rename(columns={
                 'Open': 'open', 'High': 'high', 'Low': 'low',
-                'Close': 'close', 'Volume': 'volume'
+                'Close': 'close', 'Volume': 'volume',
+                'Index': 'Date' # [我们的修复] 重命名 Index
             }, inplace=True)
+            
             if 'close' in data.columns:
-                df = data[['close']].rename(columns={'close': asset_name})
+                data['close'] = pd.to_numeric(data['close'], errors='coerce')
+                data.dropna(subset=['close'], inplace=True) 
+                
+                df = data[['Date', 'close']].rename(columns={'close': asset_name})
                 dfs[asset_name] = df
-            else:
-                print(f" 警告: {asset_name}.csv 缺少 'close' 列，已跳过。")
+            
         except Exception as e:
             print(f" 警告: 加载 {f} 出错: {e}")
+
     if not dfs:
+        print("❌ 错误: 未能从任何 CSV 文件中加载有效数据。")
         return pd.DataFrame()
+
     df_list = list(dfs.values())
-    if not df_list:
-        return pd.DataFrame()
     merged = df_list[0]
     for df_to_join in df_list[1:]:
-        merged = merged.join(df_to_join, how='inner') 
+        merged = merged.merge(df_to_join, on='Date', how='outer') # [我们的修复] Outer join
+    
+    merged.set_index('Date', inplace=True)
     merged.sort_index(inplace=True) 
     return merged
 
+# --- [!! 关键升级 !!] ---
+# (计算函数，使用 V2 的 'absolute' 版本，以支持队友的 2x2 图表)
 def calculate_log_returns(merged_df): 
-    return np.log(merged_df / merged_df.shift(1)).dropna()
+    log_returns = np.log(merged_df / merged_df.shift(1)).dropna()
+    absolute_log_returns = log_returns.abs().dropna()
+    # 返回两个值
+    return log_returns, absolute_log_returns
 # -----------------------------------------------------------------
 # (数据加载函数结束)
 # -----------------------------------------------------------------
 
 
-# --- 1. API 函数 (给 Notebook 调用) ---
+# --- 优化点 2: V3 核心 - 手动绘图辅助函数 (来自队友) ---
+def _plot_manual_stem(ax, values, confint, title, nlags, ylim):
+    """
+    (V3 辅助函数)
+    使用 matplotlib.stem 手动绘制 ACF/PACF 图，以控制 Y 轴缩放。
+    """
+    lags_range = np.arange(len(values))
+    # 从 (N, 2) 数组中提取置信区间
+    conf_lower = confint[:, 0] - values # acf/pacf 返回的是 (value, [lower, upper])
+    conf_upper = confint[:, 1] - values # 我们需要的是 (value, [value-lower, upper-value])
+    # 修正：statsmodels acf 返回 (acf, confint), confint 已经是 [lower, upper]
+    conf_lower = confint[:, 0]
+    conf_upper = confint[:, 1]
 
-def plot_acf_pacf(log_returns_series, asset_name, lags=40):
-    """
-    (供 Notebook 调用)
-    为给定的资产对数收益率绘制 ACF 和 PACF 图，并直接 'show()'。
-    [已升级: 同时绘制 ACF 和 PACF]
-    """
-    if log_returns_series.empty:
-        print(f" 警告: {asset_name} 的收益率数据为空，跳过绘图。")
-        return
+    (markerline, stemlines, baseline) = ax.stem(
+        lags_range, values, linefmt='-', markerfmt='o', basefmt=' '
+    )
+    plt.setp(markerline, 'color', 'C0')
+    plt.setp(stemlines, 'color', 'C0')
 
-    print(f"--- ACF/PACF 分析: {asset_name} ---")
+    # 绘制置信区间（蓝色阴影区域）
+    ax.fill_between(lags_range, conf_lower, conf_upper, alpha=0.2, color='b', label='95% Conf. Int.')
     
-    # 创建一个 2x1 的子图
-    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 8))
+    # --- 优化点 3: 应用手动缩放 (来自队友) ---
+    ax.set_title(title, fontsize=10)
+    ax.set_ylim(ylim) # !! 关键 !!
     
-    # 绘制 ACF
-    plot_acf(log_returns_series, lags=lags, ax=ax1, title=f'Autocorrelation (ACF) - {asset_name}')
-    ax1.grid(True)
+    # --- 优化点 4: 隐藏 Lag 0 (来自队友) ---
+    ax.set_xlim(0.5, nlags + 0.5) 
     
-    # 绘制 PACF
-    plot_pacf(log_returns_series, lags=lags, ax=ax2, title=f'Partial Autocorrelation (PACF) - {asset_name}')
-    ax2.grid(True)
+    ax.axhline(0, color='k', linestyle='-', linewidth=0.5)
+    ax.grid(True)
     
-    plt.tight_layout() # 自动调整子图间距
-    plt.show()
+    # 修复：手动绘图时，Lag 0 的置信区间是 NaN，会导致 fill_between 失败
+    # 我们在绘图前处理一下
+    conf_lower[0] = 0
+    conf_upper[0] = 0
+    values[0] = 0 # 我们也把 lag 0 的值设为 0，因为我们不关心它
+    # 重新定义 _plot_manual_stem 以处理这个问题
 
-def save_acf_pacf_plot(log_returns_series, asset_name, lags=40, save_path=""):
+def _plot_manual_stem_v2(ax, values, confint, title, nlags, ylim):
     """
-    (供本地运行调用)
-    绘制图表并 'savefig()' 到指定路径。
+    (V3 辅助函数 - 已修复)
+    手动绘制 ACF/PACF 图，并正确处理 Lag 0。
     """
-    if log_returns_series.empty:
+    lags_range = np.arange(len(values))
+    conf_lower = confint[:, 0]
+    conf_upper = confint[:, 1]
+
+    # [修复] Lag 0 的置信区间是 [nan, nan]，我们手动设为 [0, 0]
+    conf_lower[0] = 0
+    conf_upper[0] = 0
+    
+    (markerline, stemlines, baseline) = ax.stem(
+        lags_range, values, linefmt='-', markerfmt='o', basefmt=' '
+    )
+    plt.setp(markerline, 'color', 'C0')
+    plt.setp(stemlines, 'color', 'C0')
+
+    ax.fill_between(lags_range, conf_lower, conf_upper, alpha=0.2, color='b', label='95% Conf. Int.')
+    
+    ax.set_title(title, fontsize=10)
+    ax.set_ylim(ylim) 
+    ax.set_xlim(0.5, nlags + 0.5) # 隐藏 Lag 0
+    ax.axhline(0, color='k', linestyle='-', linewidth=0.5)
+    ax.grid(True)
+
+
+# --- 3. 优化的“保存”函数 (V3 - 来自队友) ---
+def save_acf_pacf_plot_v3(
+    log_returns_series, 
+    absolute_log_returns_series,
+    asset_name, 
+    lags=40, 
+    save_path="",
+    ylim=(-0.3, 0.3) 
+):
+    """
+    (已优化 V3 - A+++ 级别)
+    手动绘制 2x2 四宫格图，并应用 Y 轴缩放。
+    """
+    if log_returns_series.empty or absolute_log_returns_series.empty:
         print(f" 警告: {asset_name} 数据为空，跳过保存。")
         return
 
-    # 创建一个 2x1 的子图
-    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 8))
+    fig, axes = plt.subplots(2, 2, figsize=(16, 10))
+    fig.suptitle(f'Autocorrelation Analysis (Zoomed) - {asset_name}', fontsize=16, y=1.02)
     
-    # 绘制 ACF
-    plot_acf(log_returns_series, lags=lags, ax=ax1, title=f'Autocorrelation (ACF) - {asset_name}')
-    ax1.grid(True)
+    alpha = 0.05 # 95% 置信区间
+    nlags = lags 
+
+    # --- 1. 上-左: ACF (Log Returns) ---
+    acf_vals, acf_conf = acf(log_returns_series, nlags=nlags, alpha=alpha, fft=False) # 使用 fft=False
+    _plot_manual_stem_v2(axes[0, 0], acf_vals, acf_conf, 'ACF (Log Returns)', nlags, ylim)
     
-    # 绘制 PACF
-    plot_pacf(log_returns_series, lags=lags, ax=ax2, title=f'Partial Autocorrelation (PACF) - {asset_name}')
-    ax2.grid(True)
+    # --- 2. 上-右: PACF (Log Returns) ---
+    pacf_vals, pacf_conf = pacf(log_returns_series, nlags=nlags, alpha=alpha, method='ywm')
+    _plot_manual_stem_v2(axes[0, 1], pacf_vals, pacf_conf, 'PACF (Log Returns)', nlags, ylim)
+    
+    # --- 3. 下-左: ACF (Absolute Log Returns) ---
+    abs_acf_vals, abs_acf_conf = acf(absolute_log_returns_series, nlags=nlags, alpha=alpha, fft=False)
+    _plot_manual_stem_v2(axes[1, 0], abs_acf_vals, abs_acf_conf, 'ACF (Absolute Log Returns) - Volatility Proxy', nlags, ylim)
+
+    # --- 4. 下-右: PACF (Absolute Log Returns) ---
+    abs_pacf_vals, abs_pacf_conf = pacf(absolute_log_returns_series, nlags=nlags, alpha=alpha, method='ywm')
+    _plot_manual_stem_v2(axes[1, 1], abs_pacf_vals, abs_pacf_conf, 'PACF (Absolute Log Returns) - Volatility Proxy', nlags, ylim)
 
     plt.tight_layout()
     
     os.makedirs(os.path.dirname(save_path), exist_ok=True)
     plt.savefig(save_path, bbox_inches='tight')
-    print(f"  图表已保存到: {save_path}")
+    print(f"  2x2 (Zoomed) V3 图表已保存到: {save_path}")
     plt.close(fig)
 
 
-# --- 2. 本地运行块 (Standalone Runner) ---
+# --- 4. 本地运行块 (Standalone Runner) ---
 if __name__ == "__main__":
     
-    print("--- 正在以独立模式运行 (ACF/PACF Plotter) ---")
+    print("--- 正在以独立模式运行 (ACF/PACF Plotter) [已优化 V3 - 手动缩放] ---")
     
+    # --- [!! 关键路径修正 !!] ---
+    # 修正为 Zac 的本地路径
     DATA_PATH = "./DATA/PART1/" 
-    SAVE_DIR = "./EDA/charts/acf/" # 你的原始输出路径
-    LAG_PERIODS = 40 # 默认看 40 期
+    SAVE_DIR = "./EDA/charts/acf/" 
+    # --- [修正结束] ---
+    
+    LAG_PERIODS = 40 
+    ZOOMED_YLIM = (-0.3, 0.3) 
     
     print(f"正在从 '{DATA_PATH}' 加载数据...")
     merged_prices = load_and_merge_data(DATA_PATH) 
-    log_returns = calculate_log_returns(merged_prices)
     
-    if not log_returns.empty:
+    if merged_prices.empty:
+        print(f"未能加载数据，请检查 DATA_PATH: {os.path.abspath(DATA_PATH)}")
+    else:
+        # --- [!! 关键升级 !!] ---
+        # 调用我们升级版的 calculate_log_returns
+        log_returns, absolute_log_returns = calculate_log_returns(merged_prices)
+        # --- [升级结束] ---
+        
         print("✅ 数据加载、合并、计算收益率完毕。")
-        print(f"正在为所有资产生成 ACF/PACF 图并保存到 '{SAVE_DIR}'...")
+        print(f"正在为所有资产生成 V3 缩放图表并保存到 '{SAVE_DIR}'...")
         
         for asset_name in log_returns.columns:
             print(f"  正在处理: {asset_name}")
-            asset_returns_series = log_returns[asset_name].dropna()
             
-            save_file_path = os.path.join(SAVE_DIR, f"{asset_name}_acf_pacf.png") # 文件名已更新
+            asset_log_returns = log_returns[asset_name].dropna()
+            asset_abs_log_returns = absolute_log_returns[asset_name].dropna()
             
-            save_acf_pacf_plot(asset_returns_series, asset_name, lags=LAG_PERIODS, save_path=save_file_path)
+            if asset_log_returns.empty:
+                print("    [跳过] 收益率数据为空。")
+                continue
+            
+            # --- [!! 队友的 ADF 检验 !!] ---
+            # 这是非常有价值的论据
+            adf_test_result = adfuller(asset_log_returns)
+            print(f"    ADF Test (Log Returns) p-value: {adf_test_result[1]:.6f}")
+            if adf_test_result[1] < 0.05:
+                print("    >> 论据发现: 数据是平稳的 (p < 0.05)，支持均值回归。")
+            else:
+                print("    >> 论据发现: 数据是非平稳的 (p > 0.05)，支持动量。")
+            # --- [ADF 结束] ---
+            
+            save_file_path = os.path.join(SAVE_DIR, f"{asset_name}_acf_pacf_V3_zoomed.png")
+            
+            save_acf_pacf_plot_v3(
+                asset_log_returns, 
+                asset_abs_log_returns, 
+                asset_name, 
+                lags=LAG_PERIODS, 
+                save_path=save_file_path,
+                ylim=ZOOMED_YLIM
+            )
             
         print("--- 本地运行完毕 ---")
-    else:
-        print("未能加载测试数据，请检查 DATA_PATH。")

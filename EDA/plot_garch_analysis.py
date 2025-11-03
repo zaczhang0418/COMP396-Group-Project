@@ -1,21 +1,35 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import seaborn as sns # 导入 Seaborn
 import os
 import glob
 import sys # 确保导入 sys
-from scipy import stats
+
+# --- [!! 关键依赖 !!] ---
+# 这个脚本需要 'arch' 库。
+# 你必须先在你的 comp396 环境中安装它：
+# pip install arch
+# -------------------------
+try:
+    from arch import arch_model
+    from arch.unitroot import ADF # (可选) 检查平稳性
+except ImportError:
+    print("❌ 致命错误: 'arch' 库未安装。")
+    print("   请在你的 VS Code 终端中运行:")
+    print("   conda activate comp396")
+    print("   pip install arch")
+    sys.exit(1)
+
 
 # --- 配置 ---
 # [路径修复] 修正为 Zac 的本地路径
-SEASONALITY_SAVE_DIR = "./EDA/charts/seasonality/" 
+GARCH_SAVE_DIR = "./EDA/charts/garch/" 
 DATA_DIR_PATH = "./DATA/PART1/" 
 # ---
 
 # -----------------------------------------------------------------
 # (数据加载函数，使用我们昨天的“最终修复版-老师的逻辑”)
-# (这是 'Close-Only' 版本，季节性分析只需要 Close 价格)
+# (这是 'Close-Only' 版本，GARCH 只需要 Close 价格)
 # -----------------------------------------------------------------
 def load_and_merge_data(data_directory="./DATA/PART1/"):
     csv_files_path = os.path.join(data_directory, "*.csv")
@@ -69,81 +83,67 @@ def load_and_merge_data(data_directory="./DATA/PART1/"):
 
 
 # --- (队友的核心分析函数 - 100% 保留) ---
-def plot_seasonality(price_series, asset_name, save_dir):
+def analyze_and_plot_garch(price_series, asset_name, save_dir):
     """
-    对 *单个资产* 的收益率进行“星期几”和“月份”效应分析。
+    对 *单个资产* 的价格序列进行 GARCH 分析并绘图。
     """
-    print(f"  Analyzing Seasonality for {asset_name}...")
+    print(f"  Analyzing GARCH for {asset_name}...")
 
-    # 1. 准备数据：季节性分析应在收益率上进行
-    log_returns = np.log(price_series / price_series.shift(1)).dropna()
+    # 1. 准备数据：GARCH 模型使用收益率，而不是价格
+    # (使用 100 * 对数收益率，这是金融计量的标准做法)
+    returns = 100 * np.log(price_series / price_series.shift(1)).dropna()
 
-    if log_returns.empty:
-        print(f"  Skipping {asset_name}: Not enough data for returns.")
+    if returns.empty:
+        print(f"  Skipping {asset_name}: Not enough data to calculate returns.")
         return
 
-    # 2. 创建一个包含收益率和日历特征的 DataFrame
-    df = pd.DataFrame({'returns': log_returns})
-    
-    # 确保索引是 DatetimeIndex (我们的 loader 已经做了)
-    if not isinstance(df.index, pd.DatetimeIndex):
-        try:
-            df.index = pd.to_datetime(df.index)
-        except Exception as e:
-            print(f"  Skipping {asset_name}: Could not convert index to Datetime. Error: {e}")
-            return
-            
-    df['day_of_week'] = df.index.day_name()
-    df['month'] = df.index.month_name()
-    
-    # 3. 为图表排序
-    week_days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
-    months = ["January", "February", "March", "April", "May", "June", 
-              "July", "August", "September", "October", "November", "December"]
-    
-    # 过滤掉数据中不存在的日期
-    day_order = [day for day in week_days if day in df['day_of_week'].unique()]
-    month_order = [mon for mon in months if mon in df['month'].unique()]
+    # 2. 拟合 GARCH(1,1) 模型 (来自队友)
+    try:
+        # 使用 GARCH(1,1) 和 学生t 分布
+        model = arch_model(returns, vol='Garch', p=1, q=1, dist='t')
+        results = model.fit(update_freq=10, disp='off') # disp='off' 关闭输出
+    except Exception as e:
+        print(f"  ❌ 错误: 拟合 GARCH 失败 {asset_name}: {e}")
+        return
 
-    # 4. 可视化 (一张图包含两个子图)
-    fig, (ax1, ax2) = plt.subplots(nrows=2, ncols=1, figsize=(15, 12))
-    fig.suptitle(f'Seasonality Analysis for {asset_name}', y=1.02, fontsize=16)
-
-    # 子图 1: 周内效应 (Day of Week)
-    sns.boxplot(ax=ax1, data=df, x='day_of_week', y='returns', 
-                order=day_order, palette="pastel")
-    ax1.axhline(0, color='red', linestyle='--', alpha=0.7) # 零收益线
-    ax1.set_title('Day-of-Week Effect')
-    ax1.set_xlabel('Day of the Week')
-    ax1.set_ylabel('Log Returns')
-
-    # 子图 2: 月度效应 (Month of Year)
-    sns.boxplot(ax=ax2, data=df, x='month', y='returns', 
-                order=month_order, palette="Spectral")
-    ax2.axhline(0, color='red', linestyle='--', alpha=0.7) # 零收益线
-    ax2.set_title('Month-of-Year Effect')
-    ax2.set_xlabel('Month')
-    ax2.set_ylabel('Log Returns')
+    # 3. 打印模型摘要 (COMP396 报告的关键论据)
+    print(f"\n--- GARCH(1,1) Summary for {asset_name} ---")
+    print(results.summary())
     
-    plt.tight_layout(rect=[0, 0.03, 1, 0.98]) # 调整布局以适应主标题
+    # 打印关键论据 (Alpha 和 Beta)
+    alpha = results.params['alpha[1]']
+    beta = results.params['beta[1]']
+    persistence = alpha + beta
+    print(f"  GARCH 波动率持续性 (Alpha + Beta): {persistence:.4f}")
+    if persistence > 0.95:
+        print("  ✅ 论据发现: 波动率高度持续 (> 0.95)，适合动态仓位管理。")
+    
+    print("--------------------------------------------------")
+
+    # 4. 可视化 (来自队友)
+    fig = results.plot(annualize='D') # D for daily
+    fig.set_size_inches(12, 8)
+    fig.suptitle(f'GARCH(1,1) Model Diagnostics for {asset_name}', y=1.02)
+    
+    plt.tight_layout()
 
     # 5. 保存图表
     os.makedirs(save_dir, exist_ok=True) # [修复] 确保在函数内创建
-    output_filename = f"seasonality_{asset_name}.png"
+    output_filename = f"garch_diagnostics_{asset_name}.png"
     output_path = os.path.join(save_dir, output_filename)
     
     plt.savefig(output_path)
     print(f"  Chart saved to {output_path}")
-    plt.close(fig)
+    plt.close(fig) # 关闭图表
 
 def main():
     """
     主执行函数：加载数据，循环处理每个资产。
     """
-    print("--- 正在运行 Seasonality 分析脚本 [V2 - Zac 已修复路径] ---")
+    print("--- F 正在运行 GARCH 分析脚本 [V2 - Zac 已修复路径] ---")
     
-    os.makedirs(SEASONALITY_SAVE_DIR, exist_ok=True)
-    print(f"Charts will be saved to: {SEASONALITY_SAVE_DIR}")
+    os.makedirs(GARCH_SAVE_DIR, exist_ok=True)
+    print(f"Charts & summaries will be saved to: {GARCH_SAVE_DIR}")
 
     # --- [!! 关键修复 !!] ---
     # 1. 调用 *内部* 的加载器
@@ -159,18 +159,18 @@ def main():
 
     print(f"✅ Loader success. Loaded merged DataFrame with {len(merged_prices_df.columns)} assets.")
 
-    # 循环遍历 *合并后 DataFrame 的每一列*
+    # 3. 循环遍历 *合并后 DataFrame 的每一列*
     for asset_name in merged_prices_df.columns:
         price_series = merged_prices_df[asset_name].dropna()
         
         if isinstance(price_series, pd.Series) and not price_series.empty:
-            plot_seasonality(price_series, 
-                             asset_name, 
-                             SEASONALITY_SAVE_DIR)
+            analyze_and_plot_garch(price_series, 
+                                   asset_name, 
+                                   GARCH_SAVE_DIR)
         else:
             print(f"Skipping {asset_name}: No valid data.")
             
-    print("--- Seasonality 分析全部完成 ---")
+    print("--- GARCH 分析全部完成 ---")
 
 
 if __name__ == "__main__":
