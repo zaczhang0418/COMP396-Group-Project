@@ -66,7 +66,75 @@ def load_and_merge_data(data_directory="./DATA/PART1/"):
 # -----------------------------------------------------------------
 # (数据加载函数结束)
 # -----------------------------------------------------------------
+# --- [!! 新增的 API 函数 (给 Notebook 调用) !!] ---
+def plot_quantile_analysis_v2(merged_prices_df, factor_lookback_days, forward_return_days, factor_name):
+    """
+    (新增的 V2 API - 供 Notebook 调用)
+    执行分位数分析并“显示”图表。
+    """
+    # [我们从 'perform_quantile_analysis_v2' 复制所有代码]
+    print(f"\n--- 正在运行分位数分析: {factor_name} ---")
+    
+    factor_values = merged_prices_df.pct_change(factor_lookback_days)
+    forward_returns = merged_prices_df.pct_change(forward_return_days).shift(-forward_return_days)
+    
+    factor_long = factor_values.stack().rename('factor')
+    fwd_ret_long = forward_returns.stack().rename('fwd_return')
+    
+    df_long = pd.concat([factor_long, fwd_ret_long], axis=1)
+    df_long.index.names = ['Date', 'Asset'] 
+    df_long.dropna(inplace=True)
+    
+    if df_long.empty:
+        print(f"  ❌ 错误: 在 {factor_name} 计算中没有剩余数据。")
+        return
 
+    df_long['Quantile'] = df_long.groupby(level=0)['factor'].transform(
+        lambda x: pd.qcut(x, N_QUANTILES, labels=False, duplicates='drop') + 1
+    )
+    df_long.dropna(inplace=True)
+    quantile_returns = df_long.groupby('Quantile')['fwd_return'].mean()
+    print(f"\n{factor_name} - 每个分位数的平均 {forward_return_days}日 收益:")
+    print(quantile_returns.to_string(float_format="%.5f")) 
+    
+    daily_quantile_returns = df_long.groupby(['Date', 'Quantile'])['fwd_return'].mean().unstack()
+    mom_ls_portfolio = daily_quantile_returns[N_QUANTILES] - daily_quantile_returns[1]
+    rev_ls_portfolio = daily_quantile_returns[1] - daily_quantile_returns[N_QUANTILES]
+
+    print("\n--- 核心论据 (统计显著性) ---")
+    q1_returns = df_long[df_long['Quantile'] == 1]['fwd_return']
+    qN_returns = df_long[df_long['Quantile'] == N_QUANTILES]['fwd_return']
+    t_stat, p_value = stats.ttest_ind(qN_returns, q1_returns, equal_var=False)
+    print(f"T-检验 (Q{N_QUANTILES} vs Q1): T-stat={t_stat:.3f}, P-value={p_value:.5f}")
+    
+    ann_factor = np.sqrt(252 / forward_return_days) 
+    mom_sharpe = (mom_ls_portfolio.mean() / mom_ls_portfolio.std()) * ann_factor
+    rev_sharpe = (rev_ls_portfolio.mean() / rev_ls_portfolio.std()) * ann_factor
+    print(f"多空组合 (Momentum, Q{N_QUANTILES}-Q1) 年化夏普比率: {mom_sharpe:.4f}")
+    print(f"多空组合 (Reversal, Q1-Q{N_QUANTILES}) 年化夏普比率: {rev_sharpe:.4f}")
+
+    fig, (ax1, ax2) = plt.subplots(nrows=2, ncols=1, figsize=(15, 12))
+    fig.suptitle(f'Cross-Sectional Analysis: {factor_name} ({N_QUANTILES} Quantiles)', y=1.02, fontsize=16)
+
+    quantile_returns.plot(kind='bar', ax=ax1, 
+                          color=plt.cm.coolwarm(np.linspace(0, 1, N_QUANTILES)))
+    ax1.set_title(f'Avg. Forward {forward_return_days}-Day Return per Quantile (p-value={p_value:.4f})')
+    ax1.set_xlabel('Quantile (1 = Lowest Factor, 5 = Highest Factor)')
+    ax1.set_ylabel('Avg. Forward Return')
+    ax1.axhline(0, color='black', linestyle='--')
+
+    mom_ls_portfolio.cumsum().plot(ax=ax2, label=f'Momentum (Q{N_QUANTILES}-Q1) (Sharpe: {mom_sharpe:.3f})', color='blue')
+    rev_ls_portfolio.cumsum().plot(ax=ax2, label=f'Reversal (Q1-Q{N_QUANTILES}) (Sharpe: {rev_sharpe:.3f})', color='green')
+    ax2.set_title('Cumulative Return of Long-Short Portfolios')
+    ax2.set_xlabel('Date')
+    ax2.set_ylabel('Cumulative Return (Non-Compounded)')
+    ax2.legend()
+    ax2.axhline(0, color='black', linestyle='--')
+
+    plt.tight_layout(rect=[0, 0.03, 1, 0.98])
+
+    # --- [!! 核心区别: "显示" !!] ---
+    plt.show()
 
 # --- (核心分析函数，来自队友，已添加 V2 优化) ---
 def perform_quantile_analysis_v2(merged_prices_df, factor_lookback_days, forward_return_days, factor_name):

@@ -77,7 +77,65 @@ def load_and_merge_data(data_directory="./DATA/PART1/"):
 # -----------------------------------------------------------------
 # (数据加载函数结束)
 # -----------------------------------------------------------------
+# --- [!! 新增的 API 函数 (给 Notebook 调用) !!] ---
+def plot_rolling_hurst_v2(price_series, asset_name, window_size):
+    """
+    (新增的 V2 API - 供 Notebook 调用)
+    计算滚动 Hurst，并“显示”双轴图表。
+    """
+    if len(price_series) < window_size:
+        print(f"  Skipping {asset_name}: Data length ({len(price_series)}) is shorter than window ({window_size}).")
+        return
 
+    print(f"  Calculating Rolling Hurst for {asset_name} (window={window_size})...")
+    
+    try:
+        # 1. 计算滚动 H (来自 'hurst' 库)
+        rolling_h = price_series.rolling(window=window_size).apply(
+            lambda x: compute_Hc(x)[0], 
+            raw=True
+        ).dropna()
+        
+        # 2. 为了对齐，我们也截取价格数据
+        log_price = np.log(price_series).loc[rolling_h.index]
+        
+    except Exception as e:
+        print(f"  Error calculating Hurst for {asset_name}: {e}")
+        return
+    
+    if rolling_h.empty:
+        print(f"  Skipping {asset_name}: Hurst calculation returned empty series.")
+        return
+
+    # --- 可视化 (V2 双轴) ---
+    fig, ax1 = plt.subplots(figsize=(15, 7))
+    
+    # Y1 轴 (左): 绘制 Log(Price)
+    color1 = 'tab:blue'
+    ax1.plot(log_price.index, log_price, color=color1, label='Log(Price) (Left Axis)', alpha=0.6)
+    ax1.set_xlabel('Date')
+    ax1.set_ylabel('Log(Price)', color=color1)
+    ax1.tick_params(axis='y', labelcolor=color1)
+    
+    # Y2 轴 (右): 绘制 Hurst
+    ax2 = ax1.twinx()
+    color2 = 'tab:red'
+    ax2.plot(rolling_h.index, rolling_h, color=color2, label=f'Rolling Hurst (w={window_size}) (Right Axis)')
+    
+    # 绘制关键阈值线
+    ax2.axhline(0.5, color='black', linestyle='--', label='H = 0.5 (Random Walk)')
+    ax2.axhline(0.4, color='green', linestyle=':', label='H < 0.5 (Mean-Reverting)')
+    ax2.axhline(0.6, color='purple', linestyle=':', label='H > 0.5 (Trending)')
+    
+    ax2.set_ylabel('Hurst Value (H)', color=color2)
+    ax2.tick_params(axis='y', labelcolor=color2)
+    ax2.set_ylim(0, 1) # Hurst 必须在 0 和 1 之间
+    
+    fig.suptitle(f'Rolling Hurst Exponent vs. Log(Price) for {asset_name}', fontsize=16)
+    fig.legend(loc='upper left', bbox_to_anchor=(0.1, 0.9)) # 整合两个图例
+    
+    # --- [!! 核心区别: "显示" !!] ---
+    plt.show()
 
 # --- [!! 优化 V2: 双轴图表 !!] ---
 

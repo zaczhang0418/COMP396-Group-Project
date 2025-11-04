@@ -137,7 +137,44 @@ def _plot_manual_stem_v2(ax, values, confint, title, nlags, ylim):
     ax.axhline(0, color='k', linestyle='-', linewidth=0.5)
     ax.grid(True)
 
+# --- [!! 新增的 API 函数 (给 Notebook 调用) !!] ---
+def plot_acf_pacf_plot_v3(
+    log_returns_series, 
+    absolute_log_returns_series,
+    asset_name, 
+    lags=40, 
+    ylim=(-0.3, 0.3) 
+):
+    """
+    (新增的 V3 API - 供 Notebook 调用)
+    “显示” 2x2 四宫格图。
+    """
+    # [我们从 'save_acf_pacf_plot_v3' 复制所有绘图代码]
+    if log_returns_series.empty or absolute_log_returns_series.empty:
+        print(f" 警告: {asset_name} 数据为空，跳过绘图。")
+        return
 
+    fig, axes = plt.subplots(2, 2, figsize=(16, 10))
+    fig.suptitle(f'Autocorrelation Analysis (Zoomed) - {asset_name}', fontsize=16, y=1.02)
+    alpha = 0.05 
+    nlags = lags 
+
+    acf_vals, acf_conf = acf(log_returns_series, nlags=nlags, alpha=alpha, fft=False)
+    _plot_manual_stem_v2(axes[0, 0], acf_vals, acf_conf, 'ACF (Log Returns)', nlags, ylim)
+    
+    pacf_vals, pacf_conf = pacf(log_returns_series, nlags=nlags, alpha=alpha, method='ywm')
+    _plot_manual_stem_v2(axes[0, 1], pacf_vals, pacf_conf, 'PACF (Log Returns)', nlags, ylim)
+    
+    abs_acf_vals, abs_acf_conf = acf(absolute_log_returns_series, nlags=nlags, alpha=alpha, fft=False)
+    _plot_manual_stem_v2(axes[1, 0], abs_acf_vals, abs_acf_conf, 'ACF (Absolute Log Returns) - Volatility Proxy', nlags, ylim)
+
+    abs_pacf_vals, abs_pacf_conf = pacf(absolute_log_returns_series, nlags=nlags, alpha=alpha, method='ywm')
+    _plot_manual_stem_v2(axes[1, 1], abs_pacf_vals, abs_pacf_conf, 'PACF (Absolute Log Returns) - Volatility Proxy', nlags, ylim)
+
+    plt.tight_layout()
+    
+    # --- [!! 核心区别: "显示" !!] ---
+    plt.show()
 # --- 3. 优化的“保存”函数 (V3 - 来自队友) ---
 def save_acf_pacf_plot_v3(
     log_returns_series, 

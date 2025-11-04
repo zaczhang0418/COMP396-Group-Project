@@ -80,7 +80,43 @@ def load_and_merge_data(data_directory="./DATA/PART1/"):
 # -----------------------------------------------------------------
 # (数据加载函数结束)
 # -----------------------------------------------------------------
+# --- [!! 新增的 API 函数 (给 Notebook 调用) !!] ---
+def plot_garch_analysis(price_series, asset_name):
+    """
+    (新增的 API - 供 Notebook 调用)
+    对 *单个资产* 进行 GARCH 分析并“显示”图表。
+    """
+    # [我们从 'analyze_and_plot_garch' 复制所有代码]
+    print(f"  Analyzing GARCH for {asset_name}...")
+    returns = 100 * np.log(price_series / price_series.shift(1)).dropna()
+    if returns.empty:
+        print(f"  Skipping {asset_name}: Not enough data to calculate returns.")
+        return
 
+    try:
+        model = arch_model(returns, vol='Garch', p=1, q=1, dist='t')
+        results = model.fit(update_freq=10, disp='off') 
+    except Exception as e:
+        print(f"  ❌ 错误: 拟合 GARCH 失败 {asset_name}: {e}")
+        return
+
+    print(f"\n--- GARCH(1,1) Summary for {asset_name} ---")
+    print(results.summary())
+    alpha = results.params['alpha[1]']
+    beta = results.params['beta[1]']
+    persistence = alpha + beta
+    print(f"  GARCH 波动率持续性 (Alpha + Beta): {persistence:.4f}")
+    if persistence > 0.95:
+        print("  ✅ 论据发现: 波动率高度持续 (> 0.95)，适合动态仓位管理。")
+    print("--------------------------------------------------")
+
+    fig = results.plot(annualize='D') 
+    fig.set_size_inches(12, 8)
+    fig.suptitle(f'GARCH(1,1) Model Diagnostics for {asset_name}', y=1.02)
+    plt.tight_layout()
+
+    # --- [!! 核心区别: "显示" !!] ---
+    plt.show()
 
 # --- (队友的核心分析函数 - 100% 保留) ---
 def analyze_and_plot_garch(price_series, asset_name, save_dir):

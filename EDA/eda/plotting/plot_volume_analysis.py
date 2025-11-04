@@ -64,7 +64,70 @@ def calculate_mfi(high, low, close, volume, period=MFI_PERIOD):
     return mfi
 
 # -------------------------------------------------------------------
+# --- [!! 新增的 API 函数 (给 Notebook 调用) !!] ---
+def plot_volume_signal_analysis(df, asset_name):
+    """
+    (新增的 API - 供 Notebook 调用)
+    对 *单个资产* 的 RSI vs RSI+MFI 信号进行对比分析，并“显示”图表。
+    """
+    # [我们从 'analyze_volume_signal' 复制所有代码]
+    print(f"  Analyzing Volume-Filtered Signals for {asset_name}...")
 
+    df['rsi'] = calculate_rsi(df['close'], period=RSI_PERIOD)
+    df['mfi'] = calculate_mfi(df['high'], df['low'], df['close'], df['volume'], period=MFI_PERIOD)
+    df['fwd_returns'] = df['close'].pct_change(FORWARD_RETURN_DAYS).shift(-FORWARD_RETURN_DAYS)
+    df.dropna(inplace=True)
+    if df.empty:
+        print(f"  Skipping {asset_name}: Not enough data.")
+        return
+
+    signals_rsi_only = df[df['rsi'] < OVERSOLD_THRESHOLD]
+    signals_rsi_and_mfi = df[
+        (df['rsi'] < OVERSOLD_THRESHOLD) & 
+        (df['mfi'] < OVERSOLD_THRESHOLD)
+    ]
+
+    if signals_rsi_only.empty:
+        print(f"  Skipping {asset_name}: No RSI signals found.")
+        return
+    if signals_rsi_and_mfi.empty:
+        print(f"  Skipping {asset_name}: No MFI-confirmed signals found.")
+        return
+
+    print(f"\n--- Volume Filter Analysis for {asset_name} (N={FORWARD_RETURN_DAYS} Days) ---")
+    print(f"  Signal (RSI < {OVERSOLD_THRESHOLD}):")
+    print(f"    Signal Count: {len(signals_rsi_only)}")
+    print(f"    Avg. Fwd Return: {signals_rsi_only['fwd_returns'].mean():.4f}")
+    print(f"\n  Signal (RSI < {OVERSOLD_THRESHOLD} AND MFI < {OVERSOLD_THRESHOLD}):")
+    print(f"    Signal Count: {len(signals_rsi_and_mfi)} (Filtered out {len(signals_rsi_only) - len(signals_rsi_and_mfi)} signals)")
+    print(f"    Avg. Fwd Return: {signals_rsi_and_mfi['fwd_returns'].mean():.4f}")
+
+    t_stat, p_value = stats.ttest_ind(
+        signals_rsi_and_mfi['fwd_returns'], 
+        signals_rsi_only['fwd_returns'], 
+        equal_var=False, 
+        alternative='greater'
+    )
+    print(f"\n  T-test (Filtered > RSI-Only): T-stat={t_stat:.3f}, P-value={p_value:.5f}")
+    if p_value < 0.1:
+        print("  ✅ 结论: MFI 过滤器 *显著* 提升了信号质量。")
+    else:
+        print("  ❌ 结论: MFI 过滤器未显示统计上显著的提升。")
+    print("--------------------------------------------------")
+
+    plt.figure(figsize=(12, 7))
+    sns.histplot(signals_rsi_only['fwd_returns'], kde=True, bins=50, 
+                 color='blue', label=f'RSI-Only (Avg: {signals_rsi_only["fwd_returns"].mean():.4f})', 
+                 stat="density")
+    sns.histplot(signals_rsi_and_mfi['fwd_returns'], kde=True, bins=50, 
+                 color='green', label=f'RSI+MFI (Avg: {signals_rsi_and_mfi["fwd_returns"].mean():.4f})', 
+                 stat="density")
+    plt.title(f'Signal Quality Comparison for {asset_name}')
+    plt.xlabel(f'Forward {FORWARD_RETURN_DAYS}-Day Return')
+    plt.legend()
+    
+    # --- [!! 核心区别: "显示" !!] ---
+    plt.show()
 def analyze_volume_signal(df, asset_name, save_dir):
     """
     (此函数 100% 正确，无需改动)

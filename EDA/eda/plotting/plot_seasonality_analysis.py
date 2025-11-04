@@ -66,7 +66,57 @@ def load_and_merge_data(data_directory="./DATA/PART1/"):
 # -----------------------------------------------------------------
 # (数据加载函数结束)
 # -----------------------------------------------------------------
+# --- [!! 新增的 API 函数 (给 Notebook 调用) !!] ---
+def plot_seasonality_show(price_series, asset_name):
+    """
+    (新增的 API - 供 Notebook 调用)
+    对 *单个资产* 的收益率进行“星期几”和“月份”效应分析，并“显示”图表。
+    """
+    # [我们从 'plot_seasonality' 复制所有代码]
+    print(f"  Analyzing Seasonality for {asset_name}...")
+    log_returns = np.log(price_series / price_series.shift(1)).dropna()
+    if log_returns.empty:
+        print(f"  Skipping {asset_name}: Not enough data for returns.")
+        return
 
+    df = pd.DataFrame({'returns': log_returns})
+    if not isinstance(df.index, pd.DatetimeIndex):
+        try:
+            df.index = pd.to_datetime(df.index)
+        except Exception as e:
+            print(f"  Skipping {asset_name}: Could not convert index to Datetime. Error: {e}")
+            return
+    df['day_of_week'] = df.index.day_name()
+    df['month'] = df.index.month_name()
+    
+    week_days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+    months = ["January", "February", "March", "April", "May", "June", 
+              "July", "August", "September", "October", "November", "December"]
+    
+    day_order = [day for day in week_days if day in df['day_of_week'].unique()]
+    month_order = [mon for mon in months if mon in df['month'].unique()]
+
+    fig, (ax1, ax2) = plt.subplots(nrows=2, ncols=1, figsize=(15, 12))
+    fig.suptitle(f'Seasonality Analysis for {asset_name}', y=1.02, fontsize=16)
+
+    sns.boxplot(ax=ax1, data=df, x='day_of_week', y='returns', 
+                order=day_order, palette="pastel")
+    ax1.axhline(0, color='red', linestyle='--', alpha=0.7)
+    ax1.set_title('Day-of-Week Effect')
+    ax1.set_xlabel('Day of the Week')
+    ax1.set_ylabel('Log Returns')
+
+    sns.boxplot(ax=ax2, data=df, x='month', y='returns', 
+                order=month_order, palette="Spectral")
+    ax2.axhline(0, color='red', linestyle='--', alpha=0.7)
+    ax2.set_title('Month-of-Year Effect')
+    ax2.set_xlabel('Month')
+    ax2.set_ylabel('Log Returns')
+    
+    plt.tight_layout(rect=[0, 0.03, 1, 0.98]) 
+
+    # --- [!! 核心区别: "显示" !!] ---
+    plt.show()
 
 # --- (队友的核心分析函数 - 100% 保留) ---
 def plot_seasonality(price_series, asset_name, save_dir):

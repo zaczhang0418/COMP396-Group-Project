@@ -94,7 +94,67 @@ def calculate_rsi(series, period=RSI_PERIOD):
     return rsi
 # --- [ 队友的 RSI 实现结束 ] ---
 # -------------------------------------------------------------------
+# --- [!! 新增的 API 函数 (给 Notebook 调用) !!] ---
+def plot_rsi_signal_analysis(price_series, asset_name):
+    """
+    (新增的 API - 供 Notebook 调用)
+    对 *单个资产* 的 RSI 信号进行回测和统计分析，并“显示”图表。
+    """
+    # [我们从 'analyze_rsi_signal' 复制所有代码]
+    print(f"  Analyzing RSI({RSI_PERIOD}) < {RSI_OVERSOLD} signal for {asset_name}...")
 
+    df = pd.DataFrame({'Close': price_series})
+    df['rsi'] = calculate_rsi(df['Close'], period=RSI_PERIOD)
+    df['fwd_returns'] = df['Close'].pct_change(FORWARD_RETURN_DAYS).shift(-FORWARD_RETURN_DAYS)
+    df.dropna(inplace=True)
+
+    if df.empty:
+        print(f"  Skipping {asset_name}: Not enough data after calculations.")
+        return
+
+    signals = df[df['rsi'] < RSI_OVERSOLD]
+    all_non_signals = df[df['rsi'] >= RSI_OVERSOLD] 
+
+    if signals.empty:
+        print(f"  Skipping {asset_name}: No RSI < {RSI_OVERSOLD} signals found.")
+        return
+    if all_non_signals.empty:
+        print(f"  Skipping {asset_name}: No non-signal days found for comparison.")
+        return
+
+    print(f"\n--- RSI Signal Analysis for {asset_name} (N={FORWARD_RETURN_DAYS} Days) ---")
+    print(f"Total days analyzed: {len(df)}")
+    print(f"Days with RSI < {RSI_OVERSOLD} signal: {len(signals)}")
+    mean_return_signal = signals['fwd_returns'].mean()
+    mean_return_all = df['fwd_returns'].mean()
+    print(f"  Avg. Forward Return (All Days): {mean_return_all: .4f}")
+    print(f"  Avg. Forward Return (Signal Days): {mean_return_signal: .4f}")
+
+    t_stat, p_value = stats.ttest_ind(signals['fwd_returns'], 
+                                      all_non_signals['fwd_returns'], 
+                                      equal_var=False, 
+                                      alternative='greater') 
+    print(f"  T-statistic (Signal vs Non-Signal): {t_stat: .3f}")
+    print(f"  P-value (Signal > Non-Signal): {p_value: .5f}")
+    if p_value < 0.05:
+        print("  ✅ 结论: 信号在 95% 置信水平上 *显著* 跑赢 (statistically significant)。")
+    else:
+        print("  ❌ 结论: 信号未表现出统计显著性。")
+    print("--------------------------------------------------")
+
+    plt.figure(figsize=(12, 7))
+    sns.histplot(signals['fwd_returns'], kde=True, bins=50, color='green', 
+                 label=f'Forward Returns after RSI < {RSI_OVERSOLD}')
+    plt.axvline(0, color='black', linestyle='--', label='Zero Return')
+    plt.axvline(mean_return_signal, color='red', linestyle='-', 
+                 label=f'Mean Return ({mean_return_signal:.4f})')
+    plt.title(f'Forward {FORWARD_RETURN_DAYS}-Day Return Distribution for {asset_name} (RSI < {RSI_OVERSOLD})')
+    plt.xlabel(f'Forward {FORWARD_RETURN_DAYS}-Day Return')
+    plt.ylabel('Frequency')
+    plt.legend()
+    
+    # --- [!! 核心区别: "显示" !!] ---
+    plt.show()
 
 def analyze_rsi_signal(price_series, asset_name, save_dir):
     """
