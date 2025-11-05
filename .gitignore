@@ -3,6 +3,10 @@
 .DS_Store
 output/
 
-# 您的规则 (来自 commit c681ff8)
+# 您的 Python 缓存规则
 __pycache__/
 *.pyc
+
+# 【【 新增的 V3 规则：永远忽略图表输出 】】
+EDA/charts/
+EDA/charts_by_asset/
