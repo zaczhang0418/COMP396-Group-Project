@@ -1,66 +1,118 @@
-# strategies/template_strategy.py
-"""
-TemplateStrategy
-----------------
-
-This is a skeleton strategy file you can copy and edit for COMP396.
-
-- DO NOT call super().next() — the wrapper already handles COMP396Base logic first.
-- Use overspend_guard before sending market orders.
-- Use place_market and place_limit helpers (they’re injected by the wrapper).
-"""
-
+# ==============================================================
+# strategies/basic_demo.py
+# --------------------------------------------------------------
+# A *minimal* BT396 strategy that:
+#   - Buys 1 unit of the first data series on Day 1.
+#   - Does nothing afterwards.
+#
+# This file is designed to show the structure and typical
+# components of a BT396-compatible strategy.
+#
+# ==============================================================
 import backtrader as bt
 
-class TemplateStrategy(bt.Strategy):
-    """Template Backtrader strategy for COMP396 demonstrating how to use the wrapper’s helpers and guardrails."""
-    # -------------------------------------------------------------------------
-    # Params can be ANYTHING you need for your strategy.
-    # They are accessible inside the class as self.p.<name>.
-    #
-    # Examples:
-    #   ('stake', 10)             -> self.p.stake == 10
-    #   ('use_limits', True)      -> self.p.use_limits == True
-    #   ('limit_offset', 0.01)    -> self.p.limit_offset == 0.01
-    #   ('instrument', 'series_1')-> self.p.instrument == 'series_1'
-    #
-    # The loader will also inject ('_comp396', None) for framework config.
-    # -------------------------------------------------------------------------
-    params = (
-        ('stake', 10),  # number of units to trade
-        ('series_index', 0),  # which data feed to act on (0 = first CSV)
-        ('use_limits', False),
-        ('limit_offset', 0.01),
+
+# --------------------------------------------------------------
+# Every BT396 strategy file must define a class called
+# `TeamStrategy`.  The loader in the framework expects this name.
+# --------------------------------------------------------------
+class TeamStrategy(bt.Strategy):
+    """
+    Very simple "buy-once" example strategy.
+    Demonstrates the structure of a BT396 strategy file.
+    """
+
+    # ----------------------------------------------------------
+    # 1. Parameters section
+    # ----------------------------------------------------------
+    # The `params` dict defines configurable values that can be
+    # passed in via --strategy-args or overridden in YAML.
+    # Every parameter here becomes self.p.<name> inside the code.
+    params = dict(
+        printlog=True,  # if True, show diagnostic output
     )
 
-    def start(self):
-        # Called once at the beginning.
-        # You can set up indicators, variables, etc. here.
-        pass  # do nothing yet
+    # ----------------------------------------------------------
+    # 2. __init__() — called once at the start
+    # ----------------------------------------------------------
+    # Use this for setting up indicators or internal variables.
+    def __init__(self):
+        # Internal flag so we only buy once
+        self._did_buy = False
 
+        # In more complex strategies, this is where you'd create
+        # indicators such as:
+        #   self.sma = bt.indicators.SMA(self.datas[0].close, period=20)
+        #
+        # In this simple demo we don't need any indicators.
+        pass
+
+    # ----------------------------------------------------------
+    # 3. log() — helper for formatted output
+    # ----------------------------------------------------------
+    # Optional but common in all BT396 strategies. It makes
+    # diagnostic printing easier and consistent.
+    def log(self, txt, dt=None):
+        if self.p.printlog:
+            dt = dt or self.datas[0].datetime.date(0)
+            print(f"{dt} {txt}")
+
+    # ----------------------------------------------------------
+    # 4. next() — core trading logic
+    # ----------------------------------------------------------
+    # This method runs once per bar (typically one day).
+    # This is where the strategy decides what to do: buy, sell,
+    # hold, place limit orders, etc.
+    #
+    # In BT396, you should *always* place orders via the safe
+    # wrappers (place_market, place_limit1, place_limit2, etc.)
+    # provided by the COMP396Base class — not by self.buy().
+    #
+    # The framework executes all market orders at the NEXT bar's
+    # open, applying slippage and overspend checks automatically.
     def next(self):
-        # Called once per bar (i.e. per day).
-        # COMP396 rules are already enforced before this runs.
+        d = self.datas[0]  # the first (and only) data feed
 
-        d = self.datas[self.p.series_index]
+        # Check if we've already bought — we only want to buy once
+        if not self._did_buy:
+            size = 1.0  # number of units to buy
 
-        # Example: simple buy once if we have no position
-        if not self.getposition(d):
-            intents = [(d, self.p.stake)]
-            if self.overspend_guard(intents):   # check budget before sending
-                self.place_market(d, self.p.stake)
-            else:
-                self.log("Overspend! No trades today")
+            # Before sending orders, we can use overspend_guard()
+            # to ensure we have enough cash to execute safely.
+            intents = [(d, size)]
+            if not self.overspend_guard(intents):
+                self.log("OVRSPEND: skipping initial buy (not enough cash)")
+                return
 
-        # Example: try limit orders (only 1 buy + 1 sell per series/day allowed)
-        # open_px = float(d.open[0])
-        # self.place_limit(d, +self.p.stake, price=open_px * 0.99)  # buy 1% below open
-        # self.place_limit(d, -self.p.stake, price=open_px * 1.01)  # sell 1% above open
+            # Place a buffered market order.
+            # This will execute at *next bar open* with slippage applied.
+            self.place_market(d, size)
+            self.log(f"Submitting initial BUY for {d._name} size={size:.2f}")
 
+            # Set flag so we don't buy again
+            self._did_buy = True
+
+        else:
+            # After the first buy, we do nothing else.
+            self.log("Holding position; no further action.")
+
+    # ----------------------------------------------------------
+    # 5. notify_order() — optional feedback when orders fill
+    # ----------------------------------------------------------
+    # This function is called automatically whenever the broker
+    # reports a change in order status (Submitted, Completed, etc.)
     def notify_order(self, order):
-        # Called when an order is completed, rejected, or cancelled.
-        # COMP396 slippage is already applied automatically to market orders.
+        d = order.data
+        st = order.getstatusname()
 
-        if order.status in [order.Completed]:
-            action = "BUY" if order.isbuy() else "SELL"
-            self.log(f"{action} executed at {order.executed.price:.2f} for size {order.executed.size}")
+        # Only log completed fills to keep it clean
+        if order.status == order.Completed:
+            side = "BUY" if order.isbuy() else "SELL"
+            self.log(
+                f"[{d._name}] {side} filled "
+                f"@{order.executed.price:.4f} "
+                f"size={order.executed.size:+.2f} "
+                f"value={order.executed.value:.2f}"
+            )
+        elif order.status in (order.Canceled, order.Margin, order.Rejected):
+            self.log(f"[{d._name}] ORDER {st.upper()}")

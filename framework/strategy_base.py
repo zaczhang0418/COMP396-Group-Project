@@ -113,6 +113,38 @@ class COMP396Base:
             # some brokers may not expose get_orders_open; fail-quiet
             pass
 
+    # ---------- Safe wrapper for order_target_size ----------
+
+    def order_target_size(self, data=None, target=None, size=None, **kwargs):
+        """
+        BT396-safe override of Backtrader's order_target_size().
+
+        Adjusts the position on 'data' to reach the desired target size,
+        routing the order through the BT396 buffered market-order system.
+        Accepts either 'target=' or 'size=' keyword for compatibility.
+        """
+        # Resolve argument naming differences
+        if target is None and size is not None:
+            target = size
+        if target is None:
+            self.log("order_target_size() called without a 'target' or 'size' argument — ignoring")
+            return None
+
+        if data is None:
+            data = self.data0  # default to primary data feed
+
+        current = self.getposition(data).size
+        diff = target - current
+        if abs(diff) < 1e-8:
+            return None  # already at target
+
+        intents = [(data, diff)]
+        if self.overspend_guard(intents):
+            return self.place_market(data, diff)
+        else:
+            self.dlog(f"Overspend blocked order_target_size({data._name}, {target})")
+            return None
+
     def _flush_pending_market_orders(self):
         # Build combined intents (ignore entries without size/data)
         intents = [(pm["data"], pm["signed"]) for pm in self._pending_market_orders
@@ -301,10 +333,20 @@ class COMP396Base:
             pos = self.getposition(d)
             if pos.size != 0:
                 self.close(data=d)
-        self._bankrupt = (reason == "bankrupt")
-        self._comp396_state["bankrupt"] = self._bankrupt
-        self.log(f"Forced liquidation ({reason}) at {self.data.datetime.date(0)}")
+
+        # mark bankrupt state
+        is_bankrupt = (reason == "bankrupt")
+        self._bankrupt = is_bankrupt
+        self._comp396_state["bankrupt"] = is_bankrupt
+
+        today = self.data.datetime.date(0)
+        if is_bankrupt:
+            self._comp396_state["bankrupt_date"] = today
+
+        # log the event
+        self.log(f"Forced liquidation ({reason}) at {today}")
         self.dlog("... submitted CLOSE orders for all open positions")
+
         # After sending, let Backtrader execute; we can stop next bar.
         self._stop_after_liquidation = True
 

@@ -99,14 +99,46 @@ def _mk_pandas_feed(df: pd.DataFrame, name: str):
     data._name = name
     return data
 
-def add_10_csv_feeds(cerebro, data_dir: Path):
+def add_10_csv_feeds(cerebro, data_dir: Path, fromdate=None, todate=None):
     csvs = sorted(glob.glob(str(data_dir / "*.csv")))
     if len(csvs) < 10:
         raise ValueError(f"Expected at least 10 CSV files in {data_dir}, found {len(csvs)}.")
     datas = []
+    start_dates = []
+    end_dates = []
+
     for i, fp in enumerate(csvs[:10]):
         df = _read_csv_safely(Path(fp))
-        feed = _mk_pandas_feed(df, name=f"series_{i+1}")
+
+        # Apply date filtering if provided
+        if fromdate or todate:
+            mask = pd.Series(True, index=df.index)
+            if fromdate:
+                mask &= df.index.date >= fromdate
+            if todate:
+                mask &= df.index.date <= todate
+            df = df.loc[mask]
+            if df.empty:
+                raise ValueError(f"{Path(fp).name}: No data in selected date range.")
+        # Record available date range
+        start_dates.append(df.index[0].date())
+        end_dates.append(df.index[-1].date())
+
+        print(f"Loaded {Path(fp).name:<20} | {df.index[0].date()} → {df.index[-1].date()} "
+              f"({len(df)} bars)")
+        feed = _mk_pandas_feed(df, name=f"series_{i + 1}")
         cerebro.adddata(feed)
         datas.append(feed)
+
+    # --- Global overlap range summary ---
+    global_start = max(start_dates)
+    global_end = min(end_dates)
+    print("\n=== Data Range Summary ===")
+    print(f"Earliest CSV start date : {min(start_dates)}")
+    print(f"Latest CSV end date     : {max(end_dates)}")
+    print(f"Common overlap range    : {global_start} → {global_end}")
+    if fromdate or todate:
+        print(f"User-specified filter   : {fromdate or '-∞'} → {todate or '+∞'}")
+    print("===========================\n")
+
     return datas

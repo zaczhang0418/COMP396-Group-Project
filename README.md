@@ -108,7 +108,7 @@ BT396/
 
 ---
 
-## Next Steps for Students
+## Next Steps
 
 - Copy `strategies/template_strategy.py` and start building your own trading ideas.  
 - Always test with:

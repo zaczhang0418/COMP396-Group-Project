@@ -1,30 +1,24 @@
 # strategies/p_random.py
 #
-# Portfolio strategy:
-# - Every day, for each instrument, submit a market order with a random
-#   integer size in [-maxLots, +maxLots].
-# - Ignores available cash; framework may cancel if overspend.
-#
-# Usage (example with 10 feeds):
-#   python run_backtest.py \
-#       --strategy p_random \
-#       --data-glob "DATA/PART1/*.csv" \
-#       --portfolio \
-#       --cash 1000000 \
-#       --commission 0.0
-#
-# Notes:
-# - Slippage (--smult) still applies in results.
-# - This is deliberately chaotic and not capital-aware.
+# Random portfolio stress-test strategy (BT396-safe)
+# -------------------------------------------------
+# - Each day submits one random MARKET order per feed with integer size
+#   in [-maxLots, +maxLots].
+# - Orders go through COMP396Base.place_market() so fills occur at the
+#   next open with framework slippage.
+# - Overspend guard protects against unrealistic leverage.
 
 import backtrader as bt
 import random
 
 
 class TeamStrategy(bt.Strategy):
-    """Portfolio demo strategy that submits random market orders each day across all feeds (for testing the framework)."""
+    """Portfolio demo strategy that submits random market orders each day
+    across all feeds (BT396-safe version)."""
+
     params = dict(
-        maxLots=10,     # maximum absolute size per order
+        maxLots=10,       # maximum absolute order size
+        precheck=True,    # optional overspend guard
         printlog=False,
     )
 
@@ -43,13 +37,28 @@ class TeamStrategy(bt.Strategy):
         if m <= 0:
             return
 
-        for i, d in enumerate(self.datas_list):
-            # Pick random int between -m and +m inclusive
-            qty = random.randint(-m, m)
-            if qty > 0:
-                self.buy(data=d, size=qty)
-            elif qty < 0:
-                self.sell(data=d, size=abs(qty))
+        intents = []  # collect (data, qty) pairs
 
-            if self.p.printlog and qty != 0:
-                self.log(f"[data[{i}]] random market order size={qty:+d}")
+        # --- 1) Build today's random basket ---
+        for i, d in enumerate(self.datas_list):
+            qty = random.randint(-m, m)  # random int in [-m, +m]
+            if qty == 0:
+                continue
+            intents.append((d, float(qty)))
+            if self.p.printlog:
+                self.log(f"[data[{i}]={d._name}] random intent size={qty:+d}")
+
+        if not intents:
+            return  # nothing to do
+
+        # --- 2) Optional pre-trade overspend guard ---
+        if self.p.precheck and not self.overspend_guard(intents):
+            self.log("OVRSPEND: cancelling all random orders for today")
+            return
+
+        # --- 3) Queue safe market orders for next-open fill ---
+        for d, qty in intents:
+            self.place_market(d, qty)
+            if self.p.printlog:
+                side = "BUY" if qty > 0 else "SELL"
+                self.log(f"[ORDER QUEUED] {side} {d._name} size={qty:+.0f}")

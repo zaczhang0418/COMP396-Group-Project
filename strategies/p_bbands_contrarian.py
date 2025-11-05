@@ -1,31 +1,21 @@
 # strategies/p_bbands_contrarian.py
 #
-# Portfolio Bollinger Bands contrarian strategy:
-# - Trades ONLY the series listed in params.series (1-based indices, like the R version).
-# - If Close < lower band → LONG (mean-reversion bet).
-# - If Close > upper band → SHORT.
-# - Else → FLAT (0 target).
-#
-# Target sizes come from params.posSizes (per-series), mirroring the R design.
-# We achieve "marketOrders = -currentPos + pos" using order_target_size per feed.
-#
-#
-# Notes:
-# - Slippage is handled by your framework (via --smult) at the results layer.
-# - series indices are 1-based in params to match the R code.
-# - If posSizes is not provided, defaults to a constant size for selected series.
+# Bollinger Bands contrarian strategy adapted for BT396.
+# All orders go through the COMP396Base safe order layer
+# (overspend guard + buffered next-open execution).
 
 import backtrader as bt
 
-
 class TeamStrategy(bt.Strategy):
-    """Portfolio Bollinger Bands contrarian strategy that targets long below the lower band and short above the upper band on selected series."""
+    """Portfolio Bollinger Bands contrarian strategy that targets long below the lower band
+    and short above the upper band on selected series."""
+
     params = dict(
-        lookback=20,           # n (window length)
-        sdParam=2.0,           # standard deviation multiplier
-        series=None,           # list of 1-based series indices to trade (e.g., [1,3,5,7,9])
-        posSizes=None,         # list of per-series sizes (len == number of data feeds)
-        default_size=1.0,      # fallback size if posSizes is None
+        lookback=20,          # Bollinger lookback window
+        sdParam=2.0,          # standard deviation multiplier
+        series=None,          # 1-based series indices to trade (e.g., [1,3,5,7,9])
+        posSizes=None,        # list of per-series sizes (one per feed)
+        default_size=1.0,     # fallback if posSizes not provided
         printlog=False,
     )
 
@@ -35,18 +25,16 @@ class TeamStrategy(bt.Strategy):
         if nfeeds == 0:
             raise ValueError("No data feeds provided. Use --portfolio with a matching --data-glob.")
 
-        # Convert 1-based series list to 0-based indices; default = all feeds
+        # Convert 1-based indices to 0-based
         if self.p.series is None:
             self.series_idx = list(range(nfeeds))
         else:
-            # Keep only valid indices (1..nfeeds), convert to 0-based
             self.series_idx = [i - 1 for i in self.p.series if 1 <= i <= nfeeds]
             if not self.series_idx:
                 raise ValueError("params.series produced no valid indices for available feeds.")
 
         # Prepare per-feed target sizes
         if self.p.posSizes is None:
-            # default size for selected series; others get 0 target by construction
             self.pos_sizes = [float(self.p.default_size)] * nfeeds
         else:
             if len(self.p.posSizes) != nfeeds:
@@ -55,7 +43,7 @@ class TeamStrategy(bt.Strategy):
                 )
             self.pos_sizes = [float(x) for x in self.p.posSizes]
 
-        # Build Bollinger indicators on Close for all feeds; we’ll consult only for selected series
+        # Build Bollinger indicators for each feed
         self.bbands = []
         for d in self.datas_list:
             bb = bt.indicators.BollingerBands(
@@ -69,36 +57,45 @@ class TeamStrategy(bt.Strategy):
             print(f"{dt.isoformat()} {txt}")
 
     def next(self):
-        # Don’t act until we have enough bars
+        # Wait until enough data for Bollinger bands
         if len(self) <= int(self.p.lookback):
             return
 
-        # For each selected series, set target size based on bands
+        intents = []  # collect (data, target_diff) for overspend_guard
+
+        # First pass: compute desired targets and deltas
         for i in self.series_idx:
             d = self.datas_list[i]
             bb = self.bbands[i]
 
-            # Backtrader Bollinger: lines.top (upper), lines.bot (lower)
             close = float(d.close[0])
             up = float(bb.lines.top[0])
             dn = float(bb.lines.bot[0])
 
+            # contrarian logic
             target = 0.0
             if close < dn:
-                # contrarian long
                 target = +self.pos_sizes[i]
             elif close > up:
-                # contrarian short
                 target = -self.pos_sizes[i]
-            else:
-                # inside bands → flat
-                target = 0.0
 
-            # Reach the target position on this instrument
-            # (order_target_size issues the delta internally)
-            self.order_target_size(data=d, size=target)
+            # current position
+            current = self.getposition(d).size
+            delta = target - current
+            if abs(delta) > 1e-8:  # avoid zero deltas
+                intents.append((d, delta))
 
             if self.p.printlog:
                 self.log(
-                    f"[data[{i}]] close={close:.4f} dn={dn:.4f} up={up:.4f} → target={target:.2f}"
+                    f"[data[{i}]] close={close:.4f} dn={dn:.4f} up={up:.4f} "
+                    f"→ target={target:.2f} (current={current:.2f})"
                 )
+
+        # Run overspend guard for all market intents
+        if intents and not self.overspend_guard(intents):
+            self.log("OVRSPEND: cancelling ALL market orders for today")
+            return
+
+        # Place market orders for each instrument delta
+        for d, delta in intents:
+            self.place_market(d, delta)

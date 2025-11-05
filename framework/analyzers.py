@@ -53,6 +53,10 @@ class OpenOpenPnL(bt.Analyzer):
         # bankrupt flag from strategy
         self._bankrupt = bool(getattr(self.strategy, "_comp396_state", {}).get("bankrupt", False))
 
+        # record bankruptcy date if first detected
+        if self._bankrupt and not hasattr(self, "_bankrupt_date"):
+            self._bankrupt_date = dt  # record the first day bankruptcy occurs
+
     def get_analysis(self):
         return {
             "dates": self._dates,
@@ -61,7 +65,9 @@ class OpenOpenPnL(bt.Analyzer):
             "portfolio_daily": self._portfolio_daily,
             "portfolio_cum": self._portfolio_cum,
             "bankrupt": self._bankrupt,
+            "bankrupt_date": getattr(self, "_bankrupt_date", None),
         }
+
 
 class PDRatio(bt.Analyzer):
     """
@@ -239,3 +245,59 @@ class RealizedPnL(bt.Analyzer):
             "portfolio_cum": self._portfolio_cum,
             "bankrupt": self._bankrupt,
         }
+
+# framework/analyzers.py (append this)
+
+import math
+import backtrader as bt
+
+class TruePortfolioPD(bt.Analyzer):
+
+    # PD ratio based on total broker equity (cash + holdings).
+    # Records the true daily equity curve including slippage and final liquidation.
+
+
+    def start(self):
+        self._values = []   # daily broker.getvalue()
+        self._dates = []
+
+    def next(self):
+        value = float(self.strategy.broker.getvalue())
+        dt = self.strategy.datas[0].datetime.date(0)
+        self._values.append(value)
+        self._dates.append(dt)
+
+    def stop(self):
+        if not self._values:
+            self._res = dict(pd_ratio=None, final=None, maxdd=None)
+            return
+
+        start = self._values[0]
+        cum = [v - start for v in self._values]
+
+        run_max = float("-inf")
+        maxdd = 0.0
+        for v in cum:
+            run_max = max(run_max, v)
+            maxdd = max(maxdd, run_max - v)
+
+        final = cum[-1]
+        pd = (final / maxdd) if (maxdd and not math.isclose(maxdd, 0.0)) else None
+
+        # Get bankruptcy date from strategy state
+        bankrupt_date = getattr(self.strategy, "_comp396_state", {}).get("bankrupt_date", None)
+
+        # Include the date in the result dictionary
+        self._res = dict(
+            pd_ratio=pd,
+            final_equity=self._values[-1],
+            start_equity=start,
+            final_profit=final,
+            max_drawdown=maxdd,
+            dates=self._dates,
+            values=self._values,
+            bankrupt_date=bankrupt_date
+        )
+
+    def get_analysis(self):
+        return self._res

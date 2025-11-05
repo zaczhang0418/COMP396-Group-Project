@@ -1,130 +1,141 @@
 # strategies/simple_limit.py
+#
+# Simple daily limit-quote strategy (BT396-safe)
+# ----------------------------------------------
+# - Cancels previous orders automatically via BT396 wrapper.
+# - Computes daily bid/ask around a chosen center.
+# - Flattens positions if inventory exceeds limits.
+# - Places limit orders through place_limit1()/place_limit2() wrappers.
+# - Optionally rotates which series trades each day.
+
 import backtrader as bt
 from math import isfinite
 
-class SimpleLimit(bt.Strategy):
-    """
-    BT396 market-making strategy (R-port, no look-ahead by default).
 
-    Core:
+class TeamStrategy(bt.Strategy):
+    """
+    BT396 market-making style strategy.
+
+    Each day:
       • spread = spreadPercentage * range_source(High - Low)
-      • BUY limit  at center - 0.5*spread
-      • SELL limit at center + 0.5*spread
-      • If |position| > inventoryLimits -> flatten with MARKET
-      • Place orders once per calendar day (data0 is the global clock)
-      • Framework wrapper injects: place_limit, place_market, overspend_guard
+      • BUY limit  at center − 0.5 * spread
+      • SELL limit at center + 0.5 * spread
+      • If |position| > inventoryLimits → flatten (market)
+      • Acts on all or rotating series.
 
-    Params:
-      size                : units per limit order
-      spreadPercentage    : fraction of (H-L) used for the spread (e.g., 0.30)
-      inventoryLimits     : flatten if |pos| exceeds this
-      center_on           : 'open' (default, no look-ahead) or 'prev_close' (R-ish)
-      range_source        : 'yesterday' (default, no look-ahead) or 'today' (look-ahead on daily bars)
-      series_mode         : 'all' (act on every feed daily) or 'rotate' (one feed per day)
-      rotate_start        : starting index when using 'rotate'
-      log_debug           : print diagnostic lines
+    Framework provides: place_limit1/2, place_market, overspend_guard.
     """
 
-    params = (
-        ('size', 1),
-        ('spreadPercentage', 0.30),
-        ('inventoryLimits', 50),
-        ('center_on', 'open'),          # 'open' (safe) | 'prev_close' (R-ish)
-        ('range_source', 'yesterday'),  # 'yesterday' (safe) | 'today' (look-ahead)
-        ('series_mode', 'all'),         # 'all' | 'rotate'
-        ('rotate_start', 0),
-        ('log_debug', True),
+    params = dict(
+        size=1,
+        spreadPercentage=0.30,
+        inventoryLimits=50,
+        center_on="open",          # 'open' | 'prev_close'
+        range_source="yesterday",  # 'yesterday' | 'today'
+        series_mode="all",         # 'all' | 'rotate'
+        rotate_start=0,
+        log_debug=True,
     )
 
     def __init__(self):
         self._last_clock_date = None
-        self._day_index = 0  # for rotation
+        self._day_index = 0  # for rotation across series
 
     # --- helpers -------------------------------------------------------------
+    def log(self, txt, dt=None):
+        """Conditional diagnostic logging."""
+        if self.p.log_debug:
+            dt = dt or self.datas[0].datetime.date(0)
+            print(f"{dt} {txt}")
+
     def _targets_today(self):
-        """Return the list of data feeds to trade today based on series_mode."""
-        if self.p.series_mode == 'rotate':
+        """Select which feeds to act on today based on mode."""
+        if self.p.series_mode.lower() == "rotate":
             i = (self.p.rotate_start + self._day_index) % len(self.datas)
             return [self.datas[i]]
         return list(self.datas)
 
     def _center_price(self, d):
-        if self.p.center_on.lower() == 'prev_close':
+        if self.p.center_on.lower() == "prev_close":
             if len(d) < 2:
                 return None
             return float(d.close[-1])
-        # default: today's open (known at bar open)
         return float(d.open[0])
 
     def _range_value(self, d):
-        if self.p.range_source.lower() == 'today':
-            # WARNING: on daily bars this is look-ahead. Prefer 'yesterday'.
-            hi = float(d.high[0]); lo = float(d.low[0])
+        if self.p.range_source.lower() == "today":
+            hi, lo = float(d.high[0]), float(d.low[0])
         else:
             if len(d) < 2:
                 return None
-            hi = float(d.high[-1]); lo = float(d.low[-1])
+            hi, lo = float(d.high[-1]), float(d.low[-1])
         rng = hi - lo
         return rng if isfinite(rng) and rng > 0 else None
 
     # --- main loop -----------------------------------------------------------
     def next(self):
-        # Run once per calendar day using data0 as the clock
+        # Run once per calendar day using data0 as clock
         clock_today = self.datas[0].datetime.date(0)
         if self._last_clock_date == clock_today:
             return
         self._last_clock_date = clock_today
         self._day_index += 1
 
-        if self.p.log_debug:
-            self.log(f"SimpleLimit.next() clock={clock_today} mode={self.p.series_mode}")
+        self.log(f"SimpleLimit.next() clock={clock_today} mode={self.p.series_mode}")
 
-        # Ensure the BT396 wrapper injected the helpers
-        if not all(hasattr(self, n) for n in ("place_limit", "place_market", "overspend_guard")):
+        # Verify that wrappers exist
+        required = ("place_limit1", "place_limit2", "place_market", "overspend_guard")
+        if not all(hasattr(self, n) for n in required):
             self.log("FATAL: wrapper not injected; aborting today")
             return
 
-        # Decide which feeds to act on today
         targets = self._targets_today()
 
         for d in targets:
-            # --- 0) Inventory risk control (per series) ---
+            # --- 0) Inventory control ---
             pos = self.getposition(d).size
             if abs(pos) > self.p.inventoryLimits:
-                sz = -pos
-                # only BUY side needs cash guard
-                if sz > 0 and not self.overspend_guard([(d, sz)]):
-                    if self.p.log_debug:
-                        self.log(f"{getattr(d,'_name','series')} OVRSPEND: skip flatten BUY")
+                delta = -pos
+                if delta > 0 and not self.overspend_guard([(d, delta)]):
+                    self.log(f"{getattr(d, '_name', 'series')} OVRSPEND: skip flatten BUY")
                 else:
-                    self.place_market(d, sz)
+                    self.place_market(d, delta)
+                    self.log(f"{getattr(d, '_name', 'series')} flatten delta={delta:+.2f}")
 
-            # --- 1) Compute today's quotes ---
+            # --- 1) Compute today's quote levels ---
             center = self._center_price(d)
             rng = self._range_value(d)
             if center is None or rng is None:
                 continue
 
-            spread = self.p.spreadPercentage * rng
-            buy_px  = round(center - 0.5 * spread, 6)
+            spread = float(self.p.spreadPercentage) * rng
+            buy_px = round(center - 0.5 * spread, 6)
             sell_px = round(center + 0.5 * spread, 6)
 
-            # --- 2) Submit one BUY + one SELL limit (framework enforces per-side/day) ---
-            self.place_limit(d, +abs(self.p.size), price=buy_px)
-            self.place_limit(d, -abs(self.p.size), price=sell_px)
+            # --- 2) Optional overspend check for BUY limit ---
+            if not self.overspend_guard([(d, +abs(self.p.size))]):
+                self.log(f"{getattr(d,'_name','series')} OVRSPEND: skip BUY limit")
+            else:
+                self.place_limit1(d, size=+abs(self.p.size), price=buy_px)
 
-            if self.p.log_debug:
-                lo0 = float(d.low[0]); hi0 = float(d.high[0])
-                self.log(
-                    f"{getattr(d,'_name','series')} "
-                    f"rng={rng:.4f} spread={spread:.4f} center={center:.4f} "
-                    f"buy@{buy_px:.4f} sell@{sell_px:.4f} "
-                    f"lo0={lo0:.4f} hi0={hi0:.4f} "
-                    f"touch: BUY={lo0 <= buy_px} SELL={hi0 >= sell_px}"
-                )
+            # SELL limit (no cash guard needed)
+            self.place_limit2(d, size=-abs(self.p.size), price=sell_px)
 
-    # Optional: nice fill logs
+            # --- 3) Log diagnostics ---
+            lo0 = float(d.low[0])
+            hi0 = float(d.high[0])
+            self.log(
+                f"{getattr(d, '_name', 'series')} rng={rng:.4f} spread={spread:.4f} center={center:.4f} "
+                f"buy@{buy_px:.4f} sell@{sell_px:.4f} "
+                f"lo0={lo0:.4f} hi0={hi0:.4f} "
+                f"touch: BUY={lo0 <= buy_px} SELL={hi0 >= sell_px}"
+            )
+
+    # --- optional fill logging ----------------------------------------------
     def notify_order(self, order):
         if order.status == order.Completed:
             side = "BUY" if order.isbuy() else "SELL"
-            self.log(f"{side} filled @ {order.executed.price:.6f} size {order.executed.size}")
+            self.log(
+                f"{side} filled @{order.executed.price:.6f} "
+                f"size={order.executed.size:+.2f} value={order.executed.value:.2f}"
+            )
