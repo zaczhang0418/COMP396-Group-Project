@@ -1,1 +1,13 @@
+/output/*
+!/output/.gitkeep
+/EDA/charts/
+/EDA/charts_by_asset/
+**/__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.log
+.vscode/
+.idea/
 .DS_Store
+Thumbs.db
