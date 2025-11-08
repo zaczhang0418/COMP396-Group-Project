@@ -1,0 +1,6 @@
+{
+  "p_ema_short": [10, 20, 30],
+  "p_ema_long":  [60, 90, 120],
+  "p_hurst_min_soft": [0.45, 0.50, 0.55],
+  "p_stop_multiplier": [1.5, 2.0, 2.5]
+}
