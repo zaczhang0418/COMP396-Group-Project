@@ -1,12 +1,17 @@
-/output/*
+# === 运行产物 ===
+/output/**
 !/output/.gitkeep
-/EDA/charts/
-/EDA/charts_by_asset/
+
+/EDA/charts/**
+/EDA/charts_by_asset/**
+
+# === Python 缓存 ===
 **/__pycache__/
 *.py[cod]
 *.pyo
 *.pyd
-*.log
+
+# === IDE / 系统文件 ===
 .vscode/
 .idea/
 .DS_Store
