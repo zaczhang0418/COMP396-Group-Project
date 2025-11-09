@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #!/usr/bin/env python3
 # 70% IS 网格（不出图）→ results.csv
 import itertools, json, subprocess, sys, time
@@ -14,7 +15,7 @@ OUT_ROOT = PROJ / "output" / "asset07" / "garch_core4_v1"
 OUT_ROOT.mkdir(parents=True, exist_ok=True)
 CSV_OUT = OUT_ROOT / "results.csv"
 
-STRATEGY  = "gr_asset07_v1"
+STRATEGY  = "garch_asset07_v1"
 DATA_NAME = "series_7"
 ASSET_TAG = "asset07"
 

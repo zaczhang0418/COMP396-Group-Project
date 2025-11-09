@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # MR_Asset10_ZScore_V1.py — Z-Score 均值回归（V1 基线）
 # 结构对齐 TF_Asset01_Hurst_V1：四旋钮 + 目标波动率配仓 + 最小1手补丁 + ATR 止损 + 时间止损
 # 注意：输出层级/目录由你们外层 runner 决定；本策略通过 data_name 保持与输出命名一致。
@@ -230,3 +231,5 @@ class MR_Asset10_ZScore_V1(bt.Strategy):
             dt = self.d.datetime.date(0)
             name = getattr(self.d, "_name", self.p.data_name)
             print(f"[{dt}] {name} | {msg}")
+            
+Strategy = MR_Asset10_ZScore_V1

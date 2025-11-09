@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # scripts/pick_best_and_run_oos.py
 import argparse, json, subprocess, sys
 from pathlib import Path

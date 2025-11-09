@@ -1,41 +1,57 @@
-#读取 configs/splits_asset10.json 与 configs/grids/core4_v1.json，对**前70%**跑网格；每组参数调用 main.py --start/--end；把每次 run_summary.json 解析成一行，汇总到
-#output/asset10/grid_core4_v1/results.csv。
+# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 # scripts/run_core4_grid_refine_mr.py
-# scripts/run_core4_grid_refine_mr.py
+# Run MR grid on IS (first 70%) and aggregate run_summary.json into results.csv
+
 import json, itertools, subprocess, sys, time
 from pathlib import Path
 
-# --- 路径 ---
+try:
+    import yaml  # optional; only needed if grid is YAML
+except Exception:
+    yaml = None
+
 PROJ = Path(__file__).resolve().parents[1]
 MAIN = PROJ / "main.py"
 DATA_DIR = PROJ / "DATA" / "PART1"
 
 SPLITS_PATH = PROJ / "configs" / "splits_asset10.json"
-GRID_PATH   = PROJ / "configs" / "grids" / "core4_v1.json"
+# prefer YAML if present, otherwise fall back to JSON
+GRID_YAML = PROJ / "configs" / "grids" / "mr_core4_v1.yaml"
+GRID_JSON = PROJ / "configs" / "grids" / "core4_v1.json"
+GRID_PATH  = GRID_YAML if GRID_YAML.exists() else GRID_JSON
 
 OUT_ROOT = PROJ / "output" / "asset10" / "grid_core4_v1"
 OUT_ROOT.mkdir(parents=True, exist_ok=True)
 CSV_OUT = OUT_ROOT / "results.csv"
 
-# --- 读取切分 & 网格 ---
+# ---- load splits ----
 SPLITS = json.loads(SPLITS_PATH.read_text(encoding="utf-8"))
-GRID   = json.loads(GRID_PATH.read_text(encoding="utf-8"))
 
-# 四核参数列（与 grids/core4_v1.json 的键一致）
+# ---- load grid (yaml or json) ----
+def load_grid(path: Path):
+    if path.suffix.lower() in (".yml", ".yaml"):
+        if yaml is None:
+            raise SystemExit("PyYAML not installed; install with: pip install pyyaml")
+        return yaml.safe_load(path.read_text(encoding="utf-8"))
+    return json.loads(path.read_text(encoding="utf-8"))
+
+GRID = load_grid(GRID_PATH)
+
+# parameter keys (must match your grid file)
 PARAM_KEYS = ["p_lookback", "p_entry_z", "p_exit_z", "p_stop_mult"]
 
-# 结果列（与 main.py 的 run_summary.json 可拿到的字段一致）
+# metrics we expect in run_summary.json
 HEADER = PARAM_KEYS + ["true_pd_ratio", "open_pnl_pd_ratio", "activity_pct", "final_value", "bankrupt"]
 
 def run_one(params: dict, run_dir: Path):
     run_dir.mkdir(parents=True, exist_ok=True)
 
-    # 组装 --param
-    param_args = ["--param", "data_name=series_10"]
+    # fixed params for MR on asset10; no need to pass via terminal
+    param_args = ["--param", "data_name=asset_10"]
     for k, v in params.items():
         param_args += ["--param", f"{k}={v}"]
 
-    # 调用 main.py（IS 区间），网格跑批关闭绘图以提速
     cmd = [
         sys.executable, str(MAIN),
         "--strategy", "mr_asset10_v1",
@@ -48,26 +64,24 @@ def run_one(params: dict, run_dir: Path):
 
     subprocess.run(cmd, check=True)
 
-    # 解析回测摘要
     summary_path = run_dir / "run_summary.json"
     summary = json.loads(summary_path.read_text(encoding="utf-8"))
 
     metrics = {
-        "true_pd_ratio":   float(summary.get("true_pd_ratio", 0.0)),
-        "open_pnl_pd_ratio": float(summary.get("open_pnl_pd_ratio", 0.0)),
-        "activity_pct":    float(summary.get("activity_pct", 0.0)),
-        "final_value":     float(summary.get("final_value", 0.0)),
-        "bankrupt":        int(bool(summary.get("bankrupt", False)))
+        "true_pd_ratio":       float(summary.get("true_pd_ratio", 0.0)),
+        "open_pnl_pd_ratio":   float(summary.get("open_pnl_pd_ratio", 0.0)),
+        "activity_pct":        float(summary.get("activity_pct", 0.0)),
+        "final_value":         float(summary.get("final_value", 0.0)),
+        "bankrupt":            int(bool(summary.get("bankrupt", False))),
     }
     return metrics
 
 if __name__ == "__main__":
-    # 若已有旧的 results.csv，备份一份，避免覆盖历史
+    # rotate old results
     if CSV_OUT.exists():
         ts = time.strftime("%Y%m%d_%H%M%S")
         CSV_OUT.rename(OUT_ROOT / f"results_{ts}.csv")
 
-    # 写表头
     CSV_OUT.write_text(",".join(HEADER) + "\n", encoding="utf-8")
 
     combos = list(itertools.product(*[GRID[k] for k in PARAM_KEYS]))
@@ -85,4 +99,3 @@ if __name__ == "__main__":
             f.write(",".join(row) + "\n")
 
         print(f"[{i}/{total}] OK -> {run_dir}")
-

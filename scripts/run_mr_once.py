@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #单次回测/复验脚本（OOS & Full）
 #路径： scripts/run_mr_once.py
 #用途：用最佳参数分别跑 OOS 和 Full，并把 main 的输出“搬运”到统一目录结构（meta/params/metrics…）。

@@ -1,10 +1,11 @@
+# -*- coding: utf-8 -*-
 #!/usr/bin/env python3
 # =============================================================================
-# TF(资产01) · 70% IS 网格寻参（不出图，写 results.csv）
+# TF(资产01) · 70% IS 网格寻参（不出图，写 results.csv�?
 # - 固定交易 series_1
-# - 对 run_summary.json 的 None 值做容错（按 0 写入）
-# - 可选跳过“完全不交易”的组合（SKIP_ZERO_ACTIVITY）
-# - 适度放宽 p_min_w_for_1，减少 0 交易
+# - �?run_summary.json �?None 值做容错（按 0 写入�?
+# - 可选跳过“完全不交易”的组合（SKIP_ZERO_ACTIVITY�?
+# - 适度放宽 p_min_w_for_1，减�?0 交易
 # =============================================================================
 
 import itertools
@@ -27,7 +28,7 @@ OUT_ROOT.mkdir(parents=True, exist_ok=True)
 CSV_OUT = OUT_ROOT / "results.csv"
 
 # ------------------------------- 常量参数 -------------------------------
-STRATEGY  = "tr_asset01_v1"
+STRATEGY  = "tf_asset01_v1"
 DATA_NAME = "series_1"
 ASSET_TAG = "asset01"
 
@@ -37,7 +38,7 @@ HEADER = ["run_dir"] + PARAM_KEYS + ["true_pd_ratio", "open_pnl_pd_ratio", "acti
 # 若完全不交易是否跳过该组合（默认保留，方便观察）
 SKIP_ZERO_ACTIVITY = False
 
-# 降低“0 交易”概率的最低建仓权重门槛（仅作为 CLI 默认，不入网格）
+# 降低�? 交易”概率的最低建仓权重门槛（仅作�?CLI 默认，不入网格）
 DEFAULT_P_MIN_W_FOR_1 = 0.03
 
 # ------------------------------- 工具函数 -------------------------------
@@ -60,7 +61,7 @@ def write_meta(run_dir: Path, params: dict, splits: dict):
     }
     (run_dir / "meta.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")
 
-# ------------------------------- 单组合执行 -------------------------------
+# ------------------------------- 单组合执�?-------------------------------
 def run_one(params: dict, run_dir: Path) -> dict:
     run_dir.mkdir(parents=True, exist_ok=True)
 
@@ -85,7 +86,7 @@ def run_one(params: dict, run_dir: Path) -> dict:
 
     subprocess.run(cmd, check=True)
 
-    # 读回 summary，容错写数
+    # 读回 summary，容错写�?
     summary_path = run_dir / "run_summary.json"
     summary = json.loads(summary_path.read_text(encoding="utf-8")) if summary_path.exists() else {}
 
@@ -100,9 +101,9 @@ def run_one(params: dict, run_dir: Path) -> dict:
     write_meta(run_dir, params, SPLITS)
     return metrics
 
-# ------------------------------- 主流程 -------------------------------
+# ------------------------------- 主流�?-------------------------------
 if __name__ == "__main__":
-    # 备份旧 results.csv
+    # 备份�?results.csv
     if CSV_OUT.exists():
         CSV_OUT.rename(OUT_ROOT / f"results_{time.strftime('%Y%m%d_%H%M%S')}.csv")
     CSV_OUT.write_text(",".join(HEADER) + "\n", encoding="utf-8")
@@ -125,7 +126,7 @@ if __name__ == "__main__":
         try:
             m = run_one(params, run_dir)
         except subprocess.CalledProcessError as e:
-            # main.py 运行失败：记 0 并继续
+            # main.py 运行失败：记 0 并继�?
             m = {"true_pd_ratio": 0.0, "open_pnl_pd_ratio": 0.0, "activity_pct": 0.0,
                  "final_value": 0.0, "bankrupt": 0}
             print(f"[{i}/{total}] FAIL -> {run_dir}  (subprocess error: {e})")

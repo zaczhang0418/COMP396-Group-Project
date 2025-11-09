@@ -1,4 +1,5 @@
-# strategies/tr_asset01_v1.py
+# -*- coding: utf-8 -*-
+# strategies/tf_asset01_v1.py
 import backtrader as bt
 import numpy as np
 
@@ -34,13 +35,13 @@ class RollingHurst(bt.Indicator):
 
 class TF_Asset01_Hurst_V1(bt.Strategy):
     params = dict(
-        # ——四核（网格会调这四个）——
+        # ——四核（网格会调这四个）—�?
         p_ema_short=12,
         p_ema_long=90,
         p_hurst_min_soft=0.54,
         p_stop_multiplier=2.0,
 
-        # ——其余默认参数（不进网格，但可 CLI 覆盖）——
+        # ——其余默认参数（不进网格，但�?CLI 覆盖）—�?
         p_hurst_period=252, p_hurst_power=1.0, p_hurst_ema=10,
         p_atr_period=14, p_target_vol_ann=0.18, p_pos_cap=1.0,
         p_circuit_breaker_window=252, p_circuit_breaker_pct=0.9999,
@@ -146,4 +147,4 @@ class TF_Asset01_Hurst_V1(bt.Strategy):
             if self._sl_order and order.ref == self._sl_order.ref: self._sl_order = None
             if self._main_order and order.ref == self._main_order.ref: self._main_order = None
 
-Strategy = TF_Asset01_Hurst_V1  # 供框架加载
+Strategy = TF_Asset01_Hurst_V1  # 供框架加�?
