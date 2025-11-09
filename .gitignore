@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /output/*
 !/output/.gitkeep
 /EDA/charts/
@@ -9,5 +10,20 @@
 *.log
 .vscode/
 .idea/
+=======
+# 运行产物
+/output/*
+!/output/.gitkeep
+
+# Python缓存
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.py[cod]
+
+# 临时与系统文件
+*.log
+>>>>>>> origin/mr_asset10_v1
 .DS_Store
 Thumbs.db
