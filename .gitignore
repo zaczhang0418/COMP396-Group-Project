@@ -1,13 +1,53 @@
-/output/*
-!/output/.gitkeep
-/EDA/charts/
-/EDA/charts_by_asset/
-**/__pycache__/
+# ---- Python 通用 ----
+__pycache__/
 *.py[cod]
-*.pyo
-*.pyd
-*.log
+*$py.class
+
+# C 扩展
+*.so
+
+# 构建/打包
+build/
+dist/
+.eggs/
+*.egg-info/
+*.egg
+pip-wheel-metadata/
+
+# 虚拟环境
+.env
+.venv
+env/
+venv/
+ENV/
+*.env
+
+# 测试/类型/质量
+.coverage*
+.pytest_cache/
+.tox/
+.mypy_cache/
+.pyre/
+.ruff_cache/
+.cache/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# IDE/编辑器
 .vscode/
 .idea/
+
+# OS
 .DS_Store
 Thumbs.db
+
+# ---- 项目特定输出 ----
+output/
+EDA/charts/
+EDA/charts_by_asset/
+
+# 日志/临时
+logs/
+*.log
+tmp/

@@ -1,0 +1,12 @@
+# 仅把“四核”以外的参数集中这里（供 main 读取为默认）
+# 四核：p_lookback / p_entry_z / p_exit_z / p_stop_mult —— 由脚本传入，不在这里覆盖
+data_name: "10"                # 你的数据就是 DATA/PART1/10.csv
+p_max_hold_days: 5
+p_atr_period: 14
+p_atr_pctl_window: 60
+p_atr_pctl_enter: 0.90
+p_target_vol_ann: 0.18
+p_pos_cap: 1.0
+p_w_z_cap: 3.0
+p_w_power: 1.0
+p_min_w_for_1: 0.12
