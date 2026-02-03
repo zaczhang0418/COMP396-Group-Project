@@ -23,7 +23,7 @@ except ImportError:
 
 # --- 配置 ---
 # [路径修复] 修正为 Zac 的本地路径
-GARCH_SAVE_DIR = "./EDA/charts/garch/" 
+GARCH_SAVE_DIR = "./EDA/output/charts/garch/" 
 DATA_DIR_PATH = "./DATA/PART1/" 
 # ---
 
@@ -176,18 +176,21 @@ def main():
     """
     主执行函数：加载数据，循环处理每个资产。
     """
-    print("--- F 正在运行 GARCH 分析脚本 [V2 - Zac 已修复路径] ---")
-    
-    os.makedirs(GARCH_SAVE_DIR, exist_ok=True)
-    print(f"Charts & summaries will be saved to: {GARCH_SAVE_DIR}")
+    dataset_name = "PART1"
+    if len(sys.argv) > 1:
+        dataset_name = sys.argv[1]
 
-    # --- [!! 关键修复 !!] ---
-    # 1. 调用 *内部* 的加载器
-    # 2. 使用我们 100% 正确的 DATA_DIR_PATH
-    print(f"Calling internal load_and_merge_data(data_directory='{DATA_DIR_PATH}')...")
+    local_data_dir = f"./DATA/{dataset_name}/"
+    local_save_dir = f"./EDA/output/{dataset_name}/charts/garch/"
+
+    print(f"--- F 正在运行 GARCH 分析脚本 [Dataset: {dataset_name}] ---")
     
-    merged_prices_df = load_and_merge_data(DATA_DIR_PATH)
-    # --- [修复结束] ---
+    os.makedirs(local_save_dir, exist_ok=True)
+    print(f"Charts & summaries will be saved to: {local_save_dir}")
+
+    print(f"Calling internal load_and_merge_data(data_directory='{local_data_dir}')...")
+    
+    merged_prices_df = load_and_merge_data(local_data_dir)
 
     if merged_prices_df.empty:
         print("Error: Loader returned an empty DataFrame.")
@@ -202,7 +205,7 @@ def main():
         if isinstance(price_series, pd.Series) and not price_series.empty:
             analyze_and_plot_garch(price_series, 
                                    asset_name, 
-                                   GARCH_SAVE_DIR)
+                                   local_save_dir)
         else:
             print(f"Skipping {asset_name}: No valid data.")
             

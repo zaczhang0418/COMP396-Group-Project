@@ -9,7 +9,7 @@ import sys # 确保导入 sys
 
 # --- 配置 ---
 # [路径修复] 我们的 'charts' 文件夹在 'EDA' 内部
-CHARTS_BASE_DIR = "./EDA/charts" 
+CHARTS_BASE_DIR = "./EDA/output/charts" 
 VOLUME_SAVE_DIR = os.path.join(CHARTS_BASE_DIR, "volume_analysis") # 新子文件夹
 
 # [路径修复] 当从根目录运行时，路径是 './' 而不是 '../'
@@ -211,18 +211,25 @@ def main():
     """
     主执行函数：独立加载数据，循环处理。
     """
-    print("--- 正在运行 Volume 信号分析脚本 (独立版) [Zac 已修复路径] ---")
+    dataset_name = "PART1"
+    if len(sys.argv) > 1:
+        dataset_name = sys.argv[1]
+
+    local_data_dir = f"./DATA/{dataset_name}/"
+    local_save_dir = f"./EDA/output/{dataset_name}/charts/volume_analysis/"
+
+    print(f"--- 正在运行 Volume 信号分析脚本 [Dataset: {dataset_name}] ---")
     
-    os.makedirs(VOLUME_SAVE_DIR, exist_ok=True)
-    print(f"Charts & stats will be saved to: {VOLUME_SAVE_DIR}")
+    os.makedirs(local_save_dir, exist_ok=True)
+    print(f"Charts & stats will be saved to: {local_save_dir}")
 
     # 1. 独立查找所有 CSV 文件
-    csv_files_path = os.path.join(DATA_DIR_PATH, "*.csv")
+    csv_files_path = os.path.join(local_data_dir, "*.csv")
     files = glob.glob(csv_files_path)
     
     if not files:
-        print(f"❌ 错误: 在 '{DATA_DIR_PATH}' 中没有找到 .csv 文件。")
-        print(f"   (绝对路径检查: {os.path.abspath(DATA_DIR_PATH)})")
+        print(f"❌ 错误: 在 '{local_data_dir}' 中没有找到 .csv 文件。")
+        print(f"   (绝对路径检查: {os.path.abspath(local_data_dir)})")
         return
 
     print(f"Found {len(files)} assets. Processing...")
@@ -261,7 +268,7 @@ def main():
                 continue
             
             # 4. 传入 *完整的* DataFrame 进行分析
-            analyze_volume_signal(df, asset_name, VOLUME_SAVE_DIR)
+            analyze_volume_signal(df, asset_name, local_save_dir)
             
         except Exception as e:
             print(f" 警告: 处理 {asset_name} 出错: {e}")

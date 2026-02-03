@@ -1,7 +1,8 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import seaborn as sns # 导入
+import seaborn as sns
+from scipy.stats import norm
 import os
 import sys
 import glob 
@@ -70,83 +71,91 @@ def calculate_log_returns(merged_df):
 
 # --- 1. API 函数 (给 Notebook 调用) ---
 # (这是队友的优化版绘图函数 - 我们保留它)
-def plot_correlation_heatmap(log_returns_df):
-    if log_returns_df.empty:
-        print(f" 警告: 收益率数据为空，跳过绘图。")
+def plot_histogram(log_returns_series, asset_name, bins="fd"): # 默认 'fd'
+    if log_returns_series.empty:
+        print(f" 警告: {asset_name} 的收益率数据为空，跳过绘图。")
         return
-
-    correlation_matrix = log_returns_df.corr()
     
-    # 优化: 增加图表尺寸 (来自队友)
-    plt.figure(figsize=(12, 10)) 
-    sns.heatmap(
-        correlation_matrix, 
-        annot=True,       
-        cmap='coolwarm',  
-        fmt=".2f",        
-        linewidths=.5,
-        linecolor='black',
-        annot_kws={"size": 8}, # 优化: 减小注解字体大小 (来自队友)
-        vmin=-1, vmax=1 # 确保颜色条是 -1 到 1
-    )
-    plt.title('Cross-Asset Log Returns Correlation Heatmap (Optimized)')
+    skewness = log_returns_series.skew()
+    kurtosis = log_returns_series.kurtosis() 
+    mu = log_returns_series.mean()
+    std = log_returns_series.std()
+    
+    plt.figure(figsize=(12, 7))
+    ax = plt.gca() # 获取当前 axes
+    
+    sns.histplot(log_returns_series, bins=bins, stat="density", label='Log Returns Histogram', alpha=0.7, kde=False, ax=ax)
+    
+    x = np.linspace(mu - 4*std, mu + 4*std, 100)
+    y = norm.pdf(x, mu, std)
+    ax.plot(x, y, linewidth=2, color='r', linestyle='--', label='Normal Distribution')
+    
+    ax.axvline(mu, color='darkorange', linestyle='-', linewidth=2, label=f'Mean: {mu:.5f}')
+    
+    q_low = log_returns_series.quantile(0.005)
+    q_high = log_returns_series.quantile(0.995)
+    ax.set_xlim(q_low, q_high)
+
+    title_kurtosis = 3 + kurtosis 
+    ax.set_title(f'Log Returns Distribution - {asset_name}\nSkew: {skewness:.4f}, Kurtosis (W5 Standard): {title_kurtosis:.4f}')
+    ax.set_xlabel('Log Returns (Zoomed to 99% data)') 
+    ax.set_ylabel('Density')
+    ax.legend()
+    ax.grid(True, linestyle=':', alpha=0.6) 
     plt.show()
 
 # --- 2. 优化的“保存”函数 (来自队友) ---
-def save_correlation_heatmap(log_returns_df, save_path=""):
-    if log_returns_df.empty:
-        print(f" 警告: 收益率数据为空，跳过保存。")
+def save_histogram_plot(log_returns_series, asset_name, bins="fd", save_path=""):
+    """
+    (已优化 - 来自队友)
+    """
+    if log_returns_series.empty:
+        print(f" 警告: {asset_name} 数据为空，跳过保存。")
         return
-        
-    correlation_matrix = log_returns_df.corr()
     
-    # --- 优化点: 打印核心统计数据 (来自队友) ---
-    # (这对于报告论据非常宝贵)
-    corr_for_stats = correlation_matrix.copy() # 复制一个用于计算
-    np.fill_diagonal(corr_for_stats.values, np.nan) 
-    mean_corr = corr_for_stats.stack().mean()
-    max_corr = corr_for_stats.stack().max()
-    min_corr = corr_for_stats.stack().min()
+    skewness = log_returns_series.skew()
+    kurtosis = log_returns_series.kurtosis()
+    mu = log_returns_series.mean()
+    std = log_returns_series.std()
     
-    print("\n--- 报告核心统计数据 ---")
-    print(f" 平均相关性 (Mean Correlation): {mean_corr:.4f}")
-    print(f" 最大正相关性 (Max Positive Correlation): {max_corr:.4f}")
-    print(f" 最小负相关性 (Min Negative Correlation): {min_corr:.4f}")
-    print("\n--- 完整相关性矩阵 (用于复制) ---")
-    print(correlation_matrix.to_string(float_format="%.4f")) # 打印更整齐
+    fig, ax = plt.subplots(figsize=(12, 7))
     
-    # 优化: 增加图表尺寸 (来自队友)
-    fig, ax = plt.subplots(figsize=(12, 10))
+    sns.histplot(log_returns_series, bins=bins, stat="density", label='Log Returns Histogram', alpha=0.7, kde=False, ax=ax)
+
+    x = np.linspace(mu - 4*std, mu + 4*std, 100)
+    y = norm.pdf(x, mu, std)
+    ax.plot(x, y, linewidth=2, color='r', linestyle='--', label='Normal Distribution')
     
-    sns.heatmap(
-        correlation_matrix, 
-        annot=True, 
-        cmap='coolwarm', 
-        fmt=".2f", 
-        linewidths=.5,
-        linecolor='black',
-        annot_kws={"size": 8}, # 优化: 减小注解字体大小 (来自队友)
-        vmin=-1, vmax=1,
-        ax=ax 
-    )
-    ax.set_title('Cross-Asset Log Returns Correlation Heatmap (Optimized)')
+    ax.axvline(mu, color='darkorange', linestyle='-', linewidth=2, label=f'Mean: {mu:.5f}')
+    
+    q_low = log_returns_series.quantile(0.005)
+    q_high = log_returns_series.quantile(0.995)
+    ax.set_xlim(q_low, q_high)
+
+    title_kurtosis = 3 + kurtosis
+    ax.set_title(f'Log Returns Distribution - {asset_name}\nSkew: {skewness:.4f}, Kurtosis (W5 Standard): {title_kurtosis:.4f}')
+    ax.set_xlabel('Log Returns (Zoomed to 99% data)')
+    ax.set_ylabel('Density')
+    ax.legend()
+    ax.grid(True, linestyle=':', alpha=0.6)
     
     os.makedirs(os.path.dirname(save_path), exist_ok=True)
     plt.savefig(save_path, bbox_inches='tight')
     print(f"  图表已保存到: {save_path}")
     plt.close(fig)
 
-    
+
 # --- 3. 本地运行块 (Standalone Runner) ---
 if __name__ == "__main__":
     
-    print("--- 正在以独立模式运行 (Correlation Heatmap Plotter) [已优化 V2 - 团队版] ---")
+    dataset_name = "PART1"
+    if len(sys.argv) > 1:
+        dataset_name = sys.argv[1]
+
+    print(f"--- 正在以独立模式运行 (Histogram Plotter) [Dataset: {dataset_name}] ---")
     
-    # --- [!! 路径确认 !!] ---
-    # (这些路径对 Zac 的本地环境是正确的)
-    DATA_PATH = "./DATA/PART1/" 
-    SAVE_FILE = "./EDA/charts/correlation_heatmap.png" 
-    # --- [确认结束] ---
+    DATA_PATH = f"./DATA/{dataset_name}/" 
+    SAVE_DIR = f"./EDA/output/{dataset_name}/charts/histograms/" 
     
     print(f"正在从 '{DATA_PATH}' 加载数据...")
     merged_prices = load_and_merge_data(DATA_PATH) 
@@ -156,13 +165,19 @@ if __name__ == "__main__":
     else:
         # --- [!! 关键一致性 !!] ---
         # 我们必须调用返回 *两个* 值的版本
-        # 我们用 '_' 来忽略我们不需要的 'absolute_log_returns'
-        log_returns, _ = calculate_log_returns(merged_prices) 
+        log_returns, absolute_log_returns = calculate_log_returns(merged_prices)
         # --- [修正结束] ---
         
         print("✅ 数据加载、合并、计算收益率完毕。")
-        print(f"正在生成[优化版]相关性热力图并保存到 '{SAVE_FILE}'...")
+        print(f"正在为所有资产生成[优化版]直方图并保存到 '{SAVE_DIR}'...")
         
-        save_correlation_heatmap(log_returns, save_path=SAVE_FILE)
+        for asset_name in log_returns.columns:
+            print(f"  正在处理: {asset_name}")
+            asset_returns_series = log_returns[asset_name].dropna()
+            
+            save_file_path = os.path.join(SAVE_DIR, f"{asset_name}_histogram_V2_zoomed.png")
+            
+            # 调用优化的函数
+            save_histogram_plot(asset_returns_series, asset_name, bins="fd", save_path=save_file_path)
             
         print("--- 本地运行完毕 ---")

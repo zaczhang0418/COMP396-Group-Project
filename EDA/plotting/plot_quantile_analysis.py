@@ -8,7 +8,7 @@ from scipy import stats
 
 # --- 配置 ---
 # [路径修复] 修正为 Zac 的本地路径
-QUANTILE_SAVE_DIR = "./EDA/charts/quantile_analysis/" 
+QUANTILE_SAVE_DIR = "./EDA/output/charts/quantile_analysis/" 
 DATA_DIR_PATH = "./DATA/PART1/" 
 N_QUANTILES = 5 # 将资产分为 5 组
 # ---
@@ -237,15 +237,22 @@ def main():
     """
     主执行函数：加载数据，运行两种因子分析。
     """
-    print("--- 正在运行分位数 (Quantile) 分析脚本 [V2 优化版] ---")
+    dataset_name = "PART1"
+    if len(sys.argv) > 1:
+        dataset_name = sys.argv[1]
+
+    local_data_dir = f"./DATA/{dataset_name}/"
+    # 注意：这里我们修改全局变量，因为 perform_quantile_analysis_v2 使用了它
+    global QUANTILE_SAVE_DIR
+    QUANTILE_SAVE_DIR = f"./EDA/output/{dataset_name}/charts/quantile_analysis/"
+
+    print(f"--- 正在运行分位数 (Quantile) 分析脚本 [Dataset: {dataset_name}] ---")
     
-    os.makedirs(QUANTILE_SAVE_DIR, exist_ok=True)
     print(f"Charts will be saved to: {QUANTILE_SAVE_DIR}")
 
-    # 1. 加载数据 (使用我们自包含的 'Close-Only' 加载器)
-    print(f"Calling internal load_and_merge_data(data_directory='{DATA_DIR_PATH}')...")
+    print(f"Calling internal load_and_merge_data(data_directory='{local_data_dir}')...")
     
-    merged_prices_df = load_and_merge_data(DATA_DIR_PATH)
+    merged_prices_df = load_and_merge_data(local_data_dir)
 
     if merged_prices_df.empty:
         print("Error: Loader returned an empty DataFrame.")

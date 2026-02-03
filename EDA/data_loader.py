@@ -100,11 +100,15 @@ def save_normalized_prices_plot(merged_df, save_path):
 
 # --- 2. 本地运行块 (Standalone Runner) ---
 if __name__ == "__main__":
+    import sys
+    dataset_name = "PART1"
+    if len(sys.argv) > 1:
+        dataset_name = sys.argv[1]
     
-    print("--- 正在以独立模式运行 (Data Loader) [最终版 - 老师的逻辑] ---")
+    print(f"--- 正在以独立模式运行 (Data Loader) [Dataset: {dataset_name}] ---")
     
-    DATA_PATH = "./DATA/PART1/" 
-    SAVE_PATH = "./EDA/charts/00_normalized_prices.png" 
+    DATA_PATH = f"./DATA/{dataset_name}/" 
+    SAVE_PATH = f"./EDA/output/{dataset_name}/charts/00_normalized_prices.png" 
     
     print(f"正在从 '{DATA_PATH}' 加载数据...")
     merged_prices = load_and_merge_data(DATA_PATH)

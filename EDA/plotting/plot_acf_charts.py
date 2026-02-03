@@ -225,13 +225,14 @@ def save_acf_pacf_plot_v3(
 # --- 4. 本地运行块 (Standalone Runner) ---
 if __name__ == "__main__":
     
-    print("--- 正在以独立模式运行 (ACF/PACF Plotter) [已优化 V3 - 手动缩放] ---")
+    dataset_name = "PART1"
+    if len(sys.argv) > 1:
+        dataset_name = sys.argv[1]
     
-    # --- [!! 关键路径修正 !!] ---
-    # 修正为 Zac 的本地路径
-    DATA_PATH = "./DATA/PART1/" 
-    SAVE_DIR = "./EDA/charts/acf/" 
-    # --- [修正结束] ---
+    print(f"--- 正在以独立模式运行 (ACF/PACF Plotter) [Dataset: {dataset_name}] ---")
+    
+    DATA_PATH = f"./DATA/{dataset_name}/" 
+    SAVE_DIR = f"./EDA/output/{dataset_name}/charts/acf/" 
     
     LAG_PERIODS = 40 
     ZOOMED_YLIM = (-0.3, 0.3) 

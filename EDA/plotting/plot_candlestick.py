@@ -169,11 +169,14 @@ def save_candlestick_plot_v4(ohlcv_df, asset_name, base_save_dir, zoom_days=150)
 # --- 3. 本地运行块 (Standalone Runner) [V4] ---
 if __name__ == "__main__":
     
-    print("--- 正在以独立模式运行 (Candlestick Plotter) [已优化 V4 - 双文件夹] ---")
+    dataset_name = "PART1"
+    if len(sys.argv) > 1:
+        dataset_name = sys.argv[1]
+
+    print(f"--- 正在以独立模式运行 (Candlestick Plotter) [Dataset: {dataset_name}] ---")
     
-    DATA_PATH = "./DATA/PART1/" 
-    # [V4 优化] 我们只定义基础目录
-    SAVE_DIR_BASE = "./EDA/charts/candlesticks/" 
+    DATA_PATH = f"./DATA/{dataset_name}/" 
+    SAVE_DIR_BASE = f"./EDA/output/{dataset_name}/charts/candlesticks/" 
     ZOOM_DAYS = 150 
 
     print(f"正在从 '{DATA_PATH}' 加载数据...")

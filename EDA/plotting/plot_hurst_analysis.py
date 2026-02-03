@@ -21,7 +21,7 @@ except ImportError:
 
 # --- 配置 ---
 # [路径修复] 修正为 Zac 的本地路径
-HURST_SAVE_DIR = "./EDA/charts/hurst/"
+HURST_SAVE_DIR = "./EDA/output/charts/hurst/"
 DATA_DIR_PATH = "./DATA/PART1/" 
 DEFAULT_WINDOW_SIZE = 252 # 默认滚动窗口 (约 1 年)
 # ---
@@ -207,15 +207,21 @@ def main():
     """
     主执行函数：加载所有数据，循环处理并保存图表。
     """
-    print("--- 正在运行 Hurst 分析脚本 (V2 - 双轴优化) ---")
-    
-    os.makedirs(HURST_SAVE_DIR, exist_ok=True)
-    print(f"Charts will be saved to: {HURST_SAVE_DIR}")
+    dataset_name = "PART1"
+    if len(sys.argv) > 1:
+        dataset_name = sys.argv[1]
 
-    # 2. 从我们 *自包含* 的加载器加载数据
-    print(f"Calling internal load_and_merge_data(data_directory='{DATA_DIR_PATH}')...")
+    local_data_dir = f"./DATA/{dataset_name}/"
+    local_save_dir = f"./EDA/output/{dataset_name}/charts/hurst/"
+
+    print(f"--- 正在运行 Hurst 分析脚本 [Dataset: {dataset_name}] ---")
     
-    merged_prices_df = load_and_merge_data(DATA_DIR_PATH)
+    os.makedirs(local_save_dir, exist_ok=True)
+    print(f"Charts will be saved to: {local_save_dir}")
+
+    print(f"Calling internal load_and_merge_data(data_directory='{local_data_dir}')...")
+    
+    merged_prices_df = load_and_merge_data(local_data_dir)
 
     if merged_prices_df.empty:
         print("Error: Loader returned an empty DataFrame. Check DATA_DIR_PATH.")
@@ -232,7 +238,7 @@ def main():
             save_rolling_hurst_v2(price_series, 
                                   asset_name, 
                                   DEFAULT_WINDOW_SIZE, 
-                                  HURST_SAVE_DIR)
+                                  local_save_dir)
         else:
             print(f"Skipping {asset_name}: No valid data.")
             

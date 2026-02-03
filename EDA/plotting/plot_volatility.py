@@ -140,13 +140,14 @@ def save_volatility_analysis_v2(ohlcv_df, asset_name, save_path=""):
 # --- 3. 主执行逻辑 (Standalone Runner) ---
 if __name__ == "__main__":
     
-    print("--- 正在以独立模式运行 (Volatility Plotter) [已优化 V2 - 团队版] ---")
+    dataset_name = "PART1"
+    if len(sys.argv) > 1:
+        dataset_name = sys.argv[1]
+
+    print(f"--- 正在以独立模式运行 (Volatility Plotter) [Dataset: {dataset_name}] ---")
     
-    # --- [!! 路径确认 !!] ---
-    # (这些路径对 Zac 的本地环境是正确的)
-    DATA_PATH = "./DATA/PART1/" 
-    SAVE_DIR = "./EDA/charts/volatility/" 
-    # --- [确认结束] ---
+    DATA_PATH = f"./DATA/{dataset_name}/" 
+    SAVE_DIR = f"./EDA/output/{dataset_name}/charts/volatility/" 
 
     print(f"正在从 '{DATA_PATH}' 加载数据...")
     csv_files = glob.glob(os.path.join(DATA_PATH, '*.csv'))
