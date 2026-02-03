@@ -1,28 +1,23 @@
-# ---- Python 通用 ----
+# --- 1. 操作系统 & IDE (通用) ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# --- 2. Python 核心 (缓存与编译文件) ---
 __pycache__/
 *.py[cod]
 *$py.class
-
-# C 扩展
 *.so
+.ipynb_checkpoints/
 
-# 构建/打包
+# --- 3. 构建/打包 & 测试 ---
 build/
 dist/
 .eggs/
 *.egg-info/
 *.egg
 pip-wheel-metadata/
-
-# 虚拟环境
-.env
-.venv
-env/
-venv/
-ENV/
-*.env
-
-# 测试/类型/质量
 .coverage*
 .pytest_cache/
 .tox/
@@ -31,23 +26,23 @@ ENV/
 .ruff_cache/
 .cache/
 
-# Jupyter
-.ipynb_checkpoints/
+# --- 4. 虚拟环境 (防止误提交环境包) ---
+env/
+venv/
+.venv/
+ENV/
+*.env
 
-# IDE/编辑器
-.vscode/
-.idea/
-
-# OS
-.DS_Store
-Thumbs.db
-
-# ---- 项目特定输出 ----
+# --- 5. 项目输出 (EDA & Strategy) ---
+# [根目录] 通用输出
 output/
+# [EDA] V3/V4 新版输出路径 (关键!)
+EDA/output/
+# [EDA] 旧版路径 (保留以防万一)
 EDA/charts/
 EDA/charts_by_asset/
 
-# 日志/临时
+# --- 6. 日志/临时 ---
 logs/
 *.log
 tmp/
