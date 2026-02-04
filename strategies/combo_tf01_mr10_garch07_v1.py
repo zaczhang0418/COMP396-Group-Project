@@ -8,27 +8,6 @@ import backtrader as bt
 import numpy as np
 
 # ---------------- utils ----------------
-def _safe_float(x, d=0.0):
-    try: return float(x)
-    except Exception: return d
-
-def _latest_meta_params(root: Path) -> dict:
-    if not root.exists(): return {}
-    metas = sorted(root.rglob("meta.json"), key=lambda p: p.stat().st_mtime, reverse=True)
-    for m in metas:
-        try:
-            meta = json.loads(m.read_text(encoding="utf-8"))
-            params = dict(meta.get("params", {}))
-            if params: return params
-        except Exception: pass
-    return {}
-
-def _load_best_then_meta(best_path: Path, meta_root: Path) -> dict:
-    if best_path.exists():
-        try: return json.loads(best_path.read_text(encoding="utf-8"))
-        except Exception: pass
-    return _latest_meta_params(meta_root)
-
 # 目标波动 -> 目标权重（按年化波动缩放，限制在 [-pos_cap, pos_cap]）
 def _vol_target_pct(vol_target_ann, sigma_ann, pos_cap, ann_factor=252.0):
     if sigma_ann is None or not np.isfinite(sigma_ann) or sigma_ann <= 0:
@@ -54,7 +33,7 @@ class ComboTF01MR10Garch07V1(bt.Strategy):
 
         # ---- MR（z 阈值入/出）----
         mr_lookback=40, mr_entry_z=0.8, mr_exit_z=0.2,
-        mr_atr_period=14, mr_stop_mult=2.0, mr_min_w_for_1=0.02,
+        mr_atr_period=14, mr_stop_multiplier=2.0, mr_min_w_for_1=0.02,
 
         # ---- GARCH（分位分档×EMA方向）----
         ga_sigma_q_low=0.35, ga_sigma_q_high=0.80,
@@ -63,9 +42,6 @@ class ComboTF01MR10Garch07V1(bt.Strategy):
         ga_sigma_q_lookback=252, ga_ann_factor=252,
         ga_ema_short=12, ga_ema_long=60,
         ga_atr_period=14, ga_stop_multiplier=2.0, ga_min_w_for_1=0.02, ga_reenter_cooldown=1,
-
-        # 自动加载最佳参数
-        autoload_best=True,
     )
 
     def __init__(self):
@@ -78,42 +54,6 @@ class ComboTF01MR10Garch07V1(bt.Strategy):
         self.d_tf = self.getdatabyname("series_1")
         self.d_mr = self.getdatabyname("series_10")
         self.d_ga = self.getdatabyname("series_7")
-
-        # 自动读取最优参数（best -> meta）
-        if bool(self.p.autoload_best):
-            proj = Path(__file__).resolve().parents[1]
-            tf_best = proj/"output/asset01/tf_core4_v1/best_params.json"
-            tf_meta = proj/"output/asset01/tf_core4_v1/v1_best_core4"
-            mr_best = proj/"output/asset10/grid_core4_v1/best_params.json"
-            mr_meta = proj/"output/asset10/grid_core4_v1/v1_best_core4"
-            ga_best = proj/"output/asset07/garch_core4_v1/best_params.json"
-            ga_meta = proj/"output/asset07/garch_core4_v1/v1_best_core4"
-
-            tfp = _load_best_then_meta(tf_best, tf_meta)
-            mrp = _load_best_then_meta(mr_best, mr_meta)
-            gap = _load_best_then_meta(ga_best, ga_meta)
-
-            # 别名兼容
-            if "p_stop_mult" in mrp and "p_stop_multiplier" not in mrp:
-                mrp["p_stop_multiplier"] = mrp["p_stop_mult"]
-            if "p_stop_mult" in gap and "p_stop_multiplier" not in gap:
-                gap["p_stop_multiplier"] = gap["p_stop_mult"]
-
-            # 应用 TF
-            self.p.tf_ema_short       = _safe_float(tfp.get("p_ema_short", self.p.tf_ema_short))
-            self.p.tf_ema_long        = _safe_float(tfp.get("p_ema_long",  self.p.tf_ema_long))
-            self.p.tf_stop_multiplier = _safe_float(tfp.get("p_stop_multiplier", self.p.tf_stop_multiplier))
-            # 应用 MR
-            self.p.mr_lookback  = int(_safe_float(mrp.get("p_lookback", self.p.mr_lookback)))
-            self.p.mr_entry_z   = _safe_float(mrp.get("p_entry_z", self.p.mr_entry_z))
-            self.p.mr_exit_z    = _safe_float(mrp.get("p_exit_z",  self.p.mr_exit_z))
-            self.p.mr_stop_mult = _safe_float(mrp.get("p_stop_multiplier", self.p.mr_stop_mult))
-            # 应用 GARCH
-            self.p.ga_sigma_q_low   = _safe_float(gap.get("p_sigma_q_low",  self.p.ga_sigma_q_low))
-            self.p.ga_sigma_q_high  = _safe_float(gap.get("p_sigma_q_high", self.p.ga_sigma_q_high))
-            self.p.ga_mult_mid      = _safe_float(gap.get("p_mult_mid",     self.p.ga_mult_mid))
-            self.p.ga_mult_high     = _safe_float(gap.get("p_mult_high",    self.p.ga_mult_high))
-            self.p.ga_stop_multiplier = _safe_float(gap.get("p_stop_multiplier", self.p.ga_stop_multiplier))
 
         # 权重归一化
         s = float(self.p.w_tf + self.p.w_mr + self.p.w_ga)
@@ -210,7 +150,7 @@ class ComboTF01MR10Garch07V1(bt.Strategy):
             if z <= -float(self.p.mr_entry_z) and abs(mr_tgt) >= float(self.p.mr_min_w_for_1):
                 self.order_target_percent(self.d_mr, max(mr_tgt, float(self.p.mr_min_w_for_1)))
                 if not math.isnan(self.mr_atr[0]):
-                    self._mr_sl = mr_close - float(self.p.mr_stop_mult)*float(self.mr_atr[0])
+                    self._mr_sl = mr_close - float(self.p.mr_stop_multiplier)*float(self.mr_atr[0])
         else:
             if getattr(self, "_mr_sl", None) is not None and not math.isnan(self.mr_atr[0]) and mr_close <= self._mr_sl:
                 self.order_target_percent(self.d_mr, 0.0); self._mr_sl=None
@@ -218,7 +158,7 @@ class ComboTF01MR10Garch07V1(bt.Strategy):
                 self.order_target_percent(self.d_mr, 0.0); self._mr_sl=None
             else:
                 if not math.isnan(self.mr_atr[0]):
-                    new_sl = mr_close - float(self.p.mr_stop_mult)*float(self.mr_atr[0])
+                    new_sl = mr_close - float(self.p.mr_stop_multiplier)*float(self.mr_atr[0])
                     if self._mr_sl is None or new_sl > self._mr_sl: self._mr_sl = new_sl
                 cur_val = self.broker.get_value(); cur_pct = (mr_pos*mr_close)/max(cur_val,1e-9)
                 if abs(mr_tgt-cur_pct) >= max(float(self.p.mr_min_w_for_1),0.02):
