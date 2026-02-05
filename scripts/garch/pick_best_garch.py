@@ -6,7 +6,7 @@ from pathlib import Path
 from datetime import date
 
 PROJ     = Path(__file__).resolve().parents[2]
-OUT_ROOT = PROJ / "output" / "asset07" / "garch_core4_v1"
+OUT_ROOT = PROJ / "output" / "part1" / "asset07" / "garch_core4_v1"
 RESULTS  = OUT_ROOT / "results.csv"
 BEST_OUT = OUT_ROOT / "best_params.json"
 SPLITS   = json.loads((PROJ / "configs" / "splits_asset07.json").read_text(encoding="utf-8"))

@@ -10,7 +10,7 @@ DATA_DIR = PROJ / "DATA" / "PART1"
 def run_once(start: str, end: str, params_path: str, tag: str, split: str):
     ts = time.strftime("%Y%m%d")
     run_id = f"run_{ts}_{split}"
-    out_dir = PROJ / "output" / "asset10" / tag / run_id
+    out_dir = PROJ / "output" / "part1" / "asset10" / tag / run_id
     out_dir.mkdir(parents=True, exist_ok=True)
 
     best = json.loads(Path(params_path).read_text(encoding="utf-8"))

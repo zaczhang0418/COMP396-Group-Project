@@ -7,13 +7,13 @@ from pathlib import Path
 PROJ = Path(__file__).resolve().parents[2]
 MAIN = PROJ / "main.py"
 DATA_DIR = PROJ / "DATA" / "PART1"
-OUT_ROOT = PROJ / "output" / "combo"
+OUT_ROOT = PROJ / "output" / "part1" / "combo"
 OUT_ROOT.mkdir(parents=True, exist_ok=True)
 
 META_PATHS = {
-    "tf": PROJ / "output" / "asset01" / "tf_core4_v1",
-    "mr": PROJ / "output" / "asset10" / "mr_core4_v1",
-    "ga": PROJ / "output" / "asset07" / "garch_core4_v1",
+    "tf": PROJ / "output" / "part1" / "asset01" / "tf_core4_v1",
+    "mr": PROJ / "output" / "part1" / "asset10" / "mr_core4_v1",
+    "ga": PROJ / "output" / "part1" / "asset07" / "garch_core4_v1",
 }
 COMBO_STRAT = "combo_tf01_mr10_garch07_v1"
 
