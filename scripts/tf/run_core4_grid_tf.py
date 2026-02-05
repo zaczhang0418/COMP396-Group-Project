@@ -11,7 +11,7 @@ DATA_DIR = PROJ / "DATA" / "PART1"
 SPLITS = json.loads((PROJ / "configs" / "splits_asset01.json").read_text(encoding="utf-8"))
 GRID   = json.loads((PROJ / "configs" / "grids" / "tf_core4_v1.json").read_text(encoding="utf-8"))
 
-OUT_ROOT = PROJ / "output" / "asset01" / "tf_core4_v1"
+OUT_ROOT = PROJ / "output" / "part1" / "asset01" / "tf_core4_v1"
 OUT_ROOT.mkdir(parents=True, exist_ok=True)
 CSV_OUT = OUT_ROOT / "results.csv"
 

@@ -15,7 +15,7 @@ GRID_YAML = PROJ / "configs" / "grids" / "mr_core4_v1.yaml"
 GRID_JSON = PROJ / "configs" / "grids" / "mr_core4_v1.json"
 GRID_PATH  = GRID_YAML if GRID_YAML.exists() else GRID_JSON
 
-OUT_ROOT = PROJ / "output" / "asset10" / "mr_core4_v1"
+OUT_ROOT = PROJ / "output" / "part1" / "asset10" / "mr_core4_v1"
 OUT_ROOT.mkdir(parents=True, exist_ok=True)
 CSV_OUT = OUT_ROOT / "results.csv"
 SPLITS = json.loads(SPLITS_PATH.read_text(encoding="utf-8"))
