@@ -6,8 +6,22 @@
 CHCP 65001 > nul
 
 @echo off
-:: --- [配置区域] 在这里修改数据集名称 (PART1 / PART2) ---
-set DATASET_NAME=PART1
+:: --- [配置区域] 在这里修改数据集名称 (PART1 / PART2 / COMBINED) ---
+set DATASET_NAME=%1
+if "%DATASET_NAME%"=="" (
+    echo [ERROR] Please specify a dataset name. Example: .\run_all_eda.bat COMBINED
+    exit /b 1
+)
+
+:: 如果选择 COMBINED，先执行数据拼接脚本
+if "%DATASET_NAME%"=="COMBINED" (
+    echo [INFO] Detected COMBINED mode. Merging PART1 and PART2 data...
+    python scripts/merge_data_parts.py
+    if errorlevel 1 (
+        echo [ERROR] Merge script failed. Exiting.
+        exit /b 1
+    )
+)
 :: ----------------------------------------------------
 
 set OUTPUT_DIR=EDA\output\%DATASET_NAME%

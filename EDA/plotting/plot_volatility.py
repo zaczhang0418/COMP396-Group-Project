@@ -11,49 +11,71 @@ import sys # 确保导入
 # (数据加载函数 - 这是一个独立的 OHLCV 加载器)
 # (它和 'plot_candlestick.py' 里的加载器逻辑一致)
 # -----------------------------------------------------------------
-def load_single_asset_ohlcv(csv_file_path):
-    """
-    加载并清洗*单个* CSV 文件，返回可用于 K 线图和 ATR 的 OHLCV DataFrame。
-    [这是我们最健壮的 OHLCV 加载器]
-    """
-    try:
-        data = pd.read_csv(
-            csv_file_path, 
-            parse_dates=['Index'], 
-            index_col=None, # [我们的修复]
-            thousands=','   # [我们的修复]
-        )
-        
-        data.columns = data.columns.str.strip().str.strip('"')
-        data.rename(columns={
-            'Open': 'open', 'High': 'high', 'Low': 'low',
-            'Close': 'close', 'Volume': 'volume',
-            'Index': 'date' # [我们的修复]
-        }, inplace=True)
+def load_and_merge_data(data_directory):
+    # 1. 查找所有 CSV 文件
+    csv_files_path = os.path.join(data_directory, "*.csv")
+    files = glob.glob(csv_files_path)
+    if not files:
+        print(f"警告：在 '{data_directory}' 中没有找到 .csv 文件。")
+        return pd.DataFrame() 
+    
+    dfs = {}
+    for f in files:
+        asset_name = os.path.basename(f).split('.')[0]
+        try:
+            # [关键修复] 读取时不指定 parse_dates，避免因找不到列名报错
+            data = pd.read_csv(f, thousands=',')
+            
+            # 清理列名（去除空格或引号）
+            data.columns = data.columns.str.strip().str.strip('"')
+            
+            # [关键修复] 动态处理日期列：支持 'Index' 或 'Date'
+            if 'Index' in data.columns:
+                data.rename(columns={'Index': 'Date'}, inplace=True)
+            
+            if 'Date' in data.columns:
+                data['Date'] = pd.to_datetime(data['Date'])
+            else:
+                # 如果两个都没有，跳过该文件
+                print(f"  跳过 {asset_name}: 缺少 'Date' 或 'Index' 列")
+                continue
 
-        if 'date' not in data.columns:
-            print(f" 警告: {os.path.basename(csv_file_path)} 缺少 'Index'/'date' 列。")
-            return None
+            # 提取 Close 列
+            if 'Close' in data.columns:
+                # 确保是数值类型
+                data['Close'] = pd.to_numeric(data['Close'], errors='coerce')
+                data.dropna(subset=['Date', 'Close'], inplace=True) 
+                
+                # 重命名 Close 为资产名称，方便后续合并
+                df = data[['Date', 'Close']].rename(columns={'Close': asset_name})
+                dfs[asset_name] = df
+            else:
+                print(f"  跳过 {asset_name}: 缺少 'Close' 列")
+                continue
+                
+        except Exception as e:
+            print(f" 警告: 加载 {f} 出错: {e}")
 
-        data.set_index('date', inplace=True)
-        
-        required_cols = ['open', 'high', 'low', 'close']
-        for col in required_cols:
-            if col not in data.columns:
-                print(f" 警告: {os.path.basename(csv_file_path)} 缺少 '{col}' 列。")
-                return None
-            # [我们的修复] 强制转换为数字
-            data[col] = pd.to_numeric(data[col], errors='coerce')
+    if not dfs:
+        print("❌ 错误: 未能从任何 CSV 文件中加载有效数据。")
+        return pd.DataFrame()
 
-        data.dropna(subset=required_cols, inplace=True)
-        return data
+    # 2. 合并所有数据
+    df_list = list(dfs.values())
+    merged = df_list[0]
+    for df_to_join in df_list[1:]:
+        # 使用 outer join 确保保留所有日期，避免因某个资产缺失某天数据导致整行被删
+        merged = merged.merge(df_to_join, on='Date', how='outer')
+    
+    # 3. 设置索引并排序
+    merged.set_index('Date', inplace=True)
+    merged.sort_index(inplace=True) 
+    
+    # 4. 填充缺失值 (Forward Fill) - 这是一个可选但推荐的操作，防止计算指标时因 NaN 报错
+    merged.ffill(inplace=True) 
+    
+    return merged
 
-    except Exception as e:
-        print(f" 警告: 加载 {csv_file_path} 时出错: {e}")
-        return None
-# -----------------------------------------------------------------
-# (数据加载函数结束)
-# -----------------------------------------------------------------
 
 
 # --- 1. 队友的 ATR 计算函数 (完美, 保留) ---
@@ -163,8 +185,29 @@ if __name__ == "__main__":
         print(f"  正在处理: {asset_name}")
         
         # --- [!! 关键升级 !!] ---
-        # 1. 使用我们健壮的 OHLCV 加载器
-        full_df = load_single_asset_ohlcv(csv_file_path)
+        # 1. 加载单个资产的 OHLCV 数据
+        try:
+            data = pd.read_csv(csv_file_path, thousands=',')
+            data.columns = data.columns.str.strip().str.strip('"')
+            
+            if 'Index' in data.columns:
+                data.rename(columns={'Index': 'Date'}, inplace=True)
+            
+            if 'Date' in data.columns:
+                data['Date'] = pd.to_datetime(data['Date'])
+                data.set_index('Date', inplace=True)
+            
+            # 转换列名为小写以匹配计算函数
+            data.columns = data.columns.str.lower()
+            for col in ['open', 'high', 'low', 'close', 'volume']:
+                if col in data.columns:
+                    data[col] = pd.to_numeric(data[col], errors='coerce')
+            
+            data.dropna(inplace=True)
+            full_df = data if not data.empty else None
+        except Exception as e:
+            print(f"  警告: 加载 {csv_file_path} 出错: {e}")
+            full_df = None
         # --- [升级结束] ---
         
         if full_df is not None:

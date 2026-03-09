@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import glob
 import os
 
-def plot_price_data(data_path=".", normalise=False, selected_series=None):
+def plot_price_data(data_path=".", output_dir=None, normalise=False, selected_series=None):
     # Plots Close prices from multiple CSV files (columns: Index, Open, High, Low, Close, Volume).
     # Automatically merges by date and saves two charts to the output folder:
     #   1) input_data_plot.png               (raw Close prices)
@@ -16,8 +16,13 @@ def plot_price_data(data_path=".", normalise=False, selected_series=None):
     #         If None, all available series are plotted.
 
     # --- Prepare output directory ---
-    output_dir = os.path.join(os.getcwd(), "output")
+    if output_dir is None:
+        # Default to a subfolder named after the data folder (e.g., output/PART2)
+        dataset_name = os.path.basename(os.path.normpath(data_path))
+        output_dir = os.path.join(os.getcwd(), "output", dataset_name)
+    
     os.makedirs(output_dir, exist_ok=True)
+    print(f"Output directory: {output_dir}")
 
     # --- Load all CSV files ---
     csv_files = glob.glob(os.path.join(data_path, "*.csv"))
@@ -29,10 +34,18 @@ def plot_price_data(data_path=".", normalise=False, selected_series=None):
     for file in csv_files:
         name = os.path.splitext(os.path.basename(file))[0]  # e.g. "01" or "BTC"
         df = pd.read_csv(file)
-        if "Index" not in df.columns or "Close" not in df.columns:
-            print(f"Skipping {name}: missing required columns.")
+        
+        # Support both 'Index' and 'Date' for the time column
+        if "Index" in df.columns:
+            df["Date"] = pd.to_datetime(df["Index"])
+        elif "Date" in df.columns:
+            df["Date"] = pd.to_datetime(df["Date"])
+        else:
+            print(f"Skipping {name}: missing 'Index' or 'Date' column.")
             continue
-        df["Date"] = pd.to_datetime(df["Index"])
+        if "Close" not in df.columns:
+            print(f"Skipping {name}: missing 'Close' column.")
+            continue
         df = df[["Date", "Close"]].rename(columns={"Close": name})
         dfs[name] = df
 
@@ -98,8 +111,10 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description="Plot price data from multiple CSVs.")
-    parser.add_argument("--data-path", default="./DATA/PART1",
+    parser.add_argument("--data-path", default="./DATA/PART2",
                         help="Directory containing the CSV files.")
+    parser.add_argument("--output-dir", default=None,
+                        help="Directory to save plots.")
     parser.add_argument("--normalise", action="store_true",
                         help="If set, also save Min–Max normalised prices.")
     parser.add_argument("--series", nargs="+", type=int, default=None,
@@ -107,5 +122,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     plot_price_data(data_path=args.data_path,
+                    output_dir=args.output_dir,
                     normalise=args.normalise,
                     selected_series=args.series)

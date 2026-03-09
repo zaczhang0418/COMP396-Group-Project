@@ -17,35 +17,48 @@ N_QUANTILES = 5 # 将资产分为 5 组
 # (数据加载函数，使用我们昨天的“最终修复版-老师的逻辑”)
 # (这是 'Close-Only' 版本，Quantile 只需要 Close 价格)
 # -----------------------------------------------------------------
-def load_and_merge_data(data_directory="./DATA/PART1/"):
+def load_and_merge_data(data_directory):
+    # 1. 查找所有 CSV 文件
     csv_files_path = os.path.join(data_directory, "*.csv")
     files = glob.glob(csv_files_path)
     if not files:
         print(f"警告：在 '{data_directory}' 中没有找到 .csv 文件。")
         return pd.DataFrame() 
+    
     dfs = {}
     for f in files:
         asset_name = os.path.basename(f).split('.')[0]
         try:
-            data = pd.read_csv(
-                f, 
-                parse_dates=['Index'], 
-                index_col=None, # [我们的修复]
-                thousands=','   # [我们的修复]
-            )
+            # [关键修复] 读取时不指定 parse_dates，避免因找不到列名报错
+            data = pd.read_csv(f, thousands=',')
+            
+            # 清理列名（去除空格或引号）
             data.columns = data.columns.str.strip().str.strip('"')
-            data.rename(columns={
-                'Open': 'open', 'High': 'high', 'Low': 'low',
-                'Close': 'close', 'Volume': 'volume',
-                'Index': 'Date' # [我们的修复]
-            }, inplace=True)
             
-            if 'close' in data.columns:
-                data['close'] = pd.to_numeric(data['close'], errors='coerce')
-                data.dropna(subset=['close'], inplace=True) 
-                df = data[['Date', 'close']].rename(columns={'close': asset_name})
+            # [关键修复] 动态处理日期列：支持 'Index' 或 'Date'
+            if 'Index' in data.columns:
+                data.rename(columns={'Index': 'Date'}, inplace=True)
+            
+            if 'Date' in data.columns:
+                data['Date'] = pd.to_datetime(data['Date'])
+            else:
+                # 如果两个都没有，跳过该文件
+                print(f"  跳过 {asset_name}: 缺少 'Date' 或 'Index' 列")
+                continue
+
+            # 提取 Close 列
+            if 'Close' in data.columns:
+                # 确保是数值类型
+                data['Close'] = pd.to_numeric(data['Close'], errors='coerce')
+                data.dropna(subset=['Date', 'Close'], inplace=True) 
+                
+                # 重命名 Close 为资产名称，方便后续合并
+                df = data[['Date', 'Close']].rename(columns={'Close': asset_name})
                 dfs[asset_name] = df
-            
+            else:
+                print(f"  跳过 {asset_name}: 缺少 'Close' 列")
+                continue
+                
         except Exception as e:
             print(f" 警告: 加载 {f} 出错: {e}")
 
@@ -53,16 +66,23 @@ def load_and_merge_data(data_directory="./DATA/PART1/"):
         print("❌ 错误: 未能从任何 CSV 文件中加载有效数据。")
         return pd.DataFrame()
 
+    # 2. 合并所有数据
     df_list = list(dfs.values())
     merged = df_list[0]
     for df_to_join in df_list[1:]:
-        merged = merged.merge(df_to_join, on='Date', how='outer') # [我们的修复]
+        # 使用 outer join 确保保留所有日期，避免因某个资产缺失某天数据导致整行被删
+        merged = merged.merge(df_to_join, on='Date', how='outer')
     
+    # 3. 设置索引并排序
     merged.set_index('Date', inplace=True)
     merged.sort_index(inplace=True) 
-    # [优化] 向前填充 NaN，以防止 pct_change 计算因假期错位而失败
+    
+    # 4. 填充缺失值 (Forward Fill) - 这是一个可选但推荐的操作，防止计算指标时因 NaN 报错
     merged.ffill(inplace=True) 
+    
     return merged
+
+
 # -----------------------------------------------------------------
 # (数据加载函数结束)
 # -----------------------------------------------------------------
