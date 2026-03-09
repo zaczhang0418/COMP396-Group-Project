@@ -53,7 +53,7 @@ def run_one(params: dict, run_dir: Path) -> dict:
         "--output-dir", str(run_dir),
         "--no-plot", *param_args
     ]
-    subprocess.run(cmd, check=True)
+    subprocess.run(cmd, check=True, cwd=str(PROJ))
 
     summary_path = run_dir / "run_summary.json"
     summary = json.loads(summary_path.read_text(encoding="utf-8")) if summary_path.exists() else {}

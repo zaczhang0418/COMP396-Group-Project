@@ -31,7 +31,7 @@ def run_once(start: str, end: str, params_path: str, tag: str, split: str):
         "--output-dir", str(out_dir),
     ] + param_args
 
-    subprocess.run(cmd, check=True)
+    subprocess.run(cmd, check=True, cwd=str(PROJ))
 
     (out_dir/"meta.json").write_text(json.dumps({
         "strategy_id": STRATEGY, "asset": "01", "split": split, "tag": tag,

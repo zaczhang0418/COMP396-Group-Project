@@ -42,7 +42,7 @@ def run_split(which: str, tag: str, params_path: Path):
            "--start", start, "--end", end,
            "--params", str(params_path), "--split", split, "--tag", tag]
     print(f"[RUN] {which.upper()}  {start} -> {end}")
-    subprocess.run(cmd, check=True)
+    subprocess.run(cmd, check=True, cwd=str(PROJ))
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()

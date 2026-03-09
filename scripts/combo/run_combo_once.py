@@ -18,6 +18,7 @@ META_PATHS = {
 COMBO_STRAT = "combo_tf01_mr10_garch07_v1"
 
 def load_params_file(dirpath: Path, label: str = "") -> dict:
+    print(f"[{label.upper()}] Searching for params in: {dirpath}")
     if not dirpath.exists():
         print(f"[WARN] {label.upper()} path not found: {dirpath}")
         return {}
@@ -25,7 +26,9 @@ def load_params_file(dirpath: Path, label: str = "") -> dict:
     # 1. Try best_params.json (Highest Priority)
     f_best = dirpath / "best_params.json"
     if f_best.exists():
-        print(f"[{label.upper()}] Found best_params.json: {f_best.relative_to(PROJ)}")
+        try: display = f_best.relative_to(PROJ)
+        except ValueError: display = f_best
+        print(f"[{label.upper()}]  -> LOADED: {display}")
         try: return json.loads(f_best.read_text(encoding="utf-8"))
         except Exception as e: print(f"[ERR] Failed to read {f_best}: {e}")
 
@@ -35,7 +38,7 @@ def load_params_file(dirpath: Path, label: str = "") -> dict:
         chosen = metas[0]
         try: display = chosen.relative_to(PROJ)
         except ValueError: display = chosen
-        print(f"[{label.upper()}] Fallback to latest run: {display}")
+        print(f"[{label.upper()}]  -> FALLBACK (Latest Run): {display}")
         try: return json.loads(chosen.read_text(encoding="utf-8"))
         except Exception: return {}
 
@@ -121,6 +124,6 @@ if __name__ == "__main__":
             cmd_combo += ["--param", f"{k}={v}"]
 
     if args.no_plots: cmd_combo.append("--no-plot")
-    subprocess.run(cmd_combo, check=True)
+    subprocess.run(cmd_combo, check=True, cwd=str(PROJ))
 
     print(f"\n[DONE] Results saved to: {COM_ROOT}")
