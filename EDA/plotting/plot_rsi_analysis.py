@@ -32,25 +32,30 @@ def load_and_merge_data(data_directory="./DATA/PART1/"):
     for f in files:
         asset_name = os.path.basename(f).split('.')[0]
         try:
-            data = pd.read_csv(
-                f, 
-                parse_dates=['Index'], 
-                index_col=None, # [我们的修复]
-                thousands=','   # [我们的修复]
-            )
-            data.columns = data.columns.str.strip().str.strip('"')
-            data.rename(columns={
-                'Open': 'open', 'High': 'high', 'Low': 'low',
-                'Close': 'close', 'Volume': 'volume',
-                'Index': 'Date' # [我们的修复]
-            }, inplace=True)
+            # 1. 读取 CSV，不预设任何日期列名
+            data = pd.read_csv(f, thousands=',')
+            data.columns = data.columns.str.strip().str.strip('"') # 清理列名
             
-            if 'close' in data.columns:
-                data['close'] = pd.to_numeric(data['close'], errors='coerce')
-                data.dropna(subset=['close'], inplace=True) 
-                df = data[['Date', 'close']].rename(columns={'close': asset_name})
+            # 2. 动态识别并统一日期列
+            #    如果原始数据有 'Index' 列，就把它重命名为 'Date'
+            if 'Index' in data.columns:
+                data.rename(columns={'Index': 'Date'}, inplace=True)
+            
+            #    现在，我们确保 'Date' 列存在并将其转换为标准的 datetime 对象
+            if 'Date' in data.columns:
+                data['Date'] = pd.to_datetime(data['Date'])
+            else:
+                # 如果两个都没有，就报错
+                raise ValueError("CSV file must contain either an 'Index' or 'Date' column.")
+
+            # 3. 后续代码现在可以安全地假设 'Date' 和 'Close' 列存在
+            if 'Close' in data.columns:
+                data['Close'] = pd.to_numeric(data['Close'], errors='coerce')
+                data.dropna(subset=['Date', 'Close'], inplace=True) 
+                df = data[['Date', 'Close']].rename(columns={'Close': asset_name})
                 dfs[asset_name] = df
-            
+            else:
+                raise ValueError("CSV file must contain a 'Close' column.")
         except Exception as e:
             print(f" 警告: 加载 {f} 出错: {e}")
 

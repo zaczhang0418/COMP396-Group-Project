@@ -63,6 +63,51 @@ def calculate_mfi(high, low, close, volume, period=MFI_PERIOD):
     mfi = mfi.clip(0, 100)
     return mfi
 
+def load_single_asset_ohlcv(csv_file_path):
+    """
+    加载并清洗*单个* CSV 文件，返回可用于 MFI 分析的 OHLCV DataFrame。
+    这是一个健壮的加载器，可以处理 'Index' 或 'Date' 列。
+    """
+    try:
+        # 1. 读取 CSV，不预设日期列
+        df = pd.read_csv(csv_file_path, thousands=',')
+        df.columns = df.columns.str.strip().str.strip('"')
+
+        # 2. 动态识别并统一日期列
+        if 'Index' in df.columns:
+            df.rename(columns={'Index': 'date'}, inplace=True)
+        elif 'Date' in df.columns:
+            df.rename(columns={'Date': 'date'}, inplace=True)
+        else:
+            print(f"  [警告] 跳过 {os.path.basename(csv_file_path)}: 缺少 'Index' 或 'Date' 列。")
+            return None
+
+        df['date'] = pd.to_datetime(df['date'])
+        df.set_index('date', inplace=True)
+
+        # 3. 统一 OHLCV 列名
+        df.rename(columns={
+            'Open': 'open', 'High': 'high', 'Low': 'low',
+            'Close': 'close', 'Volume': 'volume'
+        }, inplace=True)
+
+        # 4. 验证并清洗数据
+        required_cols = ['open', 'high', 'low', 'close', 'volume']
+        if not all(col in df.columns for col in required_cols):
+            print(f"  [警告] 跳过 {os.path.basename(csv_file_path)}: 缺少一个或多个 OHLCV 列。")
+            return None
+            
+        for col in required_cols:
+            df[col] = pd.to_numeric(df[col], errors='coerce')
+        
+        df.dropna(inplace=True)
+        df.sort_index(inplace=True)
+
+        return df
+
+    except Exception as e:
+        print(f"  [错误] 加载 {os.path.basename(csv_file_path)} 失败: {e}")
+        return None
 # -------------------------------------------------------------------
 # --- [!! 新增的 API 函数 (给 Notebook 调用) !!] ---
 def plot_volume_signal_analysis(df, asset_name):
@@ -237,41 +282,14 @@ def main():
     # 2. 循环加载和分析
     for f in files:
         asset_name = os.path.basename(f).split('.')[0]
-        try:
-            # 3. 复制你 loader 里的清洗逻辑 (这是正确的)
-            df = pd.read_csv(
-                f, 
-                parse_dates=['Index'],
-                thousands=','
-            )
-            df.columns = df.columns.str.strip().str.strip('"')
-            df.rename(columns={
-                'Index': 'date', 'Open': 'open', 'High': 'high',
-                'Low': 'low', 'Close': 'close', 'Volume': 'volume'
-            }, inplace=True)
-            
-            df.set_index('date', inplace=True)
-            df.sort_index(inplace=True)
-            
-            required_cols = ['open', 'high', 'low', 'close', 'volume']
-            if not all(col in df.columns for col in required_cols):
-                print(f"Skipping {asset_name}: 缺少 OHLCV 列。")
-                continue
-                
-            for col in required_cols:
-                df[col] = pd.to_numeric(df[col], errors='coerce')
-            
-            df.dropna(inplace=True)
-            
-            if df.empty:
-                print(f"Skipping {asset_name}: 加载后数据为空。")
-                continue
-            
-            # 4. 传入 *完整的* DataFrame 进行分析
+        
+        # 调用新的健壮加载器
+        df = load_single_asset_ohlcv(f)
+        
+        if df is not None and not df.empty:
+            # 传入 *完整的* DataFrame 进行分析
             analyze_volume_signal(df, asset_name, local_save_dir)
-            
-        except Exception as e:
-            print(f" 警告: 处理 {asset_name} 出错: {e}")
+        # 错误和跳过信息现在由加载器内部处理
             
     print("--- Volume 信号分析全部完成 ---")
 
