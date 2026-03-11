@@ -32,7 +32,7 @@ HEADER = PARAM_KEYS + ["true_pd_ratio", "open_pnl_pd_ratio", "activity_pct", "fi
 
 def run_one(params: dict, run_dir: Path):
     run_dir.mkdir(parents=True, exist_ok=True)
-    param_args = ["--param", "data_name=asset_10"]
+    param_args = ["--param", "data_name=series_10"]
     for k, v in params.items(): param_args += ["--param", f"{k}={v}"]
 
     cmd = [

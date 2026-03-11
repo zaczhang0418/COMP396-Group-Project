@@ -74,7 +74,7 @@ class MR_Asset10_ZScore_V1(bt.Strategy):
 
         # --- 其他 ---
         p_debug=False,
-        data_name='asset_10',
+        data_name='series_10',
     )
 
     def __init__(self):

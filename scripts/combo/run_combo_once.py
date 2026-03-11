@@ -6,15 +6,6 @@ from pathlib import Path
 
 PROJ = Path(__file__).resolve().parents[2]
 MAIN = PROJ / "main.py"
-DATA_DIR = PROJ / "DATA" / "PART1"
-OUT_ROOT = PROJ / "output" / "part1" / "combo"
-OUT_ROOT.mkdir(parents=True, exist_ok=True)
-
-META_PATHS = {
-    "tf": PROJ / "output" / "part1" / "asset01" / "tf_core4_v1",
-    "mr": PROJ / "output" / "part1" / "asset10" / "mr_core4_v1",
-    "ga": PROJ / "output" / "part1" / "asset07" / "garch_core4_v1",
-}
 COMBO_STRAT = "combo_tf01_mr10_garch07_v1"
 
 def load_params_file(dirpath: Path, label: str = "") -> dict:
@@ -71,8 +62,18 @@ if __name__ == "__main__":
     ap.add_argument("--cash",  type=float, default=1_000_000.0)
     ap.add_argument("--tag",   default="combo_v1")
     ap.add_argument("--no-plots", action="store_true")
+    ap.add_argument("--data-dir", default=str(PROJ / "DATA" / "PART1"))
+    ap.add_argument("--output-root", default=str(PROJ / "output" / "part1"))
     ap.add_argument("--meta-tf-dir", default=None); ap.add_argument("--meta-mr-dir", default=None); ap.add_argument("--meta-ga-dir", default=None)
     args = ap.parse_args()
+
+    out_root = Path(args.output_root) / "combo"
+    out_root.mkdir(parents=True, exist_ok=True)
+    meta_paths = {
+        "tf": Path(args.output_root) / "asset01" / "tf_core4_v1",
+        "mr": Path(args.output_root) / "asset10" / "mr_core4_v1",
+        "ga": Path(args.output_root) / "asset07" / "garch_core4_v1",
+    }
 
     w_sum = args.w_tf + args.w_mr + args.w_ga
     if w_sum <= 0: sys.exit("Weights must sum to a positive number.")
@@ -84,12 +85,12 @@ if __name__ == "__main__":
     run_id = f"combined_{w_tag}_{ts}"
 
     # 2) Combined Account Output
-    COM_ROOT = OUT_ROOT / run_id
+    COM_ROOT = out_root / run_id
     COM_ROOT.mkdir(parents=True, exist_ok=True)
 
-    tf_data = load_params_file(Path(args.meta_tf_dir) if args.meta_tf_dir else META_PATHS["tf"], "tf")
-    mr_data = load_params_file(Path(args.meta_mr_dir) if args.meta_mr_dir else META_PATHS["mr"], "mr")
-    ga_data = load_params_file(Path(args.meta_ga_dir) if args.meta_ga_dir else META_PATHS["ga"], "ga")
+    tf_data = load_params_file(Path(args.meta_tf_dir) if args.meta_tf_dir else meta_paths["tf"], "tf")
+    mr_data = load_params_file(Path(args.meta_mr_dir) if args.meta_mr_dir else meta_paths["mr"], "mr")
+    ga_data = load_params_file(Path(args.meta_ga_dir) if args.meta_ga_dir else meta_paths["ga"], "ga")
 
     tf_params = extract_params(tf_data)
     mr_params = extract_params(mr_data)
@@ -106,7 +107,7 @@ if __name__ == "__main__":
     cmd_combo = [
         sys.executable, str(MAIN),
         "--strategy", COMBO_STRAT,
-        "--data-dir", str(DATA_DIR),
+        "--data-dir", str(args.data_dir),
         "--fromdate", args.start, "--todate", args.end,
         "--cash", str(args.cash),
         "--output-dir", str(COM_ROOT),
