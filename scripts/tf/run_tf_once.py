@@ -13,10 +13,13 @@ STRATEGY  = "tf_asset01_v1"
 def norm_split_token(s): return s.replace("-", "")
 DEFAULT_P_MIN_W_FOR_1 = 0.03
 
-def run_once(start: str, end: str, params_path: str, tag: str, split: str):
+def run_once(start: str, end: str, params_path: str, tag: str, split: str, data_dir: str, output_root: str | None):
     ts = time.strftime("%Y%m%d")
     run_id = f"run_{ts}_{split}"
-    out_dir = PROJ / "output" / "part1" / "asset01" / tag / run_id
+    if output_root:
+        out_dir = Path(output_root) / run_id
+    else:
+        out_dir = PROJ / "output" / "part1" / "asset01" / tag / run_id
     out_dir.mkdir(parents=True, exist_ok=True)
 
     best = json.loads(Path(params_path).read_text(encoding="utf-8"))
@@ -26,7 +29,7 @@ def run_once(start: str, end: str, params_path: str, tag: str, split: str):
     cmd = [
         sys.executable, str(MAIN),
         "--strategy", STRATEGY,
-        "--data-dir", str(DATA_DIR),
+        "--data-dir", str(data_dir),
         "--fromdate", start, "--todate", end,
         "--output-dir", str(out_dir),
     ] + param_args
@@ -35,7 +38,8 @@ def run_once(start: str, end: str, params_path: str, tag: str, split: str):
 
     (out_dir/"meta.json").write_text(json.dumps({
         "strategy_id": STRATEGY, "asset": "01", "split": split, "tag": tag,
-        "run_id": run_id, "fromdate": start, "todate": end, "params": best
+        "run_id": run_id, "fromdate": start, "todate": end, "params": best,
+        "data_dir": str(data_dir)
     }, indent=2), encoding="utf-8")
 
     summary = json.loads((out_dir/"run_summary.json").read_text(encoding="utf-8"))
@@ -49,5 +53,7 @@ if __name__ == "__main__":
     ap.add_argument("--start", required=True); ap.add_argument("--end", required=True)
     ap.add_argument("--params", required=True); ap.add_argument("--tag", default="v1_best_core4")
     ap.add_argument("--split", choices=["70-30","30-oos","100-full"], required=True)
+    ap.add_argument("--data-dir", default=str(DATA_DIR))
+    ap.add_argument("--output-root", default=None)
     args = ap.parse_args()
-    run_once(args.start, args.end, args.params, args.tag, args.split)
+    run_once(args.start, args.end, args.params, args.tag, args.split, args.data_dir, args.output_root)

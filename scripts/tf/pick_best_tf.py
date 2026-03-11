@@ -3,14 +3,17 @@
 # scripts/tf/pick_best_tf.py
 import argparse, json, subprocess, sys, csv
 from pathlib import Path
-from datetime import date
 
 PROJ     = Path(__file__).resolve().parents[2]
-OUT_ROOT = PROJ / "output" / "part1" / "asset01" / "tf_core4_v1"
-RESULTS  = OUT_ROOT / "results.csv"
-BEST_OUT = OUT_ROOT / "best_params.json"
-SPLITS   = json.loads((PROJ / "configs" / "splits_asset01.json").read_text(encoding="utf-8"))
+if str(PROJ) not in sys.path:
+    sys.path.insert(0, str(PROJ))
+
+from scripts.common_paths import get_stage_dir  # noqa: E402
+
+TIMELINE = json.loads((PROJ / "configs" / "timeline.json").read_text(encoding="utf-8"))
+PART1    = TIMELINE["part1"]
 RUN_ONCE = PROJ / "scripts" / "tf" / "run_tf_once.py"
+DEFAULT_EXPERIMENT_TAG = "adhoc"
 
 BASE_KEYS = ["p_ema_short", "p_ema_long", "p_hurst_min_soft"]
 
@@ -30,28 +33,37 @@ def parse_results(path: Path):
     if not header or not rows: raise SystemExit(f"Empty results: {path}")
     return header, rows
 
-def run_split(which: str, tag: str, params_path: Path):
-    if   which == "is":   start, end, split = SPLITS["is_start"],  SPLITS["is_end"],   "70-30"
-    elif which == "oos":  start, end, split = SPLITS["oos_start"], SPLITS["full_end"], "30-oos"
-    elif which == "full": start, end, split = SPLITS["full_start"], SPLITS["full_end"], "100-full"
+def run_split(which: str, tag: str, params_path: Path, output_root: Path):
+    if   which == "is":   start, end, split = PART1["is"]["start"],   PART1["is"]["end"],   "70-30"
+    elif which == "oos":  start, end, split = PART1["oos"]["start"],  PART1["oos"]["end"],  "30-oos"
+    elif which == "full": start, end, split = PART1["full"]["start"], PART1["full"]["end"], "100-full"
     else: raise ValueError(which)
 
     cmd = [sys.executable, str(RUN_ONCE),
            "--start", start, "--end", end,
-           "--params", str(params_path), "--split", split, "--tag", tag]
+           "--params", str(params_path), "--split", split, "--tag", tag,
+           "--data-dir", str(PROJ / "DATA" / "PART1"),
+           "--output-root", str(output_root)]
     print(f"[RUN] {which.upper()}  {start} -> {end}")
     subprocess.run(cmd, check=True, cwd=str(PROJ))
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
+    ap.add_argument("--experiment-tag", default=DEFAULT_EXPERIMENT_TAG)
     ap.add_argument("--key", default="true_pd_ratio")
     ap.add_argument("--runs", default="is,oos,full")
-    ap.add_argument("--tag",  default=f"{date.today():%Y%m%d}_best")
+    ap.add_argument("--tag", default=None)
     ap.add_argument("--min-activity", type=float, default=0.0)
     args = ap.parse_args()
 
-    if not RESULTS.exists(): raise SystemExit(f"Not found: {RESULTS}")
-    header, rows = parse_results(RESULTS)
+    out_root = get_stage_dir(args.experiment_tag, "part1", "tf", "grid_search")
+    results = out_root / "results.csv"
+    best_out = out_root / "best_params.json"
+    best_runs_root = get_stage_dir(args.experiment_tag, "part1", "tf", "best_runs")
+    run_tag = args.tag or args.experiment_tag
+
+    if not results.exists(): raise SystemExit(f"Not found: {results}")
+    header, rows = parse_results(results)
 
     if "p_stop_multiplier" in header: STOP_KEY = "p_stop_multiplier"
     elif "p_stop_mult" in header:     STOP_KEY = "p_stop_mult"
@@ -66,11 +78,11 @@ if __name__ == "__main__":
     best = max(rows, key=lambda r: r.get(args.key, float("-inf")))
     best_params = {k: best[k] for k in BASE_KEYS if k in best}
     best_params["p_stop_multiplier"] = float(best.get(STOP_KEY, 0.0))
-    BEST_OUT.write_text(json.dumps(best_params, indent=2), encoding="utf-8")
-    print(f"[BEST] {args.key}={best.get(args.key):.6g}  params={best_params}\n[SAVE] {BEST_OUT}")
+    best_out.write_text(json.dumps(best_params, indent=2), encoding="utf-8")
+    print(f"[BEST] {args.key}={best.get(args.key):.6g}  params={best_params}\n[SAVE] {best_out}")
 
     order = {"is": 0, "oos": 1, "full": 2}
     runs = sorted({x.strip().lower() for x in args.runs.split(",") if x.strip()},
                   key=lambda x: order.get(x, 99))
-    for r in runs: run_split(r, args.tag, BEST_OUT)
+    for r in runs: run_split(r, run_tag, best_out, best_runs_root)
     print("[DONE]")

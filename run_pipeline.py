@@ -1,90 +1,126 @@
 # -*- coding: utf-8 -*-
 #!/usr/bin/env python3
-# run_pipeline.py
-"""
-一键执行 COMP396 项目从网格搜索到组合策略的全流程。
+"""Run the part1 pipeline under the experiment layout."""
 
-功能:
-1. 清理旧的 output 文件夹。
-2. 依次为 TF, MR, GARCH 策略执行网格搜索。
-3. 根据网格搜索结果，为各策略选出最优参数并跑完 IS/OOS/Full 样本。
-4. 自动计算三个资产共有的全样本日期范围。
-5. 使用最优参数和自动获取的日期，运行最终的组合策略。
-
-使用:
-在项目根目录下执行 `python run_pipeline.py`
-"""
+import argparse
+import json
+import shutil
 import subprocess
 import sys
-import shutil
 from pathlib import Path
-import json
+
+from scripts.common_paths import experiment_root, get_stage_dir, rel_path, update_experiment_record
+
 
 PROJ = Path(__file__).resolve().parent
+TIMELINE = json.loads((PROJ / "configs" / "timeline.json").read_text(encoding="utf-8"))
+DEFAULT_EXPERIMENT_TAG = "adhoc"
+
 
 def run_command(cmd, step_name):
-    """执行一个命令并打印日志"""
-    print(f"\n{'='*20}\n[START] {step_name}\n{'='*20}")
+    print(f"\n{'=' * 20}\n[START] {step_name}\n{'=' * 20}")
     print(f"Executing: {' '.join(cmd)}")
     try:
         subprocess.run(cmd, check=True, text=True)
         print(f"[DONE] {step_name}")
-    except subprocess.CalledProcessError as e:
-        print(f"[ERROR] {step_name} failed with exit code {e.returncode}", file=sys.stderr)
-        sys.exit(1) # 如果某一步失败，则终止整个流程
+    except subprocess.CalledProcessError as exc:
+        print(f"[ERROR] {step_name} failed with exit code {exc.returncode}", file=sys.stderr)
+        sys.exit(1)
+
 
 def get_combo_dates():
-    """从 splits 文件中自动计算组合策略的全样本日期范围"""
-    splits_paths = [
-        PROJ / "configs" / "splits_asset01.json",
-        PROJ / "configs" / "splits_asset10.json",
-        PROJ / "configs" / "splits_asset07.json",
-    ]
-    starts, ends = [], []
-    for p in splits_paths:
-        data = json.loads(p.read_text(encoding="utf-8"))
-        starts.append(data["full_start"])
-        ends.append(data["full_end"])
-    
-    # 组合策略的开始时间应为所有资产中最晚的开始时间
-    # 组合策略的结束时间应为所有资产中最早的结束时间
-    # 这样可以确保在整个回测期间，所有资产都有数据
-    combo_start = max(starts)
-    combo_end = min(ends)
+    """Load the shared part1 full date range for the combined run."""
+    combo_start = TIMELINE["part1"]["full"]["start"]
+    combo_end = TIMELINE["part1"]["full"]["end"]
     print(f"\n[INFO] Auto-detected combo date range: {combo_start} -> {combo_end}")
     return combo_start, combo_end
 
+
+def parse_args():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--experiment-tag", default=DEFAULT_EXPERIMENT_TAG)
+    ap.add_argument("--clean-experiment", action="store_true")
+    return ap.parse_args()
+
+
 if __name__ == "__main__":
-    # 0. 清理旧产出
-    output_dir = PROJ / "output"
-    if output_dir.exists():
-        print(f"[CLEANUP] Removing old directory: {output_dir}")
-        shutil.rmtree(output_dir)
+    args = parse_args()
+    exp_root = experiment_root(args.experiment_tag, create=False)
+    if args.clean_experiment and exp_root.exists():
+        print(f"[CLEANUP] Removing experiment directory: {exp_root}")
+        shutil.rmtree(exp_root)
 
-    py_exec = sys.executable # 使用当前 Python 解释器
+    py_exec = sys.executable
 
-    # 1. Trend Following (TF) - Asset 01
-    run_command([py_exec, "scripts/tf/run_core4_grid_tf.py"], "TF Grid Search")
-    run_command([py_exec, "scripts/tf/pick_best_tf.py", "--runs", "is,oos,full", "--key", "true_pd_ratio"], "TF Pick Best")
+    run_command([py_exec, "scripts/tf/run_core4_grid_tf.py", "--experiment-tag", args.experiment_tag], "TF Grid Search")
+    run_command(
+        [py_exec, "scripts/tf/pick_best_tf.py", "--experiment-tag", args.experiment_tag, "--runs", "is,oos,full", "--key", "true_pd_ratio"],
+        "TF Pick Best",
+    )
 
-    # 2. Mean Reversion (MR) - Asset 10
-    run_command([py_exec, "scripts/mr/run_core4_grid_mr.py"], "MR Grid Search")
-    run_command([py_exec, "scripts/mr/pick_best_mr.py", "--runs", "is,oos,full", "--key", "true_pd_ratio"], "MR Pick Best")
+    run_command([py_exec, "scripts/mr/run_core4_grid_mr.py", "--experiment-tag", args.experiment_tag], "MR Grid Search")
+    run_command(
+        [py_exec, "scripts/mr/pick_best_mr.py", "--experiment-tag", args.experiment_tag, "--runs", "is,oos,full", "--key", "true_pd_ratio"],
+        "MR Pick Best",
+    )
 
-    # 3. GARCH - Asset 07
-    run_command([py_exec, "scripts/garch/run_core4_grid_garch.py"], "GARCH Grid Search")
-    run_command([py_exec, "scripts/garch/pick_best_garch.py", "--runs", "is,oos,full", "--key", "true_pd_ratio"], "GARCH Pick Best")
+    run_command([py_exec, "scripts/garch/run_core4_grid_garch.py", "--experiment-tag", args.experiment_tag], "GARCH Grid Search")
+    run_command(
+        [py_exec, "scripts/garch/pick_best_garch.py", "--experiment-tag", args.experiment_tag, "--runs", "is,oos,full", "--key", "true_pd_ratio"],
+        "GARCH Pick Best",
+    )
 
-    # 4. Combo Strategy (组合策略)
     start_date, end_date = get_combo_dates()
-    run_command([
-        py_exec, "scripts/combo/run_combo_once.py",
-        "--start", start_date,
-        "--end", end_date,
-        "--cash", "1000000",
-        "--w-tf", "0.45",
-        "--w-mr", "0.45",
-        "--w-ga", "0.10"
-    ], "Combo Strategy Run")
+    combo_root = get_stage_dir(args.experiment_tag, "part1", "combo", "combo")
+    run_command(
+        [
+            py_exec,
+            "scripts/combo/run_combo_once.py",
+            "--experiment-tag",
+            args.experiment_tag,
+            "--start",
+            start_date,
+            "--end",
+            end_date,
+            "--output-root",
+            str(combo_root),
+            "--cash",
+            "1000000",
+            "--w-tf",
+            "0.45",
+            "--w-mr",
+            "0.45",
+            "--w-ga",
+            "0.10",
+        ],
+        "Combo Strategy Run",
+    )
+
+    update_experiment_record(
+        args.experiment_tag,
+        {
+            "experiment_tag": args.experiment_tag,
+            "timeline_config": rel_path(PROJ / "configs" / "timeline.json"),
+            "part1": {
+                "strategies": {
+                    "tf": {
+                        "grid_search_dir": rel_path(get_stage_dir(args.experiment_tag, "part1", "tf", "grid_search", create=False)),
+                        "best_runs_dir": rel_path(get_stage_dir(args.experiment_tag, "part1", "tf", "best_runs", create=False)),
+                    },
+                    "mr": {
+                        "grid_search_dir": rel_path(get_stage_dir(args.experiment_tag, "part1", "mr", "grid_search", create=False)),
+                        "best_runs_dir": rel_path(get_stage_dir(args.experiment_tag, "part1", "mr", "best_runs", create=False)),
+                    },
+                    "garch": {
+                        "grid_search_dir": rel_path(get_stage_dir(args.experiment_tag, "part1", "garch", "grid_search", create=False)),
+                        "best_runs_dir": rel_path(get_stage_dir(args.experiment_tag, "part1", "garch", "best_runs", create=False)),
+                    },
+                },
+                "combo": {
+                    "combo_dir": rel_path(get_stage_dir(args.experiment_tag, "part1", "combo", "combo", create=False)),
+                },
+            },
+        },
+    )
 
     print("\n[SUCCESS] All pipeline steps completed successfully.")

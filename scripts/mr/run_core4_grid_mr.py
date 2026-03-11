@@ -1,29 +1,26 @@
 # -*- coding: utf-8 -*-
 #!/usr/bin/env python3
 # scripts/mr/run_core4_grid_mr.py
-import json, itertools, subprocess, sys, time
+import argparse, json, itertools, subprocess, sys, time
 from pathlib import Path
-try: import yaml
-except: yaml = None
 
 PROJ = Path(__file__).resolve().parents[2]
+if str(PROJ) not in sys.path:
+    sys.path.insert(0, str(PROJ))
+
+from scripts.common_paths import get_stage_dir  # noqa: E402
+
 MAIN = PROJ / "main.py"
 DATA_DIR = PROJ / "DATA" / "PART1"
 
-SPLITS_PATH = PROJ / "configs" / "splits_asset10.json"
-GRID_YAML = PROJ / "configs" / "grids" / "mr_core4_v1.yaml"
+TIMELINE_PATH = PROJ / "configs" / "timeline.json"
 GRID_JSON = PROJ / "configs" / "grids" / "mr_core4_v1.json"
-GRID_PATH  = GRID_YAML if GRID_YAML.exists() else GRID_JSON
-
-OUT_ROOT = PROJ / "output" / "part1" / "asset10" / "mr_core4_v1"
-OUT_ROOT.mkdir(parents=True, exist_ok=True)
-CSV_OUT = OUT_ROOT / "results.csv"
-SPLITS = json.loads(SPLITS_PATH.read_text(encoding="utf-8"))
+GRID_PATH = GRID_JSON
+TIMELINE = json.loads(TIMELINE_PATH.read_text(encoding="utf-8"))
+PART1 = TIMELINE["part1"]
+DEFAULT_EXPERIMENT_TAG = "adhoc"
 
 def load_grid(path: Path):
-    if path.suffix.lower() in (".yml", ".yaml"):
-        if yaml is None: raise SystemExit("PyYAML missing")
-        return yaml.safe_load(path.read_text(encoding="utf-8"))
     return json.loads(path.read_text(encoding="utf-8"))
 
 GRID = load_grid(GRID_PATH)
@@ -39,8 +36,8 @@ def run_one(params: dict, run_dir: Path):
         sys.executable, str(MAIN),
         "--strategy", "mr_asset10_v1",
         "--data-dir", str(DATA_DIR),
-        "--fromdate", SPLITS["is_start"],
-        "--todate",   SPLITS["is_end"],
+        "--fromdate", PART1["is"]["start"],
+        "--todate",   PART1["is"]["end"],
         "--output-dir", str(run_dir),
         "--no-plot"
     ] + param_args
@@ -57,9 +54,15 @@ def run_one(params: dict, run_dir: Path):
     return metrics
 
 if __name__ == "__main__":
-    if CSV_OUT.exists():
-        CSV_OUT.rename(OUT_ROOT / f"results_{time.strftime('%Y%m%d_%H%M%S')}.csv")
-    CSV_OUT.write_text(",".join(HEADER) + "\n", encoding="utf-8")
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--experiment-tag", default=DEFAULT_EXPERIMENT_TAG)
+    args = ap.parse_args()
+
+    out_root = get_stage_dir(args.experiment_tag, "part1", "mr", "grid_search")
+    csv_out = out_root / "results.csv"
+    if csv_out.exists():
+        csv_out.rename(out_root / f"results_{time.strftime('%Y%m%d_%H%M%S')}.csv")
+    csv_out.write_text(",".join(HEADER) + "\n", encoding="utf-8")
 
     combos = list(itertools.product(*[GRID[k] for k in PARAM_KEYS]))
     total = len(combos)
@@ -68,7 +71,7 @@ if __name__ == "__main__":
         params = {k: v for k, v in zip(PARAM_KEYS, tup)}
         ts = time.strftime("%Y%m%d")
         run_name = f"run_{ts}_IS_{i:03d}"
-        run_dir = OUT_ROOT / run_name
+        run_dir = out_root / run_name
 
         try: m = run_one(params, run_dir)
         except Exception as e:
@@ -76,5 +79,5 @@ if __name__ == "__main__":
             m = {"true_pd_ratio":0.0,"open_pnl_pd_ratio":0.0,"activity_pct":0.0,"final_value":0.0,"bankrupt":0}
 
         row = [str(params[k]) for k in PARAM_KEYS] + [str(m[h]) for h in HEADER[len(PARAM_KEYS):]]
-        with CSV_OUT.open("a", encoding="utf-8") as f: f.write(",".join(row) + "\n")
+        with csv_out.open("a", encoding="utf-8") as f: f.write(",".join(row) + "\n")
         print(f"[{i}/{total}] OK -> {run_dir}")

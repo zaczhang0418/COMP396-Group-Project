@@ -1,19 +1,22 @@
 # -*- coding: utf-8 -*-
 #!/usr/bin/env python3
 # scripts/tf/run_core4_grid_tf.py
-import itertools, json, subprocess, sys, time
+import argparse, itertools, json, subprocess, sys, time
 from pathlib import Path
 
 PROJ = Path(__file__).resolve().parents[2]
+if str(PROJ) not in sys.path:
+    sys.path.insert(0, str(PROJ))
+
+from scripts.common_paths import get_stage_dir  # noqa: E402
+
 MAIN = PROJ / "main.py"
 DATA_DIR = PROJ / "DATA" / "PART1"
 
-SPLITS = json.loads((PROJ / "configs" / "splits_asset01.json").read_text(encoding="utf-8"))
+TIMELINE = json.loads((PROJ / "configs" / "timeline.json").read_text(encoding="utf-8"))
+PART1 = TIMELINE["part1"]
 GRID   = json.loads((PROJ / "configs" / "grids" / "tf_core4_v1.json").read_text(encoding="utf-8"))
-
-OUT_ROOT = PROJ / "output" / "part1" / "asset01" / "tf_core4_v1"
-OUT_ROOT.mkdir(parents=True, exist_ok=True)
-CSV_OUT = OUT_ROOT / "results.csv"
+DEFAULT_EXPERIMENT_TAG = "adhoc"
 
 STRATEGY  = "tf_asset01_v1"
 DATA_NAME = "series_1"
@@ -31,7 +34,7 @@ def _asfloat(x, default=0.0):
 def write_meta(run_dir: Path, params: dict, splits: dict):
     meta = {
         "strategy_id": STRATEGY, "asset_tag": ASSET_TAG, "data_name": DATA_NAME,
-        "split": "IS(70%)", "fromdate": splits["is_start"], "todate": splits["is_end"],
+        "split": "IS(70%)", "fromdate": splits["is"]["start"], "todate": splits["is"]["end"],
         "params": params, "defaults": {"p_min_w_for_1": DEFAULT_P_MIN_W_FOR_1}
     }
     (run_dir / "meta.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")
@@ -48,8 +51,8 @@ def run_one(params: dict, run_dir: Path) -> dict:
         sys.executable, str(MAIN),
         "--strategy", STRATEGY,
         "--data-dir", str(DATA_DIR),
-        "--fromdate", SPLITS["is_start"],
-        "--todate",   SPLITS["is_end"],
+        "--fromdate", PART1["is"]["start"],
+        "--todate",   PART1["is"]["end"],
         "--output-dir", str(run_dir),
         "--no-plot", *param_args
     ]
@@ -64,13 +67,19 @@ def run_one(params: dict, run_dir: Path) -> dict:
         "final_value":       _asfloat(summary.get("final_value")),
         "bankrupt":          int(bool(summary.get("bankrupt", False))),
     }
-    write_meta(run_dir, params, SPLITS)
+    write_meta(run_dir, params, PART1)
     return metrics
 
 if __name__ == "__main__":
-    if CSV_OUT.exists():
-        CSV_OUT.rename(OUT_ROOT / f"results_{time.strftime('%Y%m%d_%H%M%S')}.csv")
-    CSV_OUT.write_text(",".join(HEADER) + "\n", encoding="utf-8")
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--experiment-tag", default=DEFAULT_EXPERIMENT_TAG)
+    args = ap.parse_args()
+
+    out_root = get_stage_dir(args.experiment_tag, "part1", "tf", "grid_search")
+    csv_out = out_root / "results.csv"
+    if csv_out.exists():
+        csv_out.rename(out_root / f"results_{time.strftime('%Y%m%d_%H%M%S')}.csv")
+    csv_out.write_text(",".join(HEADER) + "\n", encoding="utf-8")
 
     try: grids = [GRID[k] for k in PARAM_KEYS]
     except KeyError as e: raise SystemExit(f"[ERR] Missing key: {e}")
@@ -82,7 +91,7 @@ if __name__ == "__main__":
         params = {k: v for k, v in zip(PARAM_KEYS, tup)}
         ts = time.strftime("%Y%m%d")
         run_name = f"run_{ts}_IS_{i:03d}"
-        run_dir  = OUT_ROOT / run_name
+        run_dir  = out_root / run_name
 
         try: m = run_one(params, run_dir)
         except Exception as e:
@@ -96,5 +105,5 @@ if __name__ == "__main__":
         row = [run_name, *(str(params[k]) for k in PARAM_KEYS),
                str(m["true_pd_ratio"]), str(m["open_pnl_pd_ratio"]), str(m["activity_pct"]),
                str(m["final_value"]), str(m["bankrupt"])]
-        with CSV_OUT.open("a", encoding="utf-8") as f: f.write(",".join(row) + "\n")
+        with csv_out.open("a", encoding="utf-8") as f: f.write(",".join(row) + "\n")
         print(f"[{i}/{total}] OK -> {run_dir}")
