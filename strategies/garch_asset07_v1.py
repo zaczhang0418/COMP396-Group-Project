@@ -10,9 +10,9 @@ from collections import deque
 class GarchSwitchTFV1(bt.Strategy):
     params = dict(
         # ---- core grid params ----
-        p_sigma_q_low=0.35,       # lower quantile for ann. vol
-        p_sigma_q_high=0.80,      # upper quantile for ann. vol
-        p_mult_mid=0.9,           # position multiplier in mid-vol regime
+        p_sigma_q_low=0.30,       # lower quantile for ann. vol
+        p_sigma_q_high=0.85,      # upper quantile for ann. vol
+        p_mult_mid=0.6,           # position multiplier in mid-vol regime
         p_mult_high=0.4,          # position multiplier in high-vol regime
 
         # ---- other defaults ----
@@ -21,7 +21,7 @@ class GarchSwitchTFV1(bt.Strategy):
         p_ema_short=12, p_ema_long=60,
         p_atr_period=14, p_stop_multiplier=2.0,
         p_target_vol_ann=0.20, p_pos_cap=1.0,
-        p_min_w_for_1=0.02,          # min weight to place a unit position
+        p_min_w_for_1=0.03,          # min weight to place a unit position
         p_reenter_cooldown=1,        # bars to wait before re-entry
         data_name='series_7',        # hard bind to asset07
     )

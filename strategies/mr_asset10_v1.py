@@ -55,9 +55,9 @@ class ZScore(bt.Indicator):
 class MR_Asset10_ZScore_V1(bt.Strategy):
     params = dict(
         # --- Core-4（入网格） ---
-        p_lookback=60,         # Z-Score 窗口
-        p_entry_z=1.6,         # 入场阈值（双边）
-        p_exit_z=0.4,          # 回归离场阈值（|z| <= exit_z）
+        p_lookback=40,         # Z-Score 窗口
+        p_entry_z=2.0,         # 入场阈值（双边）
+        p_exit_z=0.5,          # 回归离场阈值（|z| <= exit_z）
         p_stop_mult=2.0,       # ATR 止损倍数（静态）
 
         # --- 固定侧 ---
@@ -74,7 +74,7 @@ class MR_Asset10_ZScore_V1(bt.Strategy):
 
         # --- 其他 ---
         p_debug=False,
-        data_name='asset_10',
+        data_name='series_10',
     )
 
     def __init__(self):

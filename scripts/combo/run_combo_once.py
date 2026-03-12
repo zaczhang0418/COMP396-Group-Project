@@ -85,8 +85,11 @@ if __name__ == "__main__":
     run_id = f"combined_{w_tag}_{ts}"
 
     # 2) Combined Account Output
-    default_root = get_stage_dir(args.experiment_tag, "part1", "combo", "combo")
-    output_root = Path(args.output_root) if args.output_root else default_root
+    output_root = (
+        Path(args.output_root)
+        if args.output_root
+        else get_stage_dir(args.experiment_tag, "part1", "combo", "combo")
+    )
     output_root.mkdir(parents=True, exist_ok=True)
     COM_ROOT = output_root / run_id
     COM_ROOT.mkdir(parents=True, exist_ok=True)

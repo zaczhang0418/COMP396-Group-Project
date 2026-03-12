@@ -101,6 +101,8 @@ def run_combo_transfer(start: str, end: str, experiment_tag: str, cash: float, w
         start,
         "--end",
         end,
+        "--experiment-tag",
+        experiment_tag,
         "--tag",
         experiment_tag,
         "--data-dir",
