@@ -1,21 +1,19 @@
 # -*- coding: utf-8 -*-
 #!/usr/bin/env python3
-# scripts/combo/run_combo_once.py (Optimized)
+# scripts/combo/run_combo_once.py
 import argparse, json, subprocess, sys, time
 from pathlib import Path
 
 PROJ = Path(__file__).resolve().parents[2]
+if str(PROJ) not in sys.path:
+    sys.path.insert(0, str(PROJ))
+
+from scripts.common_paths import get_stage_dir, rel_path  # noqa: E402
+
 MAIN = PROJ / "main.py"
 DATA_DIR = PROJ / "DATA" / "PART1"
-OUT_ROOT = PROJ / "output" / "part1" / "combo"
-OUT_ROOT.mkdir(parents=True, exist_ok=True)
-
-META_PATHS = {
-    "tf": PROJ / "output" / "part1" / "asset01" / "tf_core4_v1",
-    "mr": PROJ / "output" / "part1" / "asset10" / "mr_core4_v1",
-    "ga": PROJ / "output" / "part1" / "asset07" / "garch_core4_v1",
-}
 COMBO_STRAT = "combo_tf01_mr10_garch07_v1"
+DEFAULT_EXPERIMENT_TAG = "adhoc"
 
 def load_params_file(dirpath: Path, label: str = "") -> dict:
     print(f"[{label.upper()}] Searching for params in: {dirpath}")
@@ -70,7 +68,10 @@ if __name__ == "__main__":
     ap.add_argument("--w-tf", type=float, default=1/3); ap.add_argument("--w-mr", type=float, default=1/3); ap.add_argument("--w-ga", type=float, default=1/3)
     ap.add_argument("--cash",  type=float, default=1_000_000.0)
     ap.add_argument("--tag",   default="combo_v1")
+    ap.add_argument("--experiment-tag", default=DEFAULT_EXPERIMENT_TAG)
     ap.add_argument("--no-plots", action="store_true")
+    ap.add_argument("--data-dir", default=str(DATA_DIR))
+    ap.add_argument("--output-root", default=None)
     ap.add_argument("--meta-tf-dir", default=None); ap.add_argument("--meta-mr-dir", default=None); ap.add_argument("--meta-ga-dir", default=None)
     args = ap.parse_args()
 
@@ -84,12 +85,23 @@ if __name__ == "__main__":
     run_id = f"combined_{w_tag}_{ts}"
 
     # 2) Combined Account Output
-    COM_ROOT = OUT_ROOT / run_id
+    output_root = (
+        Path(args.output_root)
+        if args.output_root
+        else get_stage_dir(args.experiment_tag, "part1", "combo", "combo")
+    )
+    output_root.mkdir(parents=True, exist_ok=True)
+    COM_ROOT = output_root / run_id
     COM_ROOT.mkdir(parents=True, exist_ok=True)
 
-    tf_data = load_params_file(Path(args.meta_tf_dir) if args.meta_tf_dir else META_PATHS["tf"], "tf")
-    mr_data = load_params_file(Path(args.meta_mr_dir) if args.meta_mr_dir else META_PATHS["mr"], "mr")
-    ga_data = load_params_file(Path(args.meta_ga_dir) if args.meta_ga_dir else META_PATHS["ga"], "ga")
+    meta_paths = {
+        "tf": get_stage_dir(args.experiment_tag, "part1", "tf", "grid_search", create=False),
+        "mr": get_stage_dir(args.experiment_tag, "part1", "mr", "grid_search", create=False),
+        "ga": get_stage_dir(args.experiment_tag, "part1", "garch", "grid_search", create=False),
+    }
+    tf_data = load_params_file(Path(args.meta_tf_dir) if args.meta_tf_dir else meta_paths["tf"], "tf")
+    mr_data = load_params_file(Path(args.meta_mr_dir) if args.meta_mr_dir else meta_paths["mr"], "mr")
+    ga_data = load_params_file(Path(args.meta_ga_dir) if args.meta_ga_dir else meta_paths["ga"], "ga")
 
     tf_params = extract_params(tf_data)
     mr_params = extract_params(mr_data)
@@ -106,7 +118,7 @@ if __name__ == "__main__":
     cmd_combo = [
         sys.executable, str(MAIN),
         "--strategy", COMBO_STRAT,
-        "--data-dir", str(DATA_DIR),
+        "--data-dir", str(args.data_dir),
         "--fromdate", args.start, "--todate", args.end,
         "--cash", str(args.cash),
         "--output-dir", str(COM_ROOT),
@@ -125,5 +137,27 @@ if __name__ == "__main__":
 
     if args.no_plots: cmd_combo.append("--no-plot")
     subprocess.run(cmd_combo, check=True, cwd=str(PROJ))
+
+    (COM_ROOT / "meta.json").write_text(
+        json.dumps(
+            {
+                "strategy_id": COMBO_STRAT,
+                "tag": args.tag,
+                "experiment_tag": args.experiment_tag,
+                "run_id": run_id,
+                "fromdate": args.start,
+                "todate": args.end,
+                "weights": {"tf": w_tf, "mr": w_mr, "ga": w_ga},
+                "data_dir": str(args.data_dir),
+                "param_sources": {
+                    "tf": rel_path(Path(args.meta_tf_dir) if args.meta_tf_dir else meta_paths["tf"]),
+                    "mr": rel_path(Path(args.meta_mr_dir) if args.meta_mr_dir else meta_paths["mr"]),
+                    "ga": rel_path(Path(args.meta_ga_dir) if args.meta_ga_dir else meta_paths["ga"]),
+                },
+            },
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
 
     print(f"\n[DONE] Results saved to: {COM_ROOT}")

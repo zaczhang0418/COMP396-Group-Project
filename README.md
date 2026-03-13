@@ -61,32 +61,32 @@ python main.py --strategy <name>
 
 ##  Example Runs
 
-### 1. Run the **Copycat** strategy
+### 1. Run the **TF Asset 01** strategy
 This is a simple demo strategy that goes long if yesterday’s close > open, otherwise short:
 
 ```bash
-python main.py --strategy copycat
+python main.py --strategy tf_asset01_v1
 ```
 
 ### 2. Run with **debug logging** enabled
 This prints order fills, slippage, and trade PnL to the console:
 
 ```bash
-python main.py --strategy copycat --debug
+python main.py --strategy tf_asset01_v1 --debug
 ```
 
 ### 3. Run with a different dataset
 If you have your own CSVs in a folder (must contain at least 10 aligned OHLCV files):
 
 ```bash
-python main.py --strategy copycat --data-dir ./DATA/MYCSV
+python main.py --strategy tf_asset01_v1 --data-dir ./DATA/MYCSV
 ```
 
-### 4. Run the **Portfolio Bankrupt Demo**
+### 4. Run the **Current Combo Strategy**
 This shows what happens with extreme leverage and bad allocation:
 
 ```bash
-python main.py --strategy p_bankrupt
+python main.py --strategy combo_tf01_mr10_garch07_v1
 ```
 
 ---
@@ -153,14 +153,14 @@ Quick way to create a clean ZIP:
 - From the project root, run:
   
   ```bash
-  python scripts/make_dist.py           # creates BT396-dist.zip in the project root
-  python scripts/make_dist.py --no-output  # also excludes the output/ folder
-  python scripts/make_dist.py --name BT396_0.1.0_win.zip
+  python scripts/distribution/make_dist.py           # creates BT396-dist.zip in the project root
+  python scripts/distribution/make_dist.py --no-output  # also excludes the output/ folder
+  python scripts/distribution/make_dist.py --name BT396_0.1.0_win.zip
   ```
 
 When a user unzips the archive, they can run:
 
 ```bash
 python main.py               # shows project version and date
-python main.py --strategy copycat
+python main.py --strategy tf_asset01_v1
 ```
