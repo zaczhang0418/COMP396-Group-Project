@@ -52,21 +52,21 @@ if __name__ == "__main__":
 
     py_exec = sys.executable
 
-    run_command([py_exec, "scripts/tf/run_core4_grid_tf.py", "--experiment-tag", args.experiment_tag], "TF Grid Search")
+    run_command([py_exec, "scripts/single_strat/tf/run_grid_search.py", "--experiment-tag", args.experiment_tag], "TF Grid Search")
     run_command(
-        [py_exec, "scripts/tf/pick_best_tf.py", "--experiment-tag", args.experiment_tag, "--runs", "is,oos,full", "--key", "true_pd_ratio"],
+        [py_exec, "scripts/single_strat/tf/pick_best.py", "--experiment-tag", args.experiment_tag, "--runs", "is,oos,full", "--key", "true_pd_ratio"],
         "TF Pick Best",
     )
 
-    run_command([py_exec, "scripts/mr/run_core4_grid_mr.py", "--experiment-tag", args.experiment_tag], "MR Grid Search")
+    run_command([py_exec, "scripts/single_strat/mr/run_grid_search.py", "--experiment-tag", args.experiment_tag], "MR Grid Search")
     run_command(
-        [py_exec, "scripts/mr/pick_best_mr.py", "--experiment-tag", args.experiment_tag, "--runs", "is,oos,full", "--key", "true_pd_ratio"],
+        [py_exec, "scripts/single_strat/mr/pick_best.py", "--experiment-tag", args.experiment_tag, "--runs", "is,oos,full", "--key", "true_pd_ratio"],
         "MR Pick Best",
     )
 
-    run_command([py_exec, "scripts/garch/run_core4_grid_garch.py", "--experiment-tag", args.experiment_tag], "GARCH Grid Search")
+    run_command([py_exec, "scripts/single_strat/garch/run_grid_search.py", "--experiment-tag", args.experiment_tag], "GARCH Grid Search")
     run_command(
-        [py_exec, "scripts/garch/pick_best_garch.py", "--experiment-tag", args.experiment_tag, "--runs", "is,oos,full", "--key", "true_pd_ratio"],
+        [py_exec, "scripts/single_strat/garch/pick_best.py", "--experiment-tag", args.experiment_tag, "--runs", "is,oos,full", "--key", "true_pd_ratio"],
         "GARCH Pick Best",
     )
 

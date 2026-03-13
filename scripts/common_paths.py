@@ -21,19 +21,19 @@ STRATEGY_LAYOUT = {
     "tf": {
         "asset": "01",
         "asset_dir": "asset01",
-        "strategy_id": "tf_asset01_v1",
+        "strategy_id": "tf_generic_v1",
         "data_name": "series_1",
     },
     "mr": {
         "asset": "10",
         "asset_dir": "asset10",
-        "strategy_id": "mr_asset10_v1",
+        "strategy_id": "mr_generic_v1",
         "data_name": "series_10",
     },
     "garch": {
         "asset": "07",
         "asset_dir": "asset07",
-        "strategy_id": "garch_asset07_v1",
+        "strategy_id": "garch_generic_v1",
         "data_name": "series_7",
     },
 }

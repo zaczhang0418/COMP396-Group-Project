@@ -45,7 +45,7 @@ This file provides a base class for all trading strategies.
 - It includes methods like `on_bar` (called for each new price bar) and `on_order_update`.
 - When you create a new strategy, you create a class that inherits from `StrategyBase`. This ensures your strategy will work with the backtesting engine.
 
-## `scripts/make_dist.py`
+## `scripts/distribution/make_dist.py`
 
 This script is a tool to package the project into a clean ZIP file.
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #!/usr/bin/env python3
-# scripts/combo/run_combo_once.py (Optimized)
+# scripts/combo/run_combo_once.py
 import argparse, json, subprocess, sys, time
 from pathlib import Path
 

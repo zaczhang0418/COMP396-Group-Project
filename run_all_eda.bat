@@ -16,7 +16,7 @@ if "%DATASET_NAME%"=="" (
 :: 如果选择 COMBINED，先执行数据拼接脚本
 if "%DATASET_NAME%"=="COMBINED" (
     echo [INFO] Detected COMBINED mode. Merging PART1 and PART2 data...
-    python scripts/merge_data_parts.py
+    python scripts/data/merge_data_parts.py
     if errorlevel 1 (
         echo [ERROR] Merge script failed. Exiting.
         exit /b 1
