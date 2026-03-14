@@ -116,6 +116,9 @@ def run_split_eval(
     tag: str,
     data_dir: Path,
     output_root: Path,
+    strategy_id: str | None = None,
+    data_name: str | None = None,
+    asset_tag: str | None = None,
 ) -> tuple[Path, dict]:
     split_label = SPLIT_LABELS[split_name]
     split_cfg = timeline[split_name]
@@ -137,6 +140,12 @@ def run_split_eval(
         "--output-root",
         str(output_root),
     ]
+    if strategy_id:
+        cmd.extend(["--strategy-id", strategy_id])
+    if data_name:
+        cmd.extend(["--data-name", data_name])
+    if asset_tag:
+        cmd.extend(["--asset-tag", asset_tag])
     subprocess.run(cmd, check=True, cwd=str(PROJ))
     run_dir = latest_run_dir(output_root, split_label)
     return run_dir, load_json(run_dir / "run_summary.json", default={})
@@ -170,6 +179,9 @@ def robust_select(
     is_weight: float,
     gap_penalty: float,
     bankrupt_penalty: float,
+    strategy_id: str | None = None,
+    data_name: str | None = None,
+    asset_tag: str | None = None,
 ) -> dict:
     ranked_is = sorted(rows, key=lambda row: row.get(key, float("-inf")), reverse=True)
     shortlist = ranked_is[: max(1, min(int(top_k), len(ranked_is)))]
@@ -191,6 +203,9 @@ def robust_select(
             tag=f"{experiment_tag}_{strategy_key}_robust_{idx:02d}",
             data_dir=data_dir,
             output_root=candidate_root / "oos",
+            strategy_id=strategy_id,
+            data_name=data_name,
+            asset_tag=asset_tag,
         )
         full_dir, full_summary = run_split_eval(
             runner=runner,
@@ -200,6 +215,9 @@ def robust_select(
             tag=f"{experiment_tag}_{strategy_key}_robust_{idx:02d}",
             data_dir=data_dir,
             output_root=candidate_root / "full",
+            strategy_id=strategy_id,
+            data_name=data_name,
+            asset_tag=asset_tag,
         )
 
         metric_is = to_float(row.get(key))
