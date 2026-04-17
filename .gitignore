@@ -36,6 +36,12 @@ ENV/
 # --- 5. 项目输出 (EDA & Strategy) ---
 # [根目录] 通用输出
 output/
+!output/
+output/*
+!output/experiments/
+output/experiments/*
+!output/experiments/ca3_stage1_generic/
+!output/experiments/ca3_stage1_generic/**
 # [EDA] V3/V4 新版输出路径 (关键!)
 EDA/output/
 # [EDA] 旧版路径 (保留以防万一)

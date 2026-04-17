@@ -1,0 +1,85 @@
+{
+  "experiment_tag": "ca3_stage1_generic",
+  "source_part": "part1",
+  "target_part": "part2",
+  "timeline": {
+    "start": "2072-09-03",
+    "end": "2075-05-30"
+  },
+  "cash": 1000000.0,
+  "weights": {
+    "tf": 0.45,
+    "mr": 0.45,
+    "garch": 0.1
+  },
+  "rows": [
+    {
+      "strategy": "tf",
+      "asset": "01",
+      "source_part": "part1",
+      "target_part": "part2",
+      "experiment_tag": "ca3_stage1_generic",
+      "split": "100-full",
+      "fromdate": "2072-09-03",
+      "todate": "2075-05-30",
+      "true_pd_ratio": 0.8958936977560925,
+      "open_pnl_pd_ratio": 0.9913073790966249,
+      "activity_pct": 49.549549549549546,
+      "final_value": 2667396.067482047,
+      "bankrupt": false,
+      "best_params_path": "output\\experiments\\ca3_stage1_generic\\part1\\tf\\asset01\\grid_search\\best_params.json",
+      "run_dir": "output\\experiments\\ca3_stage1_generic\\part2\\tf\\asset01\\transfer_runs\\run_20260417_100-full"
+    },
+    {
+      "strategy": "mr",
+      "asset": "10",
+      "source_part": "part1",
+      "target_part": "part2",
+      "experiment_tag": "ca3_stage1_generic",
+      "split": "100-full",
+      "fromdate": "2072-09-03",
+      "todate": "2075-05-30",
+      "true_pd_ratio": -0.8983119392407296,
+      "open_pnl_pd_ratio": -0.8492423659718483,
+      "activity_pct": 3.9,
+      "final_value": 910043.417005035,
+      "bankrupt": false,
+      "best_params_path": "output\\experiments\\ca3_stage1_generic\\part1\\mr\\asset10\\grid_search\\best_params.json",
+      "run_dir": "output\\experiments\\ca3_stage1_generic\\part2\\mr\\asset10\\transfer_runs\\run_20260417_100-full"
+    },
+    {
+      "strategy": "garch",
+      "asset": "07",
+      "source_part": "part1",
+      "target_part": "part2",
+      "experiment_tag": "ca3_stage1_generic",
+      "split": "100-full",
+      "fromdate": "2072-09-03",
+      "todate": "2075-05-30",
+      "true_pd_ratio": -0.6418936863868218,
+      "open_pnl_pd_ratio": -0.5780991525373661,
+      "activity_pct": 9.4,
+      "final_value": 989246.6744887998,
+      "bankrupt": false,
+      "best_params_path": "output\\experiments\\ca3_stage1_generic\\part1\\garch\\asset07\\grid_search\\best_params.json",
+      "run_dir": "output\\experiments\\ca3_stage1_generic\\part2\\garch\\asset07\\transfer_runs\\run_20260417_100-full"
+    },
+    {
+      "strategy": "combo",
+      "asset": "01+07+10",
+      "source_part": "part1",
+      "target_part": "part2",
+      "experiment_tag": "ca3_stage1_generic",
+      "split": "100-full",
+      "fromdate": "2072-09-03",
+      "todate": "2075-05-30",
+      "true_pd_ratio": 0.13586391362012762,
+      "open_pnl_pd_ratio": 1.779789621791178,
+      "activity_pct": 81.88188188188188,
+      "final_value": 1021619.7190516804,
+      "bankrupt": false,
+      "best_params_path": "",
+      "run_dir": "output\\experiments\\ca3_stage1_generic\\part2\\combo\\combined_w045_045_010_20260417_145017"
+    }
+  ]
+}

@@ -95,6 +95,24 @@ scripts/maintenance/archive_legacy_experiment.py
 scripts/common_paths.py
 ```
 
+## Included Reproducible Output
+
+The Stage 1 archive now includes the standard regenerated experiment output:
+
+```text
+output/experiments/ca3_stage1_generic/
+```
+
+This directory contains the Part 1 grid searches, robust-selection records, IS/OOS/FULL best runs, the combined three-leg run, and the Part 2 transfer validation generated from the selected Part 1 parameters.
+
+The most useful summary files for CA3 report evidence are:
+
+```text
+output/experiments/ca3_stage1_generic/experiment_record.json
+output/experiments/ca3_stage1_generic/part2/transfer_summary.csv
+output/experiments/ca3_stage1_generic/part2/transfer_record.json
+```
+
 ## Optimization Narrative
 
 This branch is mostly a structural and research-process optimization, not just a parameter tweak.

@@ -1,0 +1,67 @@
+[
+  {
+    "series": "series_1",
+    "pnl_pd_ratio": 3.0518365096194806,
+    "final_cumPnL": 162655.47000000006,
+    "max_drawdown": 53297.570000000036
+  },
+  {
+    "series": "series_2",
+    "pnl_pd_ratio": null,
+    "final_cumPnL": 0.0,
+    "max_drawdown": 0.0
+  },
+  {
+    "series": "series_3",
+    "pnl_pd_ratio": null,
+    "final_cumPnL": 0.0,
+    "max_drawdown": 0.0
+  },
+  {
+    "series": "series_4",
+    "pnl_pd_ratio": null,
+    "final_cumPnL": 0.0,
+    "max_drawdown": 0.0
+  },
+  {
+    "series": "series_5",
+    "pnl_pd_ratio": null,
+    "final_cumPnL": 0.0,
+    "max_drawdown": 0.0
+  },
+  {
+    "series": "series_6",
+    "pnl_pd_ratio": null,
+    "final_cumPnL": 0.0,
+    "max_drawdown": 0.0
+  },
+  {
+    "series": "series_7",
+    "pnl_pd_ratio": null,
+    "final_cumPnL": 0.0,
+    "max_drawdown": 0.0
+  },
+  {
+    "series": "series_8",
+    "pnl_pd_ratio": null,
+    "final_cumPnL": 0.0,
+    "max_drawdown": 0.0
+  },
+  {
+    "series": "series_9",
+    "pnl_pd_ratio": null,
+    "final_cumPnL": 0.0,
+    "max_drawdown": 0.0
+  },
+  {
+    "series": "series_10",
+    "pnl_pd_ratio": null,
+    "final_cumPnL": 0.0,
+    "max_drawdown": 0.0
+  },
+  {
+    "series": "portfolio",
+    "pnl_pd_ratio": 3.0518365096194806,
+    "true_pd_ratio": 2.3714101883792553
+  }
+]

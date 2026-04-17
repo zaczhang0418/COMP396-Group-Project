@@ -1,0 +1,44 @@
+{
+  "experiment_tag": "ca3_stage1_generic",
+  "timeline_config": "configs\\timeline.json",
+  "part1": {
+    "strategies": {
+      "tf": {
+        "grid_search_dir": "output\\experiments\\ca3_stage1_generic\\part1\\tf\\asset01\\grid_search",
+        "best_runs_dir": "output\\experiments\\ca3_stage1_generic\\part1\\tf\\asset01\\best_runs"
+      },
+      "mr": {
+        "grid_search_dir": "output\\experiments\\ca3_stage1_generic\\part1\\mr\\asset10\\grid_search",
+        "best_runs_dir": "output\\experiments\\ca3_stage1_generic\\part1\\mr\\asset10\\best_runs"
+      },
+      "garch": {
+        "grid_search_dir": "output\\experiments\\ca3_stage1_generic\\part1\\garch\\asset07\\grid_search",
+        "best_runs_dir": "output\\experiments\\ca3_stage1_generic\\part1\\garch\\asset07\\best_runs"
+      }
+    },
+    "combo": {
+      "combo_dir": "output\\experiments\\ca3_stage1_generic\\part1\\combo"
+    }
+  },
+  "part2": {
+    "transfer_summary": "output\\experiments\\ca3_stage1_generic\\part2\\transfer_summary.csv",
+    "transfer_record": "output\\experiments\\ca3_stage1_generic\\part2\\transfer_record.json",
+    "strategies": {
+      "tf": {
+        "grid_search_dir": "output\\experiments\\ca3_stage1_generic\\part1\\tf\\asset01\\grid_search",
+        "transfer_runs_dir": "output\\experiments\\ca3_stage1_generic\\part2\\tf\\asset01\\transfer_runs"
+      },
+      "mr": {
+        "grid_search_dir": "output\\experiments\\ca3_stage1_generic\\part1\\mr\\asset10\\grid_search",
+        "transfer_runs_dir": "output\\experiments\\ca3_stage1_generic\\part2\\mr\\asset10\\transfer_runs"
+      },
+      "garch": {
+        "grid_search_dir": "output\\experiments\\ca3_stage1_generic\\part1\\garch\\asset07\\grid_search",
+        "transfer_runs_dir": "output\\experiments\\ca3_stage1_generic\\part2\\garch\\asset07\\transfer_runs"
+      }
+    },
+    "combo": {
+      "combo_dir": "output\\experiments\\ca3_stage1_generic\\part2\\combo"
+    }
+  }
+}

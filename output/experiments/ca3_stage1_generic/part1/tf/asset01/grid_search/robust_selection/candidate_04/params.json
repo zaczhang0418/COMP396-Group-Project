@@ -1,0 +1,5 @@
+{
+  "p_ema_short": 18.0,
+  "p_ema_long": 50.0,
+  "p_hurst_min_soft": 0.45
+}

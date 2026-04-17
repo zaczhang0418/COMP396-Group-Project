@@ -1,0 +1,19 @@
+{
+  "strategy_id": "combo_tf01_mr10_garch07_v1",
+  "tag": "combo_v1",
+  "experiment_tag": "ca3_stage1_generic",
+  "run_id": "combined_w045_045_010_20260417_144948",
+  "fromdate": "2069-12-08",
+  "todate": "2072-09-02",
+  "weights": {
+    "tf": 0.45,
+    "mr": 0.45,
+    "ga": 0.1
+  },
+  "data_dir": "C:\\Users\\ALIENWARE\\Desktop\\COMP396\\COMP396-Group-Project\\DATA\\PART1",
+  "param_sources": {
+    "tf": "output\\experiments\\ca3_stage1_generic\\part1\\tf\\asset01\\grid_search",
+    "mr": "output\\experiments\\ca3_stage1_generic\\part1\\mr\\asset10\\grid_search",
+    "ga": "output\\experiments\\ca3_stage1_generic\\part1\\garch\\asset07\\grid_search"
+  }
+}
