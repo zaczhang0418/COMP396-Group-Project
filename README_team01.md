@@ -60,6 +60,8 @@ Example local verification command on Part 2 data:
 C:\Python\envs\comp396\python.exe main.py --strategy team01 --data-dir .\DATA\PART2 --fromdate 2072-09-03 --todate 2075-05-30 --output-dir output\presubmission_part2
 ```
 
+The CA3 archive output uses the standardized directory names listed below.
+
 Example with debug logging:
 
 ```powershell
@@ -68,17 +70,27 @@ C:\Python\envs\comp396\python.exe main.py --strategy team01 --data-dir .\DATA\PA
 
 At marking time, the framework can run the same strategy on Part 3 data. No additional CLI parameter overrides are required because the strategy defaults are defined inside the file.
 
-## Latest Local Verification
+## Included CA3 Verification Output
 
-Part 2 verification was rerun locally from this worktree using the command above.
-
-Output path:
+This branch now includes the regenerated Stage 2 presubmission baseline outputs:
 
 ```text
-output/presubmission_part2/run_summary.json
+output/ca3_stage2_presubmission_part1/
+output/ca3_stage2_presubmission_part2/
+output/ca3_stage2_presubmission_part3_existing/
 ```
 
-Summary:
+The Part 1 and Part 2 directories were regenerated locally from this branch. The Part 3 directory is a preserved copy of the existing presubmission Part 3 output, because Part 3 data is not available in this repository for rerunning.
+
+Main summary paths:
+
+```text
+output/ca3_stage2_presubmission_part1/run_summary.json
+output/ca3_stage2_presubmission_part2/run_summary.json
+output/ca3_stage2_presubmission_part3_existing/run_summary.json
+```
+
+Part 2 summary:
 
 ```json
 {
@@ -92,8 +104,6 @@ Summary:
   "s_mult": 2.0
 }
 ```
-
-Generated `output/` files are intentionally ignored by Git.
 
 ## Compliance With The Assignment Requirements
 

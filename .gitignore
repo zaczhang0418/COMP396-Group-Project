@@ -36,6 +36,14 @@ ENV/
 # --- 5. 项目输出 (EDA & Strategy) ---
 # [根目录] 通用输出
 output/
+!output/
+output/*
+!output/ca3_stage2_presubmission_part1/
+!output/ca3_stage2_presubmission_part1/**
+!output/ca3_stage2_presubmission_part2/
+!output/ca3_stage2_presubmission_part2/**
+!output/ca3_stage2_presubmission_part3_existing/
+!output/ca3_stage2_presubmission_part3_existing/**
 # [EDA] V3/V4 新版输出路径 (关键!)
 EDA/output/
 # [EDA] 旧版路径 (保留以防万一)
