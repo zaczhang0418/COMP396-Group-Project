@@ -63,7 +63,7 @@ output/cross_asset_scan_v1/summaries/part2_validation.csv
 output/cross_asset_scan_v1/summaries/summary.json
 ```
 
-These outputs are generated under `output/`, which is intentionally ignored by Git.
+These outputs are generated under `output/cross_asset_scan_v1/` and are included in this archive branch for CA3 report evidence.
 
 ## How To Reproduce The Scan
 
@@ -91,15 +91,28 @@ Build the long table, 3 x 10 matrix, and assignment table:
 C:\Python\envs\comp396\python.exe scripts\cross_asset_scan\summarize_cross_asset_scan.py --scan-tag cross_asset_scan_v1 --strategies all --assets all --matrix-metric oos_true_pd_ratio
 ```
 
-## Current Evidence Gap
+## Included CA3 Output
 
-This checkout does not currently contain the generated `output/cross_asset_scan_v1/` directory. The branch archives the code and workflow, but the matrix values themselves need to be recovered from historical local output or regenerated with the commands above.
-
-This should be noted in the report workflow:
+This branch now includes the regenerated Stage 3 evidence output:
 
 ```text
-Stage 3 code and pipeline: archived in this branch.
-Stage 3 numeric matrix: recover from output/cross_asset_scan_v1 or rerun scan.
+output/cross_asset_scan_v1/
+output/ca3_stage3_team01_part1/
+output/ca3_stage3_team01_part2/
+```
+
+The cross-asset directory contains the 3 strategy families x 10 assets scan records, Part 2 validation runs, and summary matrices. The `ca3_stage3_team01_part1` and `ca3_stage3_team01_part2` directories contain final optimized `team01.py` verification runs on Part 1 and Part 2.
+
+The most useful report evidence files are:
+
+```text
+output/cross_asset_scan_v1/summaries/summary.json
+output/cross_asset_scan_v1/summaries/matrix_3x10.csv
+output/cross_asset_scan_v1/summaries/cross_asset_long.csv
+output/cross_asset_scan_v1/summaries/asset_strategy_assignment.csv
+output/cross_asset_scan_v1/summaries/part2_validation.csv
+output/ca3_stage3_team01_part1/run_summary.json
+output/ca3_stage3_team01_part2/run_summary.json
 ```
 
 ## Optimized Team Strategy

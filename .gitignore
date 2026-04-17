@@ -36,6 +36,14 @@ ENV/
 # --- 5. 项目输出 (EDA & Strategy) ---
 # [根目录] 通用输出
 output/
+!output/
+output/*
+!output/cross_asset_scan_v1/
+!output/cross_asset_scan_v1/**
+!output/ca3_stage3_team01_part1/
+!output/ca3_stage3_team01_part1/**
+!output/ca3_stage3_team01_part2/
+!output/ca3_stage3_team01_part2/**
 # [EDA] V3/V4 新版输出路径 (关键!)
 EDA/output/
 # [EDA] 旧版路径 (保留以防万一)

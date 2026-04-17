@@ -1,0 +1,2 @@
+split,true_pd_ratio,open_pnl_pd_ratio,activity_pct,final_value,bankrupt
+30-oos,0.2720580649950188,0.38109526864957866,12.0,1009177.548,0

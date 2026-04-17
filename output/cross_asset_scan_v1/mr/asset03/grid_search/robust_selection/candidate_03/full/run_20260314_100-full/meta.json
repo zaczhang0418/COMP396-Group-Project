@@ -1,0 +1,16 @@
+{
+  "strategy_id": "mr_generic_v1",
+  "asset": "asset03",
+  "data_name": "series_3",
+  "split": "100-full",
+  "tag": "cross_asset_scan_v1_mr_asset03_robust_03",
+  "run_id": "run_20260314_100-full",
+  "fromdate": "2069-12-08",
+  "todate": "2072-09-02",
+  "params": {
+    "p_lookback": 40.0,
+    "p_entry_z": 2.5,
+    "p_exit_z": 0.5
+  },
+  "data_dir": "C:\\Users\\ALIENWARE\\Desktop\\COMP396\\COMP396-Group-Project\\DATA\\PART1"
+}

@@ -1,0 +1,20 @@
+{
+  "strategy_id": "garch_generic_v1",
+  "asset": "asset04",
+  "data_name": "series_4",
+  "split": "30-oos",
+  "tag": "cross_asset_scan_v1_garch_asset04_robust_01",
+  "run_id": "run_20260314_30-oos",
+  "fromdate": "2071-11-08",
+  "todate": "2072-09-02",
+  "params": {
+    "p_sigma_q_low": 0.35,
+    "p_sigma_q_high": 0.9,
+    "p_mult_mid": 0.8,
+    "p_mult_high": 0.2
+  },
+  "defaults": {
+    "p_min_w_for_1": 0.03
+  },
+  "data_dir": "C:\\Users\\ALIENWARE\\Desktop\\COMP396\\COMP396-Group-Project\\DATA\\PART1"
+}

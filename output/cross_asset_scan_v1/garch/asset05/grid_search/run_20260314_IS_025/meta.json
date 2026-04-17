@@ -1,0 +1,16 @@
+{
+  "strategy_id": "garch_generic_v1",
+  "asset_tag": "asset05",
+  "data_name": "series_5",
+  "split": "IS(70%)",
+  "fromdate": "2069-12-08",
+  "todate": "2071-11-07",
+  "search_params": {
+    "p_sigma_q_low": 0.2,
+    "p_sigma_q_high": 0.8,
+    "p_mult_mid": 0.7,
+    "p_mult_high": 0.2
+  },
+  "fixed_params": {},
+  "grid_config": "configs\\grids\\single_strat\\garch\\refined\\refined_v1.json"
+}

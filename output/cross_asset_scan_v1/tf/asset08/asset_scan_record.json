@@ -1,0 +1,80 @@
+{
+  "scan_tag": "cross_asset_scan_v1",
+  "strategy": "tf",
+  "asset": "08",
+  "asset_tag": "asset08",
+  "data_name": "series_8",
+  "selection_mode": "robust",
+  "metric_key": "true_pd_ratio",
+  "grid_config": "configs\\grids\\single_strat\\tf\\refined\\refined_v1.json",
+  "grid_search_dir": "output\\cross_asset_scan_v1\\tf\\asset08\\grid_search",
+  "best_runs_dir": "output\\cross_asset_scan_v1\\tf\\asset08\\best_runs",
+  "best_params_path": "output\\cross_asset_scan_v1\\tf\\asset08\\grid_search\\best_params.json",
+  "robust_ranking_path": "output\\cross_asset_scan_v1\\tf\\asset08\\grid_search\\robust_selection\\robust_ranking.csv",
+  "best_record": {
+    "candidate_rank_is": 4,
+    "robust_score": -0.26600580710713106,
+    "metric_key": "true_pd_ratio",
+    "is_metric": 1.1939088977686663,
+    "oos_metric": -0.1985054000470041,
+    "full_metric": 0.2727003919937412,
+    "is_oos_gap": 1.3924142978156704,
+    "oos_activity_pct": 9.0,
+    "full_activity_pct": 65.46546546546547,
+    "oos_return_pct": -0.16492030687008663,
+    "full_return_pct": 27.51164138177502,
+    "oos_bankrupt": 0,
+    "full_bankrupt": 0,
+    "oos_run_dir": "output\\cross_asset_scan_v1\\tf\\asset08\\grid_search\\robust_selection\\candidate_04\\oos\\run_20260313_30-oos",
+    "full_run_dir": "output\\cross_asset_scan_v1\\tf\\asset08\\grid_search\\robust_selection\\candidate_04\\full\\run_20260313_100-full",
+    "params_path": "output\\cross_asset_scan_v1\\tf\\asset08\\grid_search\\robust_selection\\candidate_04\\params.json",
+    "p_ema_short": 10.0,
+    "p_ema_long": 60.0,
+    "p_hurst_min_soft": 0.4,
+    "candidate_rank_final": 1
+  },
+  "splits": {
+    "is": {
+      "run_dir": "output\\cross_asset_scan_v1\\tf\\asset08\\best_runs\\run_20260313_70-30",
+      "run_summary": {
+        "final_value": 1528907.6721972954,
+        "bankrupt": false,
+        "bankrupt_date": null,
+        "open_pnl_pd_ratio": 1.690974534643291,
+        "true_pd_ratio": 1.1939088977686663,
+        "activity_pct": 50.92989985693848,
+        "end_policy": "liquidate",
+        "s_mult": 2.0
+      },
+      "return_pct": 52.89076721972954
+    },
+    "oos": {
+      "run_dir": "output\\cross_asset_scan_v1\\tf\\asset08\\best_runs\\run_20260313_30-oos",
+      "run_summary": {
+        "final_value": 998350.7969312991,
+        "bankrupt": false,
+        "bankrupt_date": null,
+        "open_pnl_pd_ratio": 0.9351571367140048,
+        "true_pd_ratio": -0.1985054000470041,
+        "activity_pct": 9.0,
+        "end_policy": "liquidate",
+        "s_mult": 2.0
+      },
+      "return_pct": -0.16492030687008663
+    },
+    "full": {
+      "run_dir": "output\\cross_asset_scan_v1\\tf\\asset08\\best_runs\\run_20260313_100-full",
+      "run_summary": {
+        "final_value": 1275116.4138177503,
+        "bankrupt": false,
+        "bankrupt_date": null,
+        "open_pnl_pd_ratio": 0.5575479956260302,
+        "true_pd_ratio": 0.2727003919937412,
+        "activity_pct": 65.46546546546547,
+        "end_policy": "liquidate",
+        "s_mult": 2.0
+      },
+      "return_pct": 27.51164138177502
+    }
+  }
+}

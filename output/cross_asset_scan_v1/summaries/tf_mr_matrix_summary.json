@@ -1,0 +1,17 @@
+﻿{
+    "source_scan_tag":  "cross_asset_scan_v1",
+    "strategies":  [
+                       "tf",
+                       "mr"
+                   ],
+    "rule":  {
+                 "eligible":  "oos_true_pd \u003e 0 AND full_true_pd \u003e 0 AND no bankruptcy",
+                 "activity_usage":  "reference only; full_activity_pct retained in ranking/output",
+                 "tier_a_top_n":  2
+             },
+    "files":  {
+                  "performance_matrix":  "output/cross_asset_scan_v1/summaries/cross_asset_performance_matrix_tf_mr.csv",
+                  "eligibility":  "output/cross_asset_scan_v1/summaries/strategy_asset_eligibility_tf_mr.csv",
+                  "mapping_matrix":  "output/cross_asset_scan_v1/summaries/strategy_asset_mapping_matrix_tf_mr.csv"
+              }
+}

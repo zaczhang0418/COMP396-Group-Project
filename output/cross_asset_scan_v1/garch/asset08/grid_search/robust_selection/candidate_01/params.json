@@ -1,0 +1,6 @@
+{
+  "p_sigma_q_low": 0.3,
+  "p_sigma_q_high": 0.85,
+  "p_mult_mid": 0.8,
+  "p_mult_high": 0.2
+}

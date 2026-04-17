@@ -1,0 +1,16 @@
+{
+  "strategy_id": "tf_generic_v1",
+  "asset": "asset06",
+  "data_name": "series_6",
+  "split": "100-full",
+  "tag": "cross_asset_scan_v1",
+  "run_id": "run_20260314_100-full",
+  "fromdate": "2072-09-03",
+  "todate": "2075-05-30",
+  "params": {
+    "p_ema_short": 8.0,
+    "p_ema_long": 40.0,
+    "p_hurst_min_soft": 0.5
+  },
+  "data_dir": "C:\\Users\\ALIENWARE\\Desktop\\COMP396\\COMP396-Group-Project\\DATA\\PART2"
+}

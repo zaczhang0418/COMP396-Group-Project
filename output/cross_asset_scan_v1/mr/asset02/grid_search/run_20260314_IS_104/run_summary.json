@@ -1,0 +1,10 @@
+{
+  "final_value": 1099349.5539119944,
+  "bankrupt": false,
+  "bankrupt_date": null,
+  "open_pnl_pd_ratio": 4.749460708782743,
+  "true_pd_ratio": 1.2386908143995385,
+  "activity_pct": 22.889842632331902,
+  "end_policy": "liquidate",
+  "s_mult": 2.0
+}

@@ -1,0 +1,16 @@
+{
+  "strategy_id": "tf_generic_v1",
+  "asset": "asset07",
+  "data_name": "series_7",
+  "split": "30-oos",
+  "tag": "cross_asset_scan_v1_tf_asset07_robust_04",
+  "run_id": "run_20260313_30-oos",
+  "fromdate": "2071-11-08",
+  "todate": "2072-09-02",
+  "params": {
+    "p_ema_short": 18.0,
+    "p_ema_long": 50.0,
+    "p_hurst_min_soft": 0.45
+  },
+  "data_dir": "C:\\Users\\ALIENWARE\\Desktop\\COMP396\\COMP396-Group-Project\\DATA\\PART1"
+}

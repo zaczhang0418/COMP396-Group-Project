@@ -1,0 +1,15 @@
+{
+  "strategy_id": "tf_generic_v1",
+  "asset_tag": "asset01",
+  "data_name": "series_1",
+  "split": "IS(70%)",
+  "fromdate": "2069-12-08",
+  "todate": "2071-11-07",
+  "search_params": {
+    "p_ema_short": 18,
+    "p_ema_long": 60,
+    "p_hurst_min_soft": 0.45
+  },
+  "fixed_params": {},
+  "grid_config": "configs\\grids\\single_strat\\tf\\refined\\refined_v1.json"
+}

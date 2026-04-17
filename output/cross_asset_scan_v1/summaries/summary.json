@@ -1,0 +1,32 @@
+{
+  "scan_tag": "cross_asset_scan_v1",
+  "matrix_metric": "oos_true_pd_ratio",
+  "strategies": [
+    "tf",
+    "mr",
+    "garch"
+  ],
+  "assets": [
+    "01",
+    "02",
+    "03",
+    "04",
+    "05",
+    "06",
+    "07",
+    "08",
+    "09",
+    "10"
+  ],
+  "records": 30,
+  "winner_counts": {
+    "tf": 3,
+    "mr": 5,
+    "garch": 2
+  },
+  "paths": {
+    "cross_asset_long": "output\\cross_asset_scan_v1\\summaries\\cross_asset_long.csv",
+    "matrix_3x10": "output\\cross_asset_scan_v1\\summaries\\matrix_3x10.csv",
+    "asset_strategy_assignment": "output\\cross_asset_scan_v1\\summaries\\asset_strategy_assignment.csv"
+  }
+}
