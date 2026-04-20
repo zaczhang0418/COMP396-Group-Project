@@ -1,19 +1,22 @@
 :: ----------------------------------------------------
-:: COMP396 “军火库” 一键执行脚本 (V3 - 双视图)
+:: COMP396 EDA batch runner (V3 - dual view)
 :: ----------------------------------------------------
 
-:: 1. 修复 Windows 终端的中文乱码
+@echo off
 CHCP 65001 > nul
 
-@echo off
-:: --- [配置区域] 在这里修改数据集名称 (PART1 / PART2 / COMBINED) ---
+:: Usage:
+::   .\run_all_eda.bat PART1
+::   .\run_all_eda.bat PART2
+::   .\run_all_eda.bat COMBINED
+
 set DATASET_NAME=%1
 if "%DATASET_NAME%"=="" (
     echo [ERROR] Please specify a dataset name. Example: .\run_all_eda.bat COMBINED
     exit /b 1
 )
 
-:: 如果选择 COMBINED，先执行数据拼接脚本
+:: If COMBINED is selected, merge PART1 and PART2 data first.
 if "%DATASET_NAME%"=="COMBINED" (
     echo [INFO] Detected COMBINED mode. Merging PART1 and PART2 data...
     python scripts/data/merge_data_parts.py
@@ -22,16 +25,18 @@ if "%DATASET_NAME%"=="COMBINED" (
         exit /b 1
     )
 )
-:: ----------------------------------------------------
 
 set OUTPUT_DIR=EDA\output\%DATASET_NAME%
 set ANALYSIS_VIEW_DIR=%OUTPUT_DIR%\charts
 set ASSET_VIEW_DIR=%OUTPUT_DIR%\charts_by_asset
+
 if exist %OUTPUT_DIR% ( rmdir /s /q %OUTPUT_DIR% )
 mkdir %ANALYSIS_VIEW_DIR%
 mkdir %ASSET_VIEW_DIR%
+
 call conda activate comp396
 set PYTHONPATH=%PYTHONPATH%;%cd%\EDA
+
 python EDA/plotting/plot_acf_charts.py %DATASET_NAME%
 python EDA/plotting/plot_correlation_heatmap.py %DATASET_NAME%
 python EDA/plotting/plot_garch_analysis.py %DATASET_NAME%
@@ -43,7 +48,7 @@ python EDA/plotting/plot_seasonality_analysis.py %DATASET_NAME%
 python EDA/plotting/plot_volatility.py %DATASET_NAME%
 python EDA/plotting/plot_volume_analysis.py %DATASET_NAME%
 
-:: (循环遍历所有 10 个资产)
+:: Copy analysis-view charts into per-asset folders.
 for %%a in (01 02 03 04 05 06 07 08 09 10) do (
     mkdir %ASSET_VIEW_DIR%\%%a
     copy %ANALYSIS_VIEW_DIR%\acf\*%%a*_acf*.png %ASSET_VIEW_DIR%\%%a\ > nul
