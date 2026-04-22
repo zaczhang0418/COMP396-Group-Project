@@ -33,7 +33,6 @@ RUNNERS = {
     "mr": PROJ / "scripts" / "single_strat" / "mr" / "run_once.py",
     "garch": PROJ / "scripts" / "single_strat" / "garch" / "run_once.py",
 }
-COMBO_RUNNER = PROJ / "scripts" / "combo" / "run_combo_once.py"
 
 
 def latest_child_dir(root: Path, pattern: str) -> Path:
@@ -92,61 +91,6 @@ def run_single_transfer(strategy_key: str, start: str, end: str, experiment_tag:
     }
 
 
-def run_combo_transfer(start: str, end: str, experiment_tag: str, cash: float, weights: dict) -> dict:
-    combo_root = get_stage_dir(experiment_tag, "part2", "combo", "combo")
-    cmd = [
-        sys.executable,
-        str(COMBO_RUNNER),
-        "--start",
-        start,
-        "--end",
-        end,
-        "--experiment-tag",
-        experiment_tag,
-        "--tag",
-        experiment_tag,
-        "--data-dir",
-        str(PART_DATA_DIRS["part2"]),
-        "--output-root",
-        str(combo_root),
-        "--cash",
-        str(cash),
-        "--w-tf",
-        str(weights["tf"]),
-        "--w-mr",
-        str(weights["mr"]),
-        "--w-ga",
-        str(weights["garch"]),
-        "--meta-tf-dir",
-        str(get_stage_dir(experiment_tag, "part1", "tf", "grid_search", create=False)),
-        "--meta-mr-dir",
-        str(get_stage_dir(experiment_tag, "part1", "mr", "grid_search", create=False)),
-        "--meta-ga-dir",
-        str(get_stage_dir(experiment_tag, "part1", "garch", "grid_search", create=False)),
-    ]
-    subprocess.run(cmd, check=True, cwd=str(PROJ))
-
-    run_dir = latest_child_dir(combo_root, "combined_*")
-    summary = load_json(run_dir / "run_summary.json", {})
-    return {
-        "strategy": "combo",
-        "asset": "01+07+10",
-        "source_part": "part1",
-        "target_part": "part2",
-        "experiment_tag": experiment_tag,
-        "split": "100-full",
-        "fromdate": start,
-        "todate": end,
-        "true_pd_ratio": summary.get("true_pd_ratio"),
-        "open_pnl_pd_ratio": summary.get("open_pnl_pd_ratio"),
-        "activity_pct": summary.get("activity_pct"),
-        "final_value": summary.get("final_value"),
-        "bankrupt": summary.get("bankrupt"),
-        "best_params_path": "",
-        "run_dir": rel_path(run_dir),
-    }
-
-
 def write_summary_csv(path: Path, rows: list[dict]):
     fieldnames = [
         "strategy",
@@ -175,22 +119,16 @@ def write_summary_csv(path: Path, rows: list[dict]):
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--experiment-tag", default="adhoc")
-    ap.add_argument("--cash", type=float, default=1_000_000.0)
-    ap.add_argument("--w-tf", type=float, default=0.45)
-    ap.add_argument("--w-mr", type=float, default=0.45)
-    ap.add_argument("--w-garch", type=float, default=0.10)
     args = ap.parse_args()
 
     timeline = load_timeline()
     start = timeline["part2"]["full"]["start"]
     end = timeline["part2"]["full"]["end"]
-    weights = {"tf": args.w_tf, "mr": args.w_mr, "garch": args.w_garch}
 
     rows = [
         run_single_transfer("tf", start, end, args.experiment_tag),
         run_single_transfer("mr", start, end, args.experiment_tag),
         run_single_transfer("garch", start, end, args.experiment_tag),
-        run_combo_transfer(start, end, args.experiment_tag, args.cash, weights),
     ]
 
     transfer_root = part_root(args.experiment_tag, "part2", create=False)
@@ -205,8 +143,6 @@ if __name__ == "__main__":
             "source_part": "part1",
             "target_part": "part2",
             "timeline": {"start": start, "end": end},
-            "cash": args.cash,
-            "weights": weights,
             "rows": rows,
         },
     )
@@ -232,9 +168,6 @@ if __name__ == "__main__":
                         "grid_search_dir": rel_path(get_stage_dir(args.experiment_tag, "part1", "garch", "grid_search", create=False)),
                         "transfer_runs_dir": rel_path(get_stage_dir(args.experiment_tag, "part2", "garch", "transfer_runs", create=False)),
                     },
-                },
-                "combo": {
-                    "combo_dir": rel_path(get_stage_dir(args.experiment_tag, "part2", "combo", "combo", create=False)),
                 },
             },
         },

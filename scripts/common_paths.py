@@ -69,11 +69,6 @@ def part_root(experiment_tag: str, part: str, create: bool = True) -> Path:
     return ensure_dir(path) if create else path
 
 
-def combo_root(experiment_tag: str, part: str, create: bool = True) -> Path:
-    path = part_root(experiment_tag, part, create=create) / "combo"
-    return ensure_dir(path) if create else path
-
-
 def get_stage_dir(
     experiment_tag: str,
     part: str,
@@ -81,12 +76,9 @@ def get_stage_dir(
     stage: str,
     create: bool = True,
 ) -> Path:
-    if strategy_key == "combo":
-        path = combo_root(experiment_tag, part, create=create)
-    else:
-        base = part_root(experiment_tag, part, create=create)
-        asset_dir = STRATEGY_LAYOUT[strategy_key]["asset_dir"]
-        path = base / strategy_key / asset_dir / stage
+    base = part_root(experiment_tag, part, create=create)
+    asset_dir = STRATEGY_LAYOUT[strategy_key]["asset_dir"]
+    path = base / strategy_key / asset_dir / stage
     return ensure_dir(path) if create else path
 
 

@@ -1,166 +1,233 @@
-# BT396 Backtester Framework
+# Coursework 2 V2 归档总结
 
-BT396 is the **Backtest Framework** for COMP396.  
-It is built on [Backtrader](https://www.backtrader.com/) and provides a controlled environment where student strategies are run under standardised rules (slippage, bankruptcy checks, overspend guards, etc.).
+Branch:
 
----
-
-## Installation (Windows)
-
-Follow these steps on a **fresh Windows machine**:
-
-1. **Install Python**  
-   - Download and install [Python 3.10+](https://www.python.org/downloads/).  
-   - During installation, **tick "Add Python to PATH"**.
-
-2. **Install Git (optional)**  
-   - If you want to clone the repository directly, install [Git for Windows](https://git-scm.com/download/win).  
-   - Otherwise, you can just unzip the provided `BT396.zip`.
-
-3. **Unzip / Clone the Framework**  
-   - Place the folder somewhere convenient, e.g. `C:\Users\<YourName>\BT396`.
-
-4. **Open Command Prompt (cmd) or PowerShell**  
-   - Navigate to the project root folder:
-     ```bash
-     cd C:\Users\<YourName>\BT396
-     ```
-
-5. **Create a Virtual Environment (recommended)**  
-   ```bash
-   python -m venv venv
-   venv\Scripts\activate
-   ```
-
-6. **Install Dependencies**  
-   ```bash
-   pip install --upgrade pip
-   pip install backtrader pandas matplotlib pyyaml
-   ```
-
-   These are the core requirements:
-   - `backtrader` – backtesting engine  
-   - `pandas` – data handling  
-   - `matplotlib` – plotting  
-   - `pyyaml` – config file support (optional, falls back to JSON)
-
----
-
-## Running the Backtester
-
-The entry point is **`main.py`**.  
-It takes a strategy (from the `strategies/` folder) and runs it against sample data in `DATA/`.
-
-Basic usage:
-
-```bash
-python main.py --strategy <name>
+```text
+summary/coursework_2/stage-4-v2-archive-summary
 ```
 
----
+这个 branch 是 CA2 / Coursework 2 V2 优化流程的证据归档 branch。它的作用是支持最终报告写作和后续留档，不应该被当作未来 `main` 的代码结构来源。
 
-##  Example Runs
+## 核心路径
 
-### 1. Run the **TF Asset 01** strategy
-This is a simple demo strategy that goes long if yesterday’s close > open, otherwise short:
+Coursework 2 是从 CA1 中三个有用的策略想法继续发展出来的：
 
-```bash
-python main.py --strategy tf_asset01_v1
+```text
+TF on asset 01
+MR on asset 10
+GARCH on asset 07
 ```
 
-### 2. Run with **debug logging** enabled
-This prints order fills, slippage, and trade PnL to the console:
+CA2 的优化路径是：
 
-```bash
-python main.py --strategy tf_asset01_v1 --debug
+```text
+资产硬绑定的单策略
+  -> generic TF / MR / GARCH 策略族
+  -> Part 1 grid search 与 robust candidate selection
+  -> Part 2 transfer validation
+  -> Team01 V2 presubmission combo strategy
 ```
 
-### 3. Run with a different dataset
-If you have your own CSVs in a folder (must contain at least 10 aligned OHLCV files):
+最终 presubmission 策略文件仍然是：
 
-```bash
-python main.py --strategy tf_asset01_v1 --data-dir ./DATA/MYCSV
+```text
+strategies/team01.py
 ```
 
-### 4. Run the **Current Combo Strategy**
-This shows what happens with extreme leverage and bad allocation:
+不要在这个归档 branch 中把它改名为 `team01_v2.py`。历史提交和现有 output 都是用 strategy id `team01` 生成的。
 
-```bash
-python main.py --strategy combo_tf01_mr10_garch07_v1
+## 证据目录
+
+所有保留的 output 证据都在：
+
+```text
+output/coursework_2_stage4_v2_archive/
 ```
 
----
+当前 output 结构：
 
-## Project Structure
-
-```
-BT396/
-│── main.py                 # Entry point
-│── framework/              # Core framework (rules, analyzers, plotting)
-│── strategies/             # Example + student strategies
-│── DATA/                   # Sample CSV data
-│── output/                 # Results are saved here
-│── config.yaml             # Default config file
+```text
+asset_bound_grid_search_run_summaries/   # 历史 IS grid-search run_summary
+parameter_selection_candidates/          # 每个策略族 5 个 candidate + best_params
+generic_single_strats_output/            # TF/MR/GARCH 单策略 Part 1 和 Part 2 output
+team01_presubmission/                    # Team01 Part 1、Part 2、保留的 Part 3 output
+archive_manifest.json
+process_summary.csv
+per_leg_summary.csv
 ```
 
-- Results (equity curves, JSON summaries, plots) are saved into the `output/` folder.
-- You can override most settings via command line arguments (cash, commission, policies, etc.).
+根目录 summary 文件：
 
----
-
-## Next Steps
-
-- Copy `strategies/template_strategy.py` and start building your own trading ideas.  
-- Always test with:
-  ```bash
-  python main.py --strategy <your_strategy>
-  ```
-- Check the `output/` folder for plots and summaries.
-
----
-
-## Notes
-
-- BT396 enforces **COMP396 trading rules** automatically.  
-- Market orders include slippage, overspending cancels all trades for the day, and bankruptcy halts your run.  
-- Plots include portfolio equity curves, per-series PnL, activity ratios, and realized PnL dashboards.  
-
----
-
-Happy Backtesting
-
----
-
-Distribution / Packaging
-------------------------
-
-If you want to zip this project for distribution, it is safe to exclude or delete the following from the archive:
-
-- .git/ (Git repository metadata)
-- .idea/ (JetBrains/IDE project files)
-- __pycache__/ (Python bytecode caches) — these will be re-created automatically
-- .pytest_cache/, .mypy_cache/ (tool caches)
-- OS junk files like .DS_Store, Thumbs.db
-
-Optionally exclude generated outputs to keep the archive small:
-
-- output/ (plots and run summaries created by main.py)
-
-Nothing in the list above is required to run the backtester.
-
-Quick way to create a clean ZIP:
-
-- From the project root, run:
-  
-  ```bash
-  python scripts/distribution/make_dist.py           # creates BT396-dist.zip in the project root
-  python scripts/distribution/make_dist.py --no-output  # also excludes the output/ folder
-  python scripts/distribution/make_dist.py --name BT396_0.1.0_win.zip
-  ```
-
-When a user unzips the archive, they can run:
-
-```bash
-python main.py               # shows project version and date
-python main.py --strategy tf_asset01_v1
+```text
+process_summary.csv   # 9 行高层结果汇总
+per_leg_summary.csv   # Team01 各 leg 表现拆分
+archive_manifest.json # source branches 和归档结构说明
 ```
+
+## 优化证据
+
+Grid-search run summary 数量：
+
+| Strategy idea | Fixed asset | Grid candidate summaries | Robust validation summaries |
+| --- | --- | ---: | ---: |
+| `tf_asset01_v1` | `series_1` | 125 | 10 |
+| `mr_asset10_v1` | `series_10` | 125 | 10 |
+| `garch_asset07_v1` | `series_7` | 256 | 10 |
+
+参数筛选证据：
+
+```text
+output/coursework_2_stage4_v2_archive/parameter_selection_candidates/
+```
+
+每个策略族保留：
+
+```text
+candidates/candidate_01/params.json
+candidates/candidate_02/params.json
+candidates/candidate_03/params.json
+candidates/candidate_04/params.json
+candidates/candidate_05/params.json
+candidates/robust_ranking.csv
+best_params.json
+```
+
+CA2 最终选择的参数：
+
+| Family | Asset | Selected parameters |
+| --- | --- | --- |
+| TF | `series_1` | `p_ema_short=18`, `p_ema_long=50`, `p_hurst_min_soft=0.55` |
+| MR | `series_10` | `p_lookback=30`, `p_entry_z=2.25`, `p_exit_z=0.0` |
+| GARCH | `series_7` | `p_sigma_q_low=0.3`, `p_sigma_q_high=0.75`, `p_mult_mid=0.5`, `p_mult_high=0.2` |
+
+## 单策略结果
+
+Generic single-strategy Part 1 full-run 结果：
+
+| Strategy | Asset | Final value | True PD | Open PnL PD | Activity % |
+| --- | --- | ---: | ---: | ---: | ---: |
+| TF generic | `series_1` | 5119713.55 | 2.7617 | 2.9370 | 83.88 |
+| MR generic | `series_10` | 1087902.35 | 4.2700 | 4.3682 | 5.60 |
+| GARCH generic | `series_7` | 1003531.25 | 0.6119 | 2.0448 | 3.80 |
+
+Part 2 transfer 结果，也就是直接把 Part 1 选出的参数迁移到 Part 2，不重新优化：
+
+| Strategy | Asset | Final value | True PD | Open PnL PD | Activity % |
+| --- | --- | ---: | ---: | ---: | ---: |
+| TF generic | `series_1` | 2667396.07 | 0.8959 | 0.9913 | 49.55 |
+| MR generic | `series_10` | 910043.42 | -0.8983 | -0.8492 | 3.90 |
+| GARCH generic | `series_7` | 989246.67 | -0.6419 | -0.5781 | 9.40 |
+
+结果解读：
+
+- TF 的迁移表现最好，是主要收益驱动。
+- MR 和 GARCH 作为 research family 有价值，但原来的固定资产映射在 Part 2 上变弱。
+- 这个结果说明，CA2 后续应该继续做 cross-asset reassessment 和更强的 portfolio-level risk control。
+
+## Team01 Presubmission 结果
+
+Team01 V2 combo output：
+
+| Dataset | Final value | True PD | Open PnL PD | Activity % |
+| --- | ---: | ---: | ---: | ---: |
+| Part 1 | 948298.86 | -0.6922 | -0.2841 | 67.27 |
+| Part 2 | 1166853.42 | 2.2440 | 3.3408 | 81.48 |
+| Part 3 existing | 1130900.67 | 1.3152 | 3.2499 | 90.30 |
+
+Part 3 leg breakdown：
+
+| Leg | Series | Final cumulative PnL | PnL / DD |
+| --- | --- | ---: | ---: |
+| TF | `series_1` | 186898.57 | 2.8628 |
+| GARCH | `series_7` | 25830.61 | 2.3091 |
+| MR | `series_10` | 7916.50 | 0.2506 |
+| Portfolio | all | n/a | 3.2499 |
+
+## 报告写作要点
+
+建议 CA2 报告按这个逻辑展开：
+
+1. 先总结我们对 CA2 的期望：generic strategy family 应该让 CA1 的想法更可复用，减少对单个 hard-coded asset strategy 的依赖。
+2. 总结 Part 3 表现时不要只看 final value，也要结合 true PD、open PnL PD、activity、per-leg contribution 和图表。
+3. 对比最初期望与实际结果：TF 是最能迁移的收益来源，MR 和 GARCH 在 transfer 后较弱。
+4. 总结 CA2 应该改进的地方：
+   - 资产选择仍然过于硬绑定，不能默认 asset 01 / 10 / 07 就是最优选择。
+   - Team01 的 activity 仍然偏高，也存在 framework execution constraints 下的 overspend 风险。
+   - 资金分配是静态权重，没有动态优化，也没有 drawdown-aware reallocation。
+5. 总结学到的经验：
+   - 只做参数优化不够，asset selection 和 portfolio construction 同样重要。
+   - Transfer testing 很关键，因为 Part 1 表现强不代表 Part 2 也稳。
+   - 后续版本应该结合 cross-asset selection、更强 risk control 和动态 position sizing。
+
+建议报告引用或截图的证据：
+
+```text
+output/coursework_2_stage4_v2_archive/process_summary.csv
+output/coursework_2_stage4_v2_archive/per_leg_summary.csv
+output/coursework_2_stage4_v2_archive/team01_presubmission/part3_existing/equity_dashboard_combined.png
+output/coursework_2_stage4_v2_archive/team01_presubmission/part3_existing/all_equity_curves.png
+```
+
+如果需要 terminal 截图，可以重新运行：
+
+```powershell
+python scripts\run_coursework_2_stage4_archive_matrix.py
+```
+
+预期会输出三个 regenerated summary files：
+
+```text
+process_summary.csv
+per_leg_summary.csv
+archive_manifest.json
+```
+
+## 复现命令
+
+这个 branch 主要保留历史 evidence。若要重新生成简洁 summary tables：
+
+```powershell
+python scripts\run_coursework_2_stage4_archive_matrix.py
+```
+
+该脚本会读取现有 archive output，并写入：
+
+```text
+output/coursework_2_stage4_v2_archive/process_summary.csv
+output/coursework_2_stage4_v2_archive/per_leg_summary.csv
+output/coursework_2_stage4_v2_archive/archive_manifest.json
+```
+
+## 后续合入 main 的建议
+
+不要把这个 branch 整体 merge 到最新 `main`。
+
+这个 branch 的价值是归档证据，不是提供未来 main 的项目结构。后续如果需要把 CA2 留档内容带回 `main`，建议只 cherry-pick 或手动 copy 以下内容：
+
+```text
+README.md
+scripts/run_coursework_2_stage4_archive_matrix.py
+output/coursework_2_stage4_v2_archive/
+```
+
+其中 `output/coursework_2_stage4_v2_archive/` 如果被 `.gitignore` 忽略，提交时需要使用：
+
+```powershell
+git add -f output/coursework_2_stage4_v2_archive/
+```
+
+不建议带回 `main` 的内容：
+
+```text
+旧 framework/
+旧 DATA/
+旧 output/ca3_stage2_presubmission_*/
+旧 scripts/combo/
+旧 scripts/cross_asset_scan/
+旧 scripts/data/
+旧 scripts/distribution/
+旧 scripts/maintenance/
+旧 generic-combo output
+```
+
+核心原则：summary branch 是证据仓库，不是未来 main 的结构来源。
