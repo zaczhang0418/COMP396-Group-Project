@@ -24,7 +24,7 @@ venv\Scripts\activate
 
 ```powershell
 pip install --upgrade pip
-pip install -r docs\requirements.txt
+pip install -r DOCS\requirements.txt
 ```
 
 The dependency list is stored in [requirements.txt](requirements.txt).
@@ -60,30 +60,39 @@ python main.py --strategy copycat --data-dir .\DATA\PART1
 ## EDA Workflow
 
 EDA tools live under [EDA](../EDA), with plotting scripts in [EDA/plotting](../EDA/plotting).
+EDA-specific runners, notebooks, and notes are kept inside [EDA/scripts](../EDA/scripts), [EDA/notebooks](../EDA/notebooks), and [EDA/docs](../EDA/docs).
 
 The current tracked data folders are:
 
 ```text
 DATA/PART1/
 DATA/PART2/
-DATA/COMBINED/
+DATA/PART3/
+DATA/PART123/
 ```
 
-Run the EDA batch script with a dataset name:
+Run the EDA batch script with a dataset name. `ALL` runs the stage 4 workflow for Part 1, Part 2, Part 3, and the merged `PART123` overview dataset:
 
 ```powershell
-.\run_all_eda.bat PART1
-.\run_all_eda.bat PART2
-.\run_all_eda.bat COMBINED
+.\EDA\run_all_eda.bat ALL
+.\EDA\run_all_eda.bat PART1
+.\EDA\run_all_eda.bat PART2
+.\EDA\run_all_eda.bat PART3
+.\EDA\run_all_eda.bat PART123
 ```
 
-When `COMBINED` is selected, the workflow merges Part 1 and Part 2 data first:
+On the lab machine, the batch runner auto-detects `D:\Anacoda\envs\comp396\python.exe`. On another machine, set `COMP396_PYTHON` to the preferred environment Python, or make sure `python` points to the right environment.
+
+When `PART123` is selected, the workflow merges Part 1, Part 2, and Part 3:
 
 ```powershell
-python scripts\data\merge_data_parts.py
+python EDA\scripts\merge_data_parts.py
+python EDA\scripts\merge_data_parts.py --parts PART1 PART2 PART3 --output PART123
 ```
 
-There is no tracked `DATA/PART3/` folder in the current repository. If "Part 3" is mentioned for EDA, it should mean the third EDA archive stage unless a real Part 3 data folder is added later.
+Stage 4 overview summaries are saved under `EDA/output/stage4_overview`.
+
+The active Stage 4 EDA runner keeps only strategy-relevant chart families: autocorrelation, correlation, GARCH, Hurst, return histograms, quantile analysis, and volatility. Earlier exploratory candlestick, seasonality, RSI, and volume/MFI plots are not part of the active Stage 4 workflow.
 
 ## Project Structure
 
@@ -92,14 +101,14 @@ COMP396-Group-Project/
   main.py                 Backtester entry point
   config.yaml             Default config
   DATA/                   Tracked coursework data folders
-  EDA/                    EDA loader and plotting scripts
+  EDA/                    EDA loader, plotting scripts, EDA runners, notebooks, and EDA notes
   framework/              Core framework logic
-  notebooks/              Notebook-based analysis
+  EDA/notebooks/          EDA notebook-based analysis
   output/                 Generated strategy outputs on selected branches
-  scripts/                Experiment, EDA, packaging, and maintenance scripts
+  scripts/                Strategy experiment, packaging, and maintenance scripts
   strategies/             Example, generic, archive, and Team01 strategies
   tests/                  Framework rule tests
-  docs/                   Project documentation and dependency list
+  DOCS/                   Project documentation and dependency list
 ```
 
 ## Core Framework Files
@@ -139,9 +148,17 @@ For the current branch hierarchy and which branch contains each stage of the cou
 
 ## Scripts
 
-### `scripts/data/merge_data_parts.py`
+### `EDA/scripts/merge_data_parts.py`
 
-Builds `DATA/COMBINED` from `DATA/PART1` and `DATA/PART2`.
+Builds merged data folders from selected `DATA/PART*` inputs. By default it creates `DATA/PART123` from Part 1, Part 2, and Part 3:
+
+```powershell
+python EDA\scripts\merge_data_parts.py --parts PART1 PART2 PART3 --output PART123
+```
+
+### `EDA/scripts/run_eda_stage4.py`
+
+Runs the stage 4 EDA workflow and builds the Part 1 / Part 2 / Part 3 overview outputs.
 
 ### `scripts/distribution/make_dist.py`
 

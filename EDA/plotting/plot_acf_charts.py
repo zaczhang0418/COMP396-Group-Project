@@ -8,6 +8,7 @@ import glob
 
 # --- 优化点 1: 导入 'acf', 'pacf' 和 'adfuller' (来自队友) ---
 from statsmodels.tsa.stattools import acf, pacf, adfuller
+from EDA.settings import ACF_LAGS, ACF_YLIM
 
 # -----------------------------------------------------------------
 # (数据加载函数，使用我们昨天的“最终修复版-老师的逻辑”)
@@ -254,8 +255,8 @@ if __name__ == "__main__":
     DATA_PATH = f"./DATA/{dataset_name}/" 
     SAVE_DIR = f"./EDA/output/{dataset_name}/charts/acf/" 
     
-    LAG_PERIODS = 40 
-    ZOOMED_YLIM = (-0.3, 0.3) 
+    LAG_PERIODS = ACF_LAGS
+    ZOOMED_YLIM = ACF_YLIM
     
     print(f"正在从 '{DATA_PATH}' 加载数据...")
     merged_prices = load_and_merge_data(DATA_PATH) 

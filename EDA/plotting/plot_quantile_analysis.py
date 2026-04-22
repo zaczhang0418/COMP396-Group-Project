@@ -5,18 +5,24 @@ import os
 import glob
 import sys # 确保导入 sys
 from scipy import stats
+from EDA.settings import (
+    N_QUANTILES as SETTINGS_N_QUANTILES,
+    QUANTILE_TESTS,
+    TRADING_DAYS_PER_YEAR,
+)
 
 # --- 配置 ---
 # [路径修复] 修正为 Zac 的本地路径
 QUANTILE_SAVE_DIR = "./EDA/output/charts/quantile_analysis/" 
 DATA_DIR_PATH = "./DATA/PART1/" 
-N_QUANTILES = 5 # 将资产分为 5 组
 # ---
 
 # -----------------------------------------------------------------
 # (数据加载函数，使用我们昨天的“最终修复版-老师的逻辑”)
 # (这是 'Close-Only' 版本，Quantile 只需要 Close 价格)
 # -----------------------------------------------------------------
+N_QUANTILES = SETTINGS_N_QUANTILES
+
 def load_and_merge_data(data_directory):
     # 1. 查找所有 CSV 文件
     csv_files_path = os.path.join(data_directory, "*.csv")
@@ -127,7 +133,7 @@ def plot_quantile_analysis_v2(merged_prices_df, factor_lookback_days, forward_re
     t_stat, p_value = stats.ttest_ind(qN_returns, q1_returns, equal_var=False)
     print(f"T-检验 (Q{N_QUANTILES} vs Q1): T-stat={t_stat:.3f}, P-value={p_value:.5f}")
     
-    ann_factor = np.sqrt(252 / forward_return_days) 
+    ann_factor = np.sqrt(TRADING_DAYS_PER_YEAR / forward_return_days)
     mom_sharpe = (mom_ls_portfolio.mean() / mom_ls_portfolio.std()) * ann_factor
     rev_sharpe = (rev_ls_portfolio.mean() / rev_ls_portfolio.std()) * ann_factor
     print(f"多空组合 (Momentum, Q{N_QUANTILES}-Q1) 年化夏普比率: {mom_sharpe:.4f}")
@@ -215,7 +221,7 @@ def perform_quantile_analysis_v2(merged_prices_df, factor_lookback_days, forward
     
     # 夏普比率 (Sharpe Ratio)
     # (假设无风险利率为 0，年化因子为 sqrt(252 / N))
-    ann_factor = np.sqrt(252 / forward_return_days) 
+    ann_factor = np.sqrt(TRADING_DAYS_PER_YEAR / forward_return_days)
     
     mom_sharpe = (mom_ls_portfolio.mean() / mom_ls_portfolio.std()) * ann_factor
     rev_sharpe = (rev_ls_portfolio.mean() / rev_ls_portfolio.std()) * ann_factor
@@ -254,50 +260,33 @@ def perform_quantile_analysis_v2(merged_prices_df, factor_lookback_days, forward
     plt.close(fig)
 
 def main():
-    """
-    主执行函数：加载数据，运行两种因子分析。
-    """
     dataset_name = "PART1"
     if len(sys.argv) > 1:
         dataset_name = sys.argv[1]
 
     local_data_dir = f"./DATA/{dataset_name}/"
-    # 注意：这里我们修改全局变量，因为 perform_quantile_analysis_v2 使用了它
     global QUANTILE_SAVE_DIR
     QUANTILE_SAVE_DIR = f"./EDA/output/{dataset_name}/charts/quantile_analysis/"
 
-    print(f"--- 正在运行分位数 (Quantile) 分析脚本 [Dataset: {dataset_name}] ---")
-    
+    print(f"--- Quantile analysis [Dataset: {dataset_name}] ---")
     print(f"Charts will be saved to: {QUANTILE_SAVE_DIR}")
-
     print(f"Calling internal load_and_merge_data(data_directory='{local_data_dir}')...")
-    
-    merged_prices_df = load_and_merge_data(local_data_dir)
 
+    merged_prices_df = load_and_merge_data(local_data_dir)
     if merged_prices_df.empty:
         print("Error: Loader returned an empty DataFrame.")
         return
 
-    print(f"✅ Loader success. Loaded merged DataFrame with {len(merged_prices_df.columns)} assets.")
-    
-    # 2. 运行分析 1: 短期反转 (Short-Term Reversal, 1个月)
-    perform_quantile_analysis_v2(
-        merged_prices_df, 
-        factor_lookback_days=21, # ~1 个月
-        forward_return_days=21,  # 持有 1 个月
-        factor_name="STR_21D"    # 因子名
-    )
-    
-    # 3. 运行分析 2: 动量 (Momentum, 6个月)
-    perform_quantile_analysis_v2(
-        merged_prices_df, 
-        factor_lookback_days=126, # ~6 个月
-        forward_return_days=21,   # 持有 1 个月
-        factor_name="MOM_126D"    # 因子名
-    )
+    print(f"Loader success. Loaded merged DataFrame with {len(merged_prices_df.columns)} assets.")
+    for factor_name, factor_lookback_days, forward_return_days in QUANTILE_TESTS:
+        perform_quantile_analysis_v2(
+            merged_prices_df,
+            factor_lookback_days=factor_lookback_days,
+            forward_return_days=forward_return_days,
+            factor_name=factor_name,
+        )
 
-    print("--- 分位数 (Quantile) 分析全部完成 ---")
-
-
+    print("--- Quantile analysis completed ---")
 if __name__ == "__main__":
     main()
+

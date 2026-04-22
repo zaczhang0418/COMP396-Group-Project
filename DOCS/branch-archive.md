@@ -1,6 +1,6 @@
 # Coursework Branch Archive
 
-Last reviewed: 2026-04-20
+Last reviewed: 2026-04-22
 
 This document is the branch map for the coursework evidence archive. It should describe the current GitHub branch structure, not the old temporary branch names that were used during development.
 
@@ -52,6 +52,7 @@ origin/archive/eda/
   stage-1-initial-plotting
   stage-2-full-diagnostics-v3
   stage-3-part2-data-workflow
+  stage-4-part123-overview
 ```
 
 ## Branch Timeline
@@ -62,6 +63,7 @@ origin/archive/eda/
 | EDA | `origin/archive/eda/stage-1-initial-plotting` | Early visual inspection of price behaviour | Research evidence |
 | EDA | `origin/archive/eda/stage-2-full-diagnostics-v3` | Full diagnostics used to motivate strategy families | Research evidence |
 | EDA | `origin/archive/eda/stage-3-part2-data-workflow` | Part 1, Part 2, and combined-data EDA workflow | Research evidence |
+| EDA | `origin/archive/eda/stage-4-part123-overview` | Part 1, Part 2, Part 3, and all-parts overview workflow | Research evidence |
 | Coursework 1 | `origin/archive/coursework_1/stage-1-tf-asset01-v1` | Early trend-following standalone strategy | V1 component |
 | Coursework 1 | `origin/archive/coursework_1/stage-2-mr-asset10-v1` | Early mean-reversion standalone strategy | V1 component |
 | Coursework 1 | `origin/archive/coursework_1/stage-3-garch-asset07-v1` | Early GARCH/regime standalone strategy | V1 component |
@@ -106,6 +108,17 @@ Report use:
 - Shows that the team moved from one fixed dataset to a more structured data workflow.
 - Supports the transition from CA1 to CA2 because Part 2 data became available for validation.
 - Should be described as "Part 1 + Part 2 + combined-data workflow", not as a real `DATA/PART3` workflow.
+
+### `origin/archive/eda/stage-4-part123-overview`
+
+EDA overview stage for the final data layout. This branch starts from the updated main baseline with `DATA/PART3`, keeps the strategy-relevant EDA scripts, and adds a Part 1 / Part 2 / Part 3 overview workflow.
+
+Report use:
+
+- Supports the final EDA narrative after Part 3 data became available.
+- Builds `DATA/PART123` from Part 1, Part 2, and Part 3 while preserving the original `Index`-based CSV format.
+- Keeps only EDA chart families that support the current TF/MR/GARCH strategy development: autocorrelation, correlation, GARCH, Hurst, return histograms, quantile analysis, and volatility.
+- Saves cross-part summary tables and overview plots under `EDA/output/stage4_overview`.
 
 ### `origin/archive/coursework_1/stage-1-tf-asset01-v1`
 
@@ -213,26 +226,27 @@ Current EDA data folders:
 ```text
 DATA/PART1/
 DATA/PART2/
-DATA/COMBINED/
+DATA/PART3/
+DATA/PART123/
 ```
 
-There is no tracked `DATA/PART3/` directory in the current repository history. If the team says "Part 3" in the context of EDA, we should treat that as the third EDA stage unless a real `DATA/PART3/` folder is added later.
-
-The combined dataset is generated from Part 1 and Part 2:
+The stage 4 all-parts dataset is generated from Part 1, Part 2, and Part 3:
 
 ```powershell
-python scripts/data/merge_data_parts.py
+python EDA/scripts/merge_data_parts.py --parts PART1 PART2 PART3 --output PART123
 ```
 
-The EDA batch runner supports dataset selection:
+The EDA batch runner supports dataset selection and the stage 4 `ALL` workflow:
 
 ```powershell
-.\run_all_eda.bat PART1
-.\run_all_eda.bat PART2
-.\run_all_eda.bat COMBINED
+.\EDA\run_all_eda.bat ALL
+.\EDA\run_all_eda.bat PART1
+.\EDA\run_all_eda.bat PART2
+.\EDA\run_all_eda.bat PART3
+.\EDA\run_all_eda.bat PART123
 ```
 
-When `COMBINED` is selected, `run_all_eda.bat` calls `scripts/data/merge_data_parts.py` before running the analysis scripts.
+When `PART123` is selected, `EDA/run_all_eda.bat` calls `EDA/scripts/merge_data_parts.py` before running the analysis scripts.
 
 ## Coursework Evidence Status
 

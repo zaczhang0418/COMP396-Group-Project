@@ -1,17 +1,15 @@
-# --- 1. 操作系统 & IDE (通用) ---
+# IDE and OS files
 .vscode/
 .idea/
 .DS_Store
 Thumbs.db
 
-# --- 2. Python 核心 (缓存与编译文件) ---
+# Python caches and build artifacts
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .ipynb_checkpoints/
-
-# --- 3. 构建/打包 & 测试 ---
 build/
 dist/
 .eggs/
@@ -26,23 +24,20 @@ pip-wheel-metadata/
 .ruff_cache/
 .cache/
 
-# --- 4. 虚拟环境 (防止误提交环境包) ---
+# Virtual environments
 env/
 venv/
 .venv/
 ENV/
 *.env
 
-# --- 5. 项目输出 (EDA & Strategy) ---
-# [根目录] 通用输出
+# Generated strategy and EDA outputs
 output/
-# [EDA] V3/V4 新版输出路径 (关键!)
 EDA/output/
-# [EDA] 旧版路径 (保留以防万一)
 EDA/charts/
 EDA/charts_by_asset/
 
-# --- 6. 日志/临时 ---
+# Logs and scratch files
 logs/
 *.log
 tmp/
