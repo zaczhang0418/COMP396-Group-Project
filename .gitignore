@@ -43,9 +43,12 @@ ENV/
 Thumbs.db
 
 # ---- 项目特定输出 ----
-output/
+output/*
+!output/coursework_1_stage5_v1_archive/
+!output/coursework_1_stage5_v1_archive/**
 EDA/charts/
 EDA/charts_by_asset/
+EDA/output/
 
 # 日志/临时
 logs/

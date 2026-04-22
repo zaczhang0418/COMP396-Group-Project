@@ -1,5 +1,30 @@
 # BT396 Backtester Framework
 
+## Coursework 1 V1 Archive Summary
+
+This branch is the stage 5 summary branch for Coursework 1 V1:
+
+```text
+summary/coursework_1/stage-5-v1-archive-summary
+```
+
+The V1 archive summary is documented in:
+
+```text
+DOCS/coursework_1_stage5_v1_archive_summary.md
+```
+
+This branch preserves the original stage 4 strategy logic and only adds archive documentation.
+
+Archived CA1/V1 matrix outputs are stored by dataset:
+
+```text
+output/coursework_1_stage5_v1_archive/PART1/
+output/coursework_1_stage5_v1_archive/PART2/
+output/coursework_1_stage5_v1_archive/PART3/
+output/coursework_1_stage5_v1_archive/PART123/
+```
+
 BT396 is the **Backtest Framework** for COMP396.  
 It is built on [Backtrader](https://www.backtrader.com/) and provides a controlled environment where student strategies are run under standardised rules (slippage, bankruptcy checks, overspend guards, etc.).
 
