@@ -34,7 +34,21 @@ CA2 的优化路径是：
 strategies/team01.py
 ```
 
-不要在这个归档 branch 中把它改名为 `team01_v2.py`。历史提交和现有 output 都是用 strategy id `team01` 生成的。
+为了和 CA1 / CA3 的 summary branch 命名保持一致，这个 branch 增加了一个版本化 alias：
+
+```text
+strategies/team01_v2.py
+```
+
+也就是说：
+
+```text
+提交文件: strategies/team01.py
+归档版本名: team01_v2 / Team01 V2
+复现 alias: Team01V2Strategy
+```
+
+不要把历史实现文件 `team01.py` 直接重命名。历史提交和现有 output 仍然对应原始 `team01` strategy id；`team01_v2.py` 只是一个轻量 wrapper，用来让 summary branch 的版本命名和 V1 / V3 保持一致。
 
 ## 证据目录
 
@@ -174,6 +188,12 @@ output/coursework_2_stage4_v2_archive/team01_presubmission/part3_existing/all_eq
 python scripts\run_coursework_2_stage4_archive_matrix.py
 ```
 
+如需用版本化 alias 复现 V2 presubmission strategy，可运行：
+
+```powershell
+python main.py --strategy team01_v2 --strategy-class Team01V2Strategy --data-dir .\DATA\PART1
+```
+
 预期会输出三个 regenerated summary files：
 
 ```text
@@ -206,6 +226,7 @@ output/coursework_2_stage4_v2_archive/archive_manifest.json
 
 ```text
 README.md
+strategies/team01_v2.py
 scripts/run_coursework_2_stage4_archive_matrix.py
 output/coursework_2_stage4_v2_archive/
 ```
