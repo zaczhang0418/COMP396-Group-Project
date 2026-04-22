@@ -1,0 +1,25 @@
+--- 正在以独立模式运行 (Histogram Plotter) [Dataset: PART1] ---
+正在从 './DATA/PART1/' 加载数据...
+✅ 数据加载、合并、计算收益率完毕。
+正在为所有资产生成[优化版]直方图并保存到 './EDA/output/PART1/charts/histograms/'...
+  正在处理: 01
+  图表已保存到: ./EDA/output/PART1/charts/histograms/01_histogram_V2_zoomed.png
+  正在处理: 02
+  图表已保存到: ./EDA/output/PART1/charts/histograms/02_histogram_V2_zoomed.png
+  正在处理: 03
+  图表已保存到: ./EDA/output/PART1/charts/histograms/03_histogram_V2_zoomed.png
+  正在处理: 04
+  图表已保存到: ./EDA/output/PART1/charts/histograms/04_histogram_V2_zoomed.png
+  正在处理: 05
+  图表已保存到: ./EDA/output/PART1/charts/histograms/05_histogram_V2_zoomed.png
+  正在处理: 06
+  图表已保存到: ./EDA/output/PART1/charts/histograms/06_histogram_V2_zoomed.png
+  正在处理: 07
+  图表已保存到: ./EDA/output/PART1/charts/histograms/07_histogram_V2_zoomed.png
+  正在处理: 08
+  图表已保存到: ./EDA/output/PART1/charts/histograms/08_histogram_V2_zoomed.png
+  正在处理: 09
+  图表已保存到: ./EDA/output/PART1/charts/histograms/09_histogram_V2_zoomed.png
+  正在处理: 10
+  图表已保存到: ./EDA/output/PART1/charts/histograms/10_histogram_V2_zoomed.png
+--- 本地运行完毕 ---

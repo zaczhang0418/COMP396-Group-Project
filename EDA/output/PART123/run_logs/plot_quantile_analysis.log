@@ -1,0 +1,37 @@
+--- Quantile analysis [Dataset: PART123] ---
+Charts will be saved to: ./EDA/output/PART123/charts/quantile_analysis/
+Calling internal load_and_merge_data(data_directory='./DATA/PART123/')...
+Loader success. Loaded merged DataFrame with 10 assets.
+
+--- 正在运行分位数分析: STR_21D ---
+
+STR_21D - 每个分位数的平均 21日 收益:
+Quantile
+1   0.00997
+2   0.00273
+3   0.00295
+4   0.00784
+5   0.00129
+
+--- 核心论据 (统计显著性) ---
+T-检验 (Q5 vs Q1): T-stat=-5.836, P-value=0.00000
+多空组合 (Momentum, Q5-Q1) 年化夏普比率: -0.3674
+多空组合 (Reversal, Q1-Q5) 年化夏普比率: 0.3674
+  [V2] Chart saved to ./EDA/output/PART123/charts/quantile_analysis/quantile_analysis_v2_STR_21D.png
+
+--- 正在运行分位数分析: MOM_126D ---
+
+MOM_126D - 每个分位数的平均 21日 收益:
+Quantile
+1   0.01037
+2   0.00263
+3   0.00303
+4   0.00818
+5   0.00213
+
+--- 核心论据 (统计显著性) ---
+T-检验 (Q5 vs Q1): T-stat=-5.492, P-value=0.00000
+多空组合 (Momentum, Q5-Q1) 年化夏普比率: -0.3570
+多空组合 (Reversal, Q1-Q5) 年化夏普比率: 0.3570
+  [V2] Chart saved to ./EDA/output/PART123/charts/quantile_analysis/quantile_analysis_v2_MOM_126D.png
+--- Quantile analysis completed ---

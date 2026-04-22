@@ -6,6 +6,7 @@ import matplotlib.ticker as mticker
 import seaborn as sns 
 import glob # 确保导入
 import sys # 确保导入
+from EDA.settings import ATR_WINDOW, TRADING_DAYS_PER_YEAR, VOL_LONG_WINDOW, VOL_SHORT_WINDOW
 
 # -----------------------------------------------------------------
 # (数据加载函数 - 这是一个独立的 OHLCV 加载器)
@@ -79,7 +80,7 @@ def load_and_merge_data(data_directory):
 
 
 # --- 1. 队友的 ATR 计算函数 (完美, 保留) ---
-def calculate_atr(df, length=14):
+def calculate_atr(df, length=ATR_WINDOW):
     """
     计算 Average True Range (ATR)。
     """
@@ -104,12 +105,14 @@ def _plot_volatility_core(ohlcv_df, asset_name):
     plot_df = ohlcv_df.copy() 
     
     # 队友的核心计算
+    short_vol_col = f"Vol_{VOL_SHORT_WINDOW}D"
+    long_vol_col = f"Vol_{VOL_LONG_WINDOW}D"
     plot_df['Log_Returns'] = np.log(plot_df['close'] / plot_df['close'].shift(1))
-    plot_df['Vol_20D'] = plot_df['Log_Returns'].rolling(window=20).std() * np.sqrt(252) # 年化
-    plot_df['Vol_60D'] = plot_df['Log_Returns'].rolling(window=60).std() * np.sqrt(252) # 年化
-    plot_df['ATR'] = calculate_atr(plot_df, length=14)
+    plot_df[short_vol_col] = plot_df['Log_Returns'].rolling(window=VOL_SHORT_WINDOW).std() * np.sqrt(TRADING_DAYS_PER_YEAR)
+    plot_df[long_vol_col] = plot_df['Log_Returns'].rolling(window=VOL_LONG_WINDOW).std() * np.sqrt(TRADING_DAYS_PER_YEAR)
+    plot_df['ATR'] = calculate_atr(plot_df, length=ATR_WINDOW)
     
-    plot_df.dropna(subset=['Vol_60D', 'ATR'], inplace=True)
+    plot_df.dropna(subset=[long_vol_col, 'ATR'], inplace=True)
     
     if plot_df.empty:
         print(f"警告：{asset_name} 在清理 NaN 值后数据为空，无法绘图。")
@@ -119,15 +122,15 @@ def _plot_volatility_core(ohlcv_df, asset_name):
     plt.style.use('seaborn-v0_8-whitegrid')
     fig, ax1 = plt.subplots(figsize=(14, 6))
 
-    ax1.plot(plot_df.index, plot_df['Vol_60D'], label='60-Day Ann. Rolling StDev (Smoothed)', color='tab:blue', linewidth=1.5)
-    ax1.plot(plot_df.index, plot_df['Vol_20D'], label='20-Day Ann. Rolling StDev (Sensitive)', color='tab:blue', alpha=0.5, linestyle='--')
+    ax1.plot(plot_df.index, plot_df[long_vol_col], label=f'{VOL_LONG_WINDOW}-Day Ann. Rolling StDev (Smoothed)', color='tab:blue', linewidth=1.5)
+    ax1.plot(plot_df.index, plot_df[short_vol_col], label=f'{VOL_SHORT_WINDOW}-Day Ann. Rolling StDev (Sensitive)', color='tab:blue', alpha=0.5, linestyle='--')
     ax1.set_ylabel('Volatility (Annualized Rolling StDev)', color='tab:blue')
     ax1.tick_params(axis='y', labelcolor='tab:blue')
     ax1.set_title(f'{asset_name} - Volatility Clustering Analysis (StDev vs ATR)')
     ax1.set_xlabel('Date')
     
     ax2 = ax1.twinx() 
-    ax2.plot(plot_df.index, plot_df['ATR'], label='14-Day ATR (Right Axis)', color='tab:red', linewidth=1)
+    ax2.plot(plot_df.index, plot_df['ATR'], label=f'{ATR_WINDOW}-Day ATR (Right Axis)', color='tab:red', linewidth=1)
     ax2.set_ylabel('Average True Range (ATR)', color='tab:red')
     ax2.tick_params(axis='y', labelcolor='tab:red')
     
@@ -220,3 +223,4 @@ if __name__ == "__main__":
             print(f"  [跳过] {asset_name} 因加载失败而被跳过。")
             
     print("--- 波动率图表批量生成和保存完毕 ---")
+

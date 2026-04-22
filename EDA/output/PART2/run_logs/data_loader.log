@@ -1,0 +1,6 @@
+--- 正在以独立模式运行 (Data Loader) [Dataset: PART2] ---
+正在从 './DATA/PART2/' 加载数据...
+✅ 对数收益率计算完毕。
+正在生成图表并保存到 './EDA/output/PART2/charts/00_normalized_prices.png'...
+图表已保存到: ./EDA/output/PART2/charts/00_normalized_prices.png
+--- 本地运行完毕 ---

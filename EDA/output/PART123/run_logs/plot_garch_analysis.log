@@ -1,0 +1,384 @@
+--- F 正在运行 GARCH 分析脚本 [Dataset: PART123] ---
+Charts & summaries will be saved to: ./EDA/output/PART123/charts/garch/
+Calling internal load_and_merge_data(data_directory='./DATA/PART123/')...
+✅ Loader success. Loaded merged DataFrame with 10 assets.
+  Analyzing GARCH for 01...
+
+--- GARCH(1,1) Summary for 01 ---
+                        Constant Mean - GARCH Model Results                         
+====================================================================================
+Dep. Variable:                           01   R-squared:                       0.000
+Mean Model:                   Constant Mean   Adj. R-squared:                  0.000
+Vol Model:                            GARCH   Log-Likelihood:               -5475.43
+Distribution:      Standardized Student's t   AIC:                           10960.9
+Method:                  Maximum Likelihood   BIC:                           10990.9
+                                              No. Observations:                 2999
+Date:                      Wed, Apr 22 2026   Df Residuals:                     2998
+Time:                              12:03:30   Df Model:                            1
+                                  Mean Model                                  
+==============================================================================
+                  coef    std err          t      P>|t|       95.0% Conf. Int.
+------------------------------------------------------------------------------
+mu         -4.4409e-03  2.565e-02     -0.173      0.863 [-5.471e-02,4.583e-02]
+                               Volatility Model                              
+=============================================================================
+                 coef    std err          t      P>|t|       95.0% Conf. Int.
+-----------------------------------------------------------------------------
+omega          0.0325  2.172e-02      1.496      0.135 [-1.009e-02,7.504e-02]
+alpha[1]       0.0362  1.768e-02      2.048  4.055e-02  [1.559e-03,7.086e-02]
+beta[1]        0.9513  2.488e-02     38.234      0.000      [  0.903,  1.000]
+                              Distribution                              
+========================================================================
+                 coef    std err          t      P>|t|  95.0% Conf. Int.
+------------------------------------------------------------------------
+nu             6.2527      0.845      7.403  1.329e-13 [  4.597,  7.908]
+========================================================================
+
+Covariance estimator: robust
+  GARCH 波动率持续性 (Alpha + Beta): 0.9875
+  ✅ 论据发现: 波动率高度持续 (> 0.95)，适合动态仓位管理。
+--------------------------------------------------
+  Chart saved to ./EDA/output/PART123/charts/garch/garch_diagnostics_01.png
+  Analyzing GARCH for 02...
+
+--- GARCH(1,1) Summary for 02 ---
+                        Constant Mean - GARCH Model Results                         
+====================================================================================
+Dep. Variable:                           02   R-squared:                       0.000
+Mean Model:                   Constant Mean   Adj. R-squared:                  0.000
+Vol Model:                            GARCH   Log-Likelihood:               -5732.05
+Distribution:      Standardized Student's t   AIC:                           11474.1
+Method:                  Maximum Likelihood   BIC:                           11504.1
+                                              No. Observations:                 2999
+Date:                      Wed, Apr 22 2026   Df Residuals:                     2998
+Time:                              12:03:31   Df Model:                            1
+                                 Mean Model                                
+===========================================================================
+                 coef    std err          t      P>|t|     95.0% Conf. Int.
+---------------------------------------------------------------------------
+mu            -0.0515  2.525e-02     -2.039  4.140e-02 [ -0.101,-2.007e-03]
+                              Volatility Model                              
+============================================================================
+                 coef    std err          t      P>|t|      95.0% Conf. Int.
+----------------------------------------------------------------------------
+omega          0.0372  1.456e-02      2.557  1.055e-02 [8.699e-03,6.578e-02]
+alpha[1]       0.0607  9.444e-03      6.424  1.324e-10 [4.216e-02,7.918e-02]
+beta[1]        0.9337  1.007e-02     92.739      0.000     [  0.914,  0.953]
+                              Distribution                              
+========================================================================
+                 coef    std err          t      P>|t|  95.0% Conf. Int.
+------------------------------------------------------------------------
+nu             4.2690      0.342     12.474  1.036e-35 [  3.598,  4.940]
+========================================================================
+
+Covariance estimator: robust
+  GARCH 波动率持续性 (Alpha + Beta): 0.9943
+  ✅ 论据发现: 波动率高度持续 (> 0.95)，适合动态仓位管理。
+--------------------------------------------------
+  Chart saved to ./EDA/output/PART123/charts/garch/garch_diagnostics_02.png
+  Analyzing GARCH for 03...
+
+--- GARCH(1,1) Summary for 03 ---
+                        Constant Mean - GARCH Model Results                         
+====================================================================================
+Dep. Variable:                           03   R-squared:                       0.000
+Mean Model:                   Constant Mean   Adj. R-squared:                  0.000
+Vol Model:                            GARCH   Log-Likelihood:               -2040.53
+Distribution:      Standardized Student's t   AIC:                           4091.07
+Method:                  Maximum Likelihood   BIC:                           4121.10
+                                              No. Observations:                 2999
+Date:                      Wed, Apr 22 2026   Df Residuals:                     2998
+Time:                              12:03:31   Df Model:                            1
+                                  Mean Model                                 
+=============================================================================
+                 coef    std err          t      P>|t|       95.0% Conf. Int.
+-----------------------------------------------------------------------------
+mu         4.0171e-03  7.688e-03      0.523      0.601 [-1.105e-02,1.909e-02]
+                              Volatility Model                              
+============================================================================
+                 coef    std err          t      P>|t|      95.0% Conf. Int.
+----------------------------------------------------------------------------
+omega      1.7228e-03  5.475e-04      3.147  1.650e-03 [6.498e-04,2.796e-03]
+alpha[1]       0.0510  8.522e-03      5.981  2.224e-09 [3.426e-02,6.767e-02]
+beta[1]        0.9441  8.556e-03    110.343      0.000     [  0.927,  0.961]
+                              Distribution                              
+========================================================================
+                 coef    std err          t      P>|t|  95.0% Conf. Int.
+------------------------------------------------------------------------
+nu            11.1171      1.948      5.708  1.144e-08 [  7.300, 14.934]
+========================================================================
+
+Covariance estimator: robust
+  GARCH 波动率持续性 (Alpha + Beta): 0.9951
+  ✅ 论据发现: 波动率高度持续 (> 0.95)，适合动态仓位管理。
+--------------------------------------------------
+  Chart saved to ./EDA/output/PART123/charts/garch/garch_diagnostics_03.png
+  Analyzing GARCH for 04...
+
+--- GARCH(1,1) Summary for 04 ---
+                        Constant Mean - GARCH Model Results                         
+====================================================================================
+Dep. Variable:                           04   R-squared:                       0.000
+Mean Model:                   Constant Mean   Adj. R-squared:                  0.000
+Vol Model:                            GARCH   Log-Likelihood:               -6816.42
+Distribution:      Standardized Student's t   AIC:                           13642.8
+Method:                  Maximum Likelihood   BIC:                           13672.9
+                                              No. Observations:                 2999
+Date:                      Wed, Apr 22 2026   Df Residuals:                     2998
+Time:                              12:03:31   Df Model:                            1
+                                Mean Model                                
+==========================================================================
+                 coef    std err          t      P>|t|    95.0% Conf. Int.
+--------------------------------------------------------------------------
+mu             0.0918  3.964e-02      2.316  2.055e-02 [1.412e-02,  0.169]
+                              Volatility Model                              
+============================================================================
+                 coef    std err          t      P>|t|      95.0% Conf. Int.
+----------------------------------------------------------------------------
+omega          0.1041  2.952e-02      3.526  4.213e-04   [4.623e-02,  0.162]
+alpha[1]       0.0383  7.407e-03      5.166  2.389e-07 [2.375e-02,5.278e-02]
+beta[1]        0.9444  1.014e-02     93.161      0.000     [  0.925,  0.964]
+                              Distribution                              
+========================================================================
+                 coef    std err          t      P>|t|  95.0% Conf. Int.
+------------------------------------------------------------------------
+nu             6.1980      0.812      7.635  2.260e-14 [  4.607,  7.789]
+========================================================================
+
+Covariance estimator: robustD:\Anacoda\envs\comp396\Lib\site-packages\arch\univariate\base.py:694: DataScaleWarning: y is poorly scaled, which may affect convergence of the optimizer when
+estimating the model parameters. The scale of y is 0.0225. Parameter
+estimation work better when this value is between 1 and 1000. The recommended
+rescaling is 10 * y.
+
+This warning can be disabled by either rescaling y before initializing the
+model or by setting rescale=False.
+
+  self._check_scale(resids)
+
+  GARCH 波动率持续性 (Alpha + Beta): 0.9827
+  ✅ 论据发现: 波动率高度持续 (> 0.95)，适合动态仓位管理。
+--------------------------------------------------
+  Chart saved to ./EDA/output/PART123/charts/garch/garch_diagnostics_04.png
+  Analyzing GARCH for 05...
+
+--- GARCH(1,1) Summary for 05 ---
+                        Constant Mean - GARCH Model Results                         
+====================================================================================
+Dep. Variable:                           05   R-squared:                       0.000
+Mean Model:                   Constant Mean   Adj. R-squared:                  0.000
+Vol Model:                            GARCH   Log-Likelihood:               -2291.39
+Distribution:      Standardized Student's t   AIC:                           4592.78
+Method:                  Maximum Likelihood   BIC:                           4622.81
+                                              No. Observations:                 2999
+Date:                      Wed, Apr 22 2026   Df Residuals:                     2998
+Time:                              12:03:31   Df Model:                            1
+                                  Mean Model                                  
+==============================================================================
+                  coef    std err          t      P>|t|       95.0% Conf. Int.
+------------------------------------------------------------------------------
+mu         -4.0356e-03  8.905e-03     -0.453      0.650 [-2.149e-02,1.342e-02]
+                               Volatility Model                              
+=============================================================================
+                 coef    std err          t      P>|t|       95.0% Conf. Int.
+-----------------------------------------------------------------------------
+omega      1.0691e-03  6.479e-04      1.650  9.893e-02 [-2.008e-04,2.339e-03]
+alpha[1]       0.0251  4.763e-03      5.273  1.341e-07  [1.578e-02,3.445e-02]
+beta[1]        0.9722  5.605e-03    173.467      0.000      [  0.961,  0.983]
+                              Distribution                              
+========================================================================
+                 coef    std err          t      P>|t|  95.0% Conf. Int.
+------------------------------------------------------------------------
+nu             8.5838      1.368      6.275  3.497e-10 [  5.903, 11.265]
+========================================================================
+
+Covariance estimator: robust
+  GARCH 波动率持续性 (Alpha + Beta): 0.9973
+  ✅ 论据发现: 波动率高度持续 (> 0.95)，适合动态仓位管理。
+--------------------------------------------------
+  Chart saved to ./EDA/output/PART123/charts/garch/garch_diagnostics_05.png
+  Analyzing GARCH for 06...
+
+--- GARCH(1,1) Summary for 06 ---
+                        Constant Mean - GARCH Model Results                         
+====================================================================================
+Dep. Variable:                           06   R-squared:                       0.000
+Mean Model:                   Constant Mean   Adj. R-squared:                  0.000
+Vol Model:                            GARCH   Log-Likelihood:               -5677.30
+Distribution:      Standardized Student's t   AIC:                           11364.6
+Method:                  Maximum Likelihood   BIC:                           11394.6
+                                              No. Observations:                 2999
+Date:                      Wed, Apr 22 2026   Df Residuals:                     2998
+Time:                              12:03:32   Df Model:                            1
+                                 Mean Model                                 
+============================================================================
+                 coef    std err          t      P>|t|      95.0% Conf. Int.
+----------------------------------------------------------------------------
+mu             0.0488  2.429e-02      2.010  4.442e-02 [1.219e-03,9.642e-02]
+                              Volatility Model                              
+============================================================================
+                 coef    std err          t      P>|t|      95.0% Conf. Int.
+----------------------------------------------------------------------------
+omega          0.0123  4.961e-03      2.474  1.335e-02 [2.552e-03,2.200e-02]
+alpha[1]       0.0344  5.620e-03      6.113  9.788e-10 [2.334e-02,4.537e-02]
+beta[1]        0.9637  5.311e-03    181.443      0.000     [  0.953,  0.974]
+                              Distribution                              
+========================================================================
+                 coef    std err          t      P>|t|  95.0% Conf. Int.
+------------------------------------------------------------------------
+nu             4.3546      0.383     11.369  5.982e-30 [  3.604,  5.105]
+========================================================================
+
+Covariance estimator: robust
+  GARCH 波动率持续性 (Alpha + Beta): 0.9980
+  ✅ 论据发现: 波动率高度持续 (> 0.95)，适合动态仓位管理。
+--------------------------------------------------
+  Chart saved to ./EDA/output/PART123/charts/garch/garch_diagnostics_06.png
+  Analyzing GARCH for 07...
+
+--- GARCH(1,1) Summary for 07 ---
+                        Constant Mean - GARCH Model Results                         
+====================================================================================
+Dep. Variable:                           07   R-squared:                       0.000
+Mean Model:                   Constant Mean   Adj. R-squared:                  0.000
+Vol Model:                            GARCH   Log-Likelihood:                2092.99
+Distribution:      Standardized Student's t   AIC:                          -4175.98
+Method:                  Maximum Likelihood   BIC:                          -4145.95
+                                              No. Observations:                 2999
+Date:                      Wed, Apr 22 2026   Df Residuals:                     2998
+Time:                              12:03:32   Df Model:                            1
+                                  Mean Model                                 
+=============================================================================
+                 coef    std err          t      P>|t|       95.0% Conf. Int.
+-----------------------------------------------------------------------------
+mu         6.0182e-05  1.867e-03  3.223e-02      0.974 [-3.600e-03,3.720e-03]
+                               Volatility Model                              
+=============================================================================
+                 coef    std err          t      P>|t|       95.0% Conf. Int.
+-----------------------------------------------------------------------------
+omega      7.6818e-04  4.515e-04      1.701  8.886e-02 [-1.167e-04,1.653e-03]
+alpha[1]       0.1065  4.472e-02      2.382  1.722e-02    [1.888e-02,  0.194]
+beta[1]        0.8684  5.459e-02     15.908  5.572e-57      [  0.761,  0.975]
+                              Distribution                              
+========================================================================
+                 coef    std err          t      P>|t|  95.0% Conf. Int.
+------------------------------------------------------------------------
+nu             3.4945      0.252     13.856  1.169e-43 [  3.000,  3.989]
+========================================================================
+
+Covariance estimator: robust
+  GARCH 波动率持续性 (Alpha + Beta): 0.9750
+  ✅ 论据发现: 波动率高度持续 (> 0.95)，适合动态仓位管理。
+--------------------------------------------------
+  Chart saved to ./EDA/output/PART123/charts/garch/garch_diagnostics_07.png
+  Analyzing GARCH for 08...
+
+--- GARCH(1,1) Summary for 08 ---
+                        Constant Mean - GARCH Model Results                         
+====================================================================================
+Dep. Variable:                           08   R-squared:                       0.000
+Mean Model:                   Constant Mean   Adj. R-squared:                  0.000
+Vol Model:                            GARCH   Log-Likelihood:               -1506.32
+Distribution:      Standardized Student's t   AIC:                           3022.64
+Method:                  Maximum Likelihood   BIC:                           3052.67
+                                              No. Observations:                 2999
+Date:                      Wed, Apr 22 2026   Df Residuals:                     2998
+Time:                              12:03:32   Df Model:                            1
+                                  Mean Model                                 
+=============================================================================
+                 coef    std err          t      P>|t|       95.0% Conf. Int.
+-----------------------------------------------------------------------------
+mu         8.0883e-03  6.464e-03      1.251      0.211 [-4.580e-03,2.076e-02]
+                              Volatility Model                              
+============================================================================
+                 coef    std err          t      P>|t|      95.0% Conf. Int.
+----------------------------------------------------------------------------
+omega      7.6033e-04  3.380e-04      2.249  2.448e-02 [9.786e-05,1.423e-03]
+alpha[1]       0.0294  5.948e-03      4.950  7.405e-07 [1.779e-02,4.110e-02]
+beta[1]        0.9671  6.662e-03    145.168      0.000     [  0.954,  0.980]
+                              Distribution                              
+========================================================================
+                 coef    std err          t      P>|t|  95.0% Conf. Int.
+------------------------------------------------------------------------
+nu             5.8684      0.643      9.132  6.717e-20 [  4.609,  7.128]
+========================================================================
+
+Covariance estimator: robust
+  GARCH 波动率持续性 (Alpha + Beta): 0.9965
+  ✅ 论据发现: 波动率高度持续 (> 0.95)，适合动态仓位管理。
+--------------------------------------------------
+  Chart saved to ./EDA/output/PART123/charts/garch/garch_diagnostics_08.png
+  Analyzing GARCH for 09...
+
+--- GARCH(1,1) Summary for 09 ---
+                        Constant Mean - GARCH Model Results                         
+====================================================================================
+Dep. Variable:                           09   R-squared:                       0.000
+Mean Model:                   Constant Mean   Adj. R-squared:                  0.000
+Vol Model:                            GARCH   Log-Likelihood:               -2735.88
+Distribution:      Standardized Student's t   AIC:                           5481.76
+Method:                  Maximum Likelihood   BIC:                           5511.79
+                                              No. Observations:                 2999
+Date:                      Wed, Apr 22 2026   Df Residuals:                     2998
+Time:                              12:03:32   Df Model:                            1
+                                  Mean Model                                 
+=============================================================================
+                 coef    std err          t      P>|t|       95.0% Conf. Int.
+-----------------------------------------------------------------------------
+mu             0.0169  1.005e-02      1.682  9.266e-02 [-2.799e-03,3.661e-02]
+                              Volatility Model                              
+============================================================================
+                 coef    std err          t      P>|t|      95.0% Conf. Int.
+----------------------------------------------------------------------------
+omega      1.3480e-03  6.646e-04      2.028  4.252e-02 [4.547e-05,2.651e-03]
+alpha[1]       0.0252  4.406e-03      5.724  1.038e-08 [1.659e-02,3.386e-02]
+beta[1]        0.9718  5.062e-03    191.985      0.000     [  0.962,  0.982]
+                              Distribution                              
+========================================================================
+                 coef    std err          t      P>|t|  95.0% Conf. Int.
+------------------------------------------------------------------------
+nu             7.2865      1.034      7.048  1.809e-12 [  5.260,  9.313]
+========================================================================
+
+Covariance estimator: robust
+  GARCH 波动率持续性 (Alpha + Beta): 0.9970
+  ✅ 论据发现: 波动率高度持续 (> 0.95)，适合动态仓位管理。
+--------------------------------------------------
+  Chart saved to ./EDA/output/PART123/charts/garch/garch_diagnostics_09.png
+  Analyzing GARCH for 10...
+
+--- GARCH(1,1) Summary for 10 ---
+                        Constant Mean - GARCH Model Results                         
+====================================================================================
+Dep. Variable:                           10   R-squared:                       0.000
+Mean Model:                   Constant Mean   Adj. R-squared:                  0.000
+Vol Model:                            GARCH   Log-Likelihood:               -6051.93
+Distribution:      Standardized Student's t   AIC:                           12113.9
+Method:                  Maximum Likelihood   BIC:                           12143.9
+                                              No. Observations:                 2999
+Date:                      Wed, Apr 22 2026   Df Residuals:                     2998
+Time:                              12:03:33   Df Model:                            1
+                                  Mean Model                                 
+=============================================================================
+                 coef    std err          t      P>|t|       95.0% Conf. Int.
+-----------------------------------------------------------------------------
+mu            -0.0391  3.086e-02     -1.266      0.205 [-9.956e-02,2.140e-02]
+                               Volatility Model                              
+=============================================================================
+                 coef    std err          t      P>|t|       95.0% Conf. Int.
+-----------------------------------------------------------------------------
+omega          0.0121  9.197e-03      1.310      0.190 [-5.974e-03,3.008e-02]
+alpha[1]       0.0197  6.214e-03      3.165  1.549e-03  [7.490e-03,3.185e-02]
+beta[1]        0.9775  8.149e-03    119.952      0.000      [  0.962,  0.993]
+                              Distribution                              
+========================================================================
+                 coef    std err          t      P>|t|  95.0% Conf. Int.
+------------------------------------------------------------------------
+nu             7.5621      0.885      8.542  1.315e-17 [  5.827,  9.297]
+========================================================================
+
+Covariance estimator: robust
+  GARCH 波动率持续性 (Alpha + Beta): 0.9972
+  ✅ 论据发现: 波动率高度持续 (> 0.95)，适合动态仓位管理。
+--------------------------------------------------
+  Chart saved to ./EDA/output/PART123/charts/garch/garch_diagnostics_10.png
+--- GARCH 分析全部完成 ---

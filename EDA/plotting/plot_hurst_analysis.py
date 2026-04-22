@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 import glob
+from EDA.settings import HURST_WINDOW
 import sys # 确保导入 sys
 
 # --- [!! 关键依赖 !!] ---
@@ -23,13 +24,14 @@ except ImportError:
 # [路径修复] 修正为 Zac 的本地路径
 HURST_SAVE_DIR = "./EDA/output/charts/hurst/"
 DATA_DIR_PATH = "./DATA/PART1/" 
-DEFAULT_WINDOW_SIZE = 252 # 默认滚动窗口 (约 1 年)
 # ---
 
 # -----------------------------------------------------------------
 # (数据加载函数，使用我们昨天的“最终修复版-老师的逻辑”)
 # (这是 'Close-Only' 版本，Hurst 只需要 Close 价格)
 # -----------------------------------------------------------------
+DEFAULT_WINDOW_SIZE = HURST_WINDOW
+
 def load_and_merge_data(data_directory="./DATA/PART1/"):
     csv_files_path = os.path.join(data_directory, "*.csv")
     files = glob.glob(csv_files_path)

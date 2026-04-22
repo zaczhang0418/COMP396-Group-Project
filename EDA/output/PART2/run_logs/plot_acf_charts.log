@@ -1,0 +1,45 @@
+--- 正在以独立模式运行 (ACF/PACF Plotter) [Dataset: PART2] ---
+正在从 './DATA/PART2/' 加载数据...
+✅ 数据加载、合并、计算收益率完毕。
+正在为所有资产生成 V3 缩放图表并保存到 './EDA/output/PART2/charts/acf/'...
+  正在处理: 01
+    ADF Test (Log Returns) p-value: 0.000000
+    >> 论据发现: 数据是平稳的 (p < 0.05)，支持均值回归。
+  2x2 (Zoomed) V3 图表已保存到: ./EDA/output/PART2/charts/acf/01_acf_pacf_V3_zoomed.png
+  正在处理: 02
+    ADF Test (Log Returns) p-value: 0.000000
+    >> 论据发现: 数据是平稳的 (p < 0.05)，支持均值回归。
+  2x2 (Zoomed) V3 图表已保存到: ./EDA/output/PART2/charts/acf/02_acf_pacf_V3_zoomed.png
+  正在处理: 03
+    ADF Test (Log Returns) p-value: 0.000000
+    >> 论据发现: 数据是平稳的 (p < 0.05)，支持均值回归。
+  2x2 (Zoomed) V3 图表已保存到: ./EDA/output/PART2/charts/acf/03_acf_pacf_V3_zoomed.png
+  正在处理: 04
+    ADF Test (Log Returns) p-value: 0.000000
+    >> 论据发现: 数据是平稳的 (p < 0.05)，支持均值回归。
+  2x2 (Zoomed) V3 图表已保存到: ./EDA/output/PART2/charts/acf/04_acf_pacf_V3_zoomed.png
+  正在处理: 05
+    ADF Test (Log Returns) p-value: 0.000000
+    >> 论据发现: 数据是平稳的 (p < 0.05)，支持均值回归。
+  2x2 (Zoomed) V3 图表已保存到: ./EDA/output/PART2/charts/acf/05_acf_pacf_V3_zoomed.png
+  正在处理: 06
+    ADF Test (Log Returns) p-value: 0.000000
+    >> 论据发现: 数据是平稳的 (p < 0.05)，支持均值回归。
+  2x2 (Zoomed) V3 图表已保存到: ./EDA/output/PART2/charts/acf/06_acf_pacf_V3_zoomed.png
+  正在处理: 07
+    ADF Test (Log Returns) p-value: 0.000000
+    >> 论据发现: 数据是平稳的 (p < 0.05)，支持均值回归。
+  2x2 (Zoomed) V3 图表已保存到: ./EDA/output/PART2/charts/acf/07_acf_pacf_V3_zoomed.png
+  正在处理: 08
+    ADF Test (Log Returns) p-value: 0.000000
+    >> 论据发现: 数据是平稳的 (p < 0.05)，支持均值回归。
+  2x2 (Zoomed) V3 图表已保存到: ./EDA/output/PART2/charts/acf/08_acf_pacf_V3_zoomed.png
+  正在处理: 09
+    ADF Test (Log Returns) p-value: 0.000000
+    >> 论据发现: 数据是平稳的 (p < 0.05)，支持均值回归。
+  2x2 (Zoomed) V3 图表已保存到: ./EDA/output/PART2/charts/acf/09_acf_pacf_V3_zoomed.png
+  正在处理: 10
+    ADF Test (Log Returns) p-value: 0.000000
+    >> 论据发现: 数据是平稳的 (p < 0.05)，支持均值回归。
+  2x2 (Zoomed) V3 图表已保存到: ./EDA/output/PART2/charts/acf/10_acf_pacf_V3_zoomed.png
+--- 本地运行完毕 ---
