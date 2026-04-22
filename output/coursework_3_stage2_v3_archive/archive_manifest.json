@@ -1,0 +1,29 @@
+{
+  "branch": "summary/coursework_3/stage-2-v3-archive-summary",
+  "source_branch": "archive/coursework_3/stage-1-cross-asset-scan",
+  "strategy_version": "team01_v3",
+  "submission_strategy_file": "strategies/team01.py",
+  "archive_strategy_alias": "strategies/team01_v3.py",
+  "reviewed_on": "2026-04-23",
+  "notes": [
+    "The assignment-facing submission file remains strategies/team01.py.",
+    "strategies/team01_v3.py is a versioned archive alias used to regenerate V3 evidence with an explicit strategy id.",
+    "Part 1 and Part 2 data are present in this historical CA3 branch.",
+    "Part 3 output was regenerated using DATA/PART3 from main as a temporary local data source; DATA/PART3 is not added to this summary branch."
+  ],
+  "outputs": {
+    "process_summary": "output/coursework_3_stage2_v3_archive/process_summary.csv",
+    "team01_v3_final": {
+      "part1": "output/coursework_3_stage2_v3_archive/team01_v3_final/part1",
+      "part2": "output/coursework_3_stage2_v3_archive/team01_v3_final/part2",
+      "part3": "output/coursework_3_stage2_v3_archive/team01_v3_final/part3"
+    },
+    "cross_asset_scan_summaries": "output/cross_asset_scan_v1/summaries"
+  },
+  "run_settings": {
+    "strategy": "team01_v3",
+    "strategy_class": "Team01V3Strategy",
+    "s_mult": 2.0,
+    "end_policy": "liquidate"
+  }
+}
