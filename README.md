@@ -18,6 +18,30 @@ Reviewed on: 2026-04-22
 
 这个 branch 的定位是证据仓库，不是未来 `main` 的结构来源。
 
+## 0. Versioned Team01 Naming
+
+为了和 CA2 / CA3 的 summary branch 命名保持一致，这个 branch 现在给最早的 Team01 组合策略增加了一个版本化 alias：
+
+```text
+strategies/team01_v1.py
+```
+
+历史实现文件仍然保留为：
+
+```text
+strategies/combo_tf01_mr10_garch07_v1.py
+```
+
+也就是说：
+
+```text
+历史实现: combo_tf01_mr10_garch07_v1
+归档版本名: team01_v1 / Team01 V1
+复现 alias: Team01V1Strategy
+```
+
+`team01_v1.py` 只是一个轻量 wrapper，不复制或修改 V1 交易逻辑。
+
 ## 1. V1 核心思路
 
 Coursework 1 V1 是 Team01 最早的组合策略原型。我们先分别开发三个资产硬绑定的单独策略，然后把它们组合成一个固定资产组合策略。
@@ -175,6 +199,12 @@ python scripts\run_coursework_1_stage5_archive_matrix.py
 python main.py --strategy combo_tf01_mr10_garch07_v1 --data-dir .\DATA\PART1
 ```
 
+使用版本化 alias 运行同一个 V1 combo：
+
+```powershell
+python main.py --strategy team01_v1 --strategy-class Team01V1Strategy --data-dir .\DATA\PART1
+```
+
 ## 8. Future Merge Guidance
 
 不要把这个 summary branch 整体 merge 到最新 `main`。这个 branch 基于历史 Coursework 1 stage 4 结构，保留了旧 framework、旧 DATA layout 和旧策略文件。
@@ -183,6 +213,7 @@ python main.py --strategy combo_tf01_mr10_garch07_v1 --data-dir .\DATA\PART1
 
 ```text
 README.md
+strategies/team01_v1.py
 output/coursework_1_stage5_v1_archive/
 ```
 
