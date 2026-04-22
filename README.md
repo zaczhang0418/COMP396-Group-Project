@@ -25,6 +25,39 @@ output/coursework_1_stage5_v1_archive/PART3/
 output/coursework_1_stage5_v1_archive/PART123/
 ```
 
+## Future Merge Guidance
+
+Do not merge this summary branch wholesale into the latest `main`. This branch is based on the historical Coursework 1 stage 4 layout and intentionally preserves the old V1 code structure.
+
+For a future final/main branch, pick or manually copy only:
+
+```text
+DOCS/coursework_1_stage5_v1_archive_summary.md
+output/coursework_1_stage5_v1_archive/
+```
+
+Optional, only if the final branch needs to reproduce this exact V1 archive matrix:
+
+```text
+scripts/run_coursework_1_stage5_archive_matrix.py
+```
+
+Do not pick/merge these from this branch unless there is a deliberate reason:
+
+```text
+README.md
+.gitignore
+DATA/PART2/
+DATA/PART3/
+DATA/PART123/
+configs/timeline.json
+framework/
+strategies/
+scripts/ other than scripts/run_coursework_1_stage5_archive_matrix.py
+```
+
+The latest `main` already owns the current project hierarchy, EDA workflow, data layout, and reusable strategy tooling. Treat this branch as V1 evidence, not as a structural base.
+
 BT396 is the **Backtest Framework** for COMP396.  
 It is built on [Backtrader](https://www.backtrader.com/) and provides a controlled environment where student strategies are run under standardised rules (slippage, bankruptcy checks, overspend guards, etc.).
 
