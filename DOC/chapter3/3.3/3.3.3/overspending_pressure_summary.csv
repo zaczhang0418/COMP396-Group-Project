@@ -1,0 +1,3 @@
+version,avg_gross_exposure_pct,median_gross_exposure_pct,p95_gross_exposure_pct,max_gross_exposure_pct,days_gross_over_80pct,days_gross_over_95pct,order_days,fill_days,multi_order_days,duplicate_same_series_days,max_submitted_orders_per_day,activity_pct
+V2,46.8321069111774,42.5266295282121,99.38755071735945,99.99711614498233,160,62,382,382,170,148,3,90.3
+V3,16.7248332347209,15.20403252923829,54.310276036058646,61.67219977838948,0,0,186,186,11,0,2,53.3

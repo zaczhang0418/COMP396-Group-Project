@@ -1,0 +1,6 @@
+Headline change,Supporting evidence
+Return quality,"Final value +GBP 80,064.04; true PD +6.9732"
+Risk control,Max drawdown 9.93% to 2.49%; recovery 401 to 100 days
+Execution discipline,Activity 90.30% to 53.30%; duplicate same-series days 148 to 0
+Structural revision,"MR10 and GARCH07 were replaced or removed; V3 used gross cap, rebalance tolerance, and loss-freeze logic."
+Remaining limitation,Top-leg share rose from 84.71% to 99.13%.

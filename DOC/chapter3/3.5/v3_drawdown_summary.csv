@@ -1,0 +1,2 @@
+Peak date,Peak equity,Trough date,Trough equity,Max drawdown abs,Max drawdown pct,Recovery date,Days to recovery,Nearest pre-trough action,Nearest post-trough action
+2076-02-03,1022490.3895,2076-03-27,997037.4470000002,25452.94249999989,0.0248930872714084,2076-05-13,100,SELL series_9 fill_size=4990.0000 fill_px=112.1250,BUY series_9 size=4990.0000

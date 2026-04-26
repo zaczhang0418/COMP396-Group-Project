@@ -1,0 +1,5 @@
+Change area,V3 design choice,Expected impact
+Asset mapping,Retain TF on series_1 and replace MR10 with MR09,Better transferability and lower dependence on historical hard binding
+Dynamic allocation,Use performance-aware active weights instead of static three-leg allocation,More adaptive capital deployment under changing market conditions
+Exposure control,Apply gross_cap=1.00 and rebalance tolerance,Lower overspending pressure and less unnecessary rebalancing
+Risk control,Use cooldowns and loss-freeze logic,Reduce repeated re-entry after unfavorable sequences

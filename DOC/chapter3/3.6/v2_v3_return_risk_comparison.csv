@@ -1,0 +1,10 @@
+Criterion,V2,V3,Change in V3
+Final portfolio value,"GBP 1,130,900.67","GBP 1,210,964.70","GBP 80,064.04"
+Total return,13.09%,21.10%,8.01%
+Annualized return,3.35%,5.67%,2.32%
+Sharpe ratio,0.63,1.56,0.93
+Sortino ratio,0.93,2.20,1.27
+Max drawdown,9.93%,2.49%,-7.44%
+Recovery time,401 trading days,100 trading days,-301 days
+True PD ratio,1.3152,8.2884,6.9732
+Open PnL PD ratio,3.25,9.09,5.84
