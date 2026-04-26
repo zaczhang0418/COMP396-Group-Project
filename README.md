@@ -11,8 +11,8 @@ The project evolved through the following stages:
 | EDA foundation | Cross-asset diagnostics and strategy motivation | `EDA/docs/`, `EDA/output/stage4_overview/` |
 | Coursework 1 / V1 | Asset-bound TF01, MR10, GARCH07 prototype and combined Team01 V1 | `output/coursework_1_stage5_v1_archive/` |
 | Coursework 2 / V2 | Generic TF / MR / GARCH workflow, parameter search, transfer validation, Team01 V2 presubmission | `output/coursework_2_stage4_v2_archive/` |
-| Coursework 3 / V3 | Cross-asset reassessment, final Team01 V3 refinement, V2/V3 comparison | `output/coursework_3_stage2_v3_archive/`, `DOC/chapter3/` |
-| Final report | Report-ready evidence integration and development path summary | `DOCS/final-submission-merge-summary.md` |
+| Coursework 3 / V3 | Cross-asset reassessment, final Team01 V3 refinement, V2/V3 comparison | `output/coursework_3_stage2_v3_archive/`, `Documentation/chapter3_analysis_evidence/` |
+| Final report | Report-ready evidence integration and development path summary | `Documentation/branch_summary.md` |
 
 ## Final Strategy Versions
 
@@ -41,8 +41,8 @@ strategies/team01.py
 | `output/coursework_2_stage4_v2_archive/` | V2 generic workflow, transfer validation, and presubmission evidence. |
 | `output/coursework_3_stage2_v3_archive/` | Final V3 performance outputs across Part 1, Part 2, and Part 3. |
 | `output/cross_asset_scan_v1/summaries/` | Lightweight cross-asset scan summary evidence. |
-| `DOC/chapter3/` | Report-ready Chapter 3 V2 diagnosis, V3 refinement, and V2/V3 comparison packs. |
-| `DOCS/final-submission-merge-summary.md` | Explanation of what was merged and why full branch merges were avoided. |
+| `Documentation/branch_summary.md` | Simple summary of the branches used for final integration. |
+| `Documentation/chapter3_analysis_evidence/` | Report-ready Chapter 3 V2 diagnosis, V3 refinement, and V2/V3 comparison packs. |
 
 ## Data
 
