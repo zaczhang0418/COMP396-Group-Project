@@ -1,0 +1,9 @@
+version,dataset_label,series,leg,final_cumPnL,pnl_pd_ratio,max_drawdown,share_of_abs_leg_pnl_pct,is_positive_pnl,source_ref,source_path
+V1,PART3,series_1,tf,136937.83999999982,2.9104680095328113,47050.11,63.64897339602687,True,summary/coursework_1/stage-5-v1-archive-summary,output/coursework_1_stage5_v1_archive/PART3/combo_tf01_mr10_garch07_v1/per_series_pd.json
+V1,PART3,series_7,garch,28072.3125,2.455397697570949,11432.8984375,13.048065249732689,True,summary/coursework_1/stage-5-v1-archive-summary,output/coursework_1_stage5_v1_archive/PART3/combo_tf01_mr10_garch07_v1/per_series_pd.json
+V1,PART3,series_10,mr,50135.25,1.4317709634812408,35016.25,23.302961354240438,True,summary/coursework_1/stage-5-v1-archive-summary,output/coursework_1_stage5_v1_archive/PART3/combo_tf01_mr10_garch07_v1/per_series_pd.json
+V2,part3_existing,series_1,tf,186898.5700000002,2.8627971381000172,65285.299999999705,84.70529335965614,True,summary/coursework_2/stage-4-v2-archive-summary,output/coursework_2_stage4_v2_archive/per_leg_summary.csv
+V2,part3_existing,series_7,garch,25830.609375,2.30907639542168,11186.5546875,11.70682763794317,True,summary/coursework_2/stage-4-v2-archive-summary,output/coursework_2_stage4_v2_archive/per_leg_summary.csv
+V2,part3_existing,series_10,mr,7916.5,0.250607406000459,31589.25,3.587879002400698,True,summary/coursework_2/stage-4-v2-archive-summary,output/coursework_2_stage4_v2_archive/per_leg_summary.csv
+V3,part3,series_1,tf,234732.43000000017,9.014689955942815,26038.87999999999,99.12796552568244,True,summary/coursework_3/stage-2-v3-archive-summary,output/coursework_3_stage2_v3_archive/team01_v3_final/part3/per_series_pd.json
+V3,part3,series_9,mr09,2064.9548299999997,0.12033032299419275,17160.71875,0.8720344743175508,True,summary/coursework_3/stage-2-v3-archive-summary,output/coursework_3_stage2_v3_archive/team01_v3_final/part3/per_series_pd.json

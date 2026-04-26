@@ -1,147 +1,97 @@
-# COMP396 Group Project
+# COMP396 Group Project Final Submission
 
-This repository contains the COMP396 backtesting framework, strategy experiments, EDA workflow, data partitions, and report evidence for the group project.
+This repository is the final integration branch for the COMP396 group project. It uses the latest remote `main` branch as the structural baseline and selectively brings back evidence and strategy materials from the EDA, Coursework 1, Coursework 2, and Coursework 3 summary branches.
 
-This branch focuses on cleaning and updating the EDA workflow so that Part 1, Part 2, Part 3, and the combined Part 1+2+3 dataset can be reproduced from one place.
+## Development Flow
 
-## Current Branch Focus
+The project evolved through the following stages:
 
-Branch:
+| Stage | Purpose | Main Evidence |
+| --- | --- | --- |
+| EDA foundation | Cross-asset diagnostics and strategy motivation | `EDA/docs/`, `EDA/output/stage4_overview/` |
+| Coursework 1 / V1 | Asset-bound TF01, MR10, GARCH07 prototype and combined Team01 V1 | `output/coursework_1_stage5_v1_archive/` |
+| Coursework 2 / V2 | Generic TF / MR / GARCH workflow, parameter search, transfer validation, Team01 V2 presubmission | `output/coursework_2_stage4_v2_archive/` |
+| Coursework 3 / V3 | Cross-asset reassessment, final Team01 V3 refinement, V2/V3 comparison | `output/coursework_3_stage2_v3_archive/`, `DOC/chapter3/` |
+| Final report | Report-ready evidence integration and development path summary | `DOCS/final-submission-merge-summary.md` |
+
+## Final Strategy Versions
+
+| Version | File | Summary |
+| --- | --- | --- |
+| Team01 V1 | `strategies/team01_v1.py` | Wrapper for the original asset-bound combined prototype. |
+| Team01 V2 | `strategies/team01_v2.py` | Wrapper for the Coursework 2 presubmission strategy. |
+| Team01 V3 | `strategies/team01.py`, `strategies/team01_v3.py` | Final cross-asset-refined strategy with TF01 + MR09 and dynamic controls. |
+
+The assignment-facing final strategy is:
 
 ```text
-archive/eda/stage-4-part123-overview
+strategies/team01.py
 ```
 
-Main EDA updates in this branch:
+`strategies/team01_v3.py` is kept as a versioned alias for archive and report clarity.
 
-- Moved EDA runners, notebooks, docs, and helper scripts under `EDA/`.
-- Added `DATA/PART123`, generated from `DATA/PART1`, `DATA/PART2`, and `DATA/PART3`.
-- Removed the old `DATA/COMBINED` folder from the active EDA workflow.
-- Removed unused EDA chart families from the active workflow: candlesticks, seasonality, RSI analysis, and standalone volume analysis.
-- Kept strategy-relevant EDA outputs: ACF/PACF, correlation heatmap, GARCH, Hurst, return histograms, quantile analysis, and volatility.
-- Added `EDA/settings.py` so rolling-window assumptions are defined in one place.
-- Added run reports, analysis reports, and an executed EDA notebook output.
-- Updated `configs/timeline.json` so it now includes `part3` and `part123`.
+## Key Evidence Locations
 
-## Project Structure
-
-```text
-COMP396-Group-Project/
-  DATA/                  Input datasets: PART1, PART2, PART3, PART123
-  EDA/                   EDA scripts, plotting modules, notebook, docs, and outputs
-  DOCS/                  Project guide, branch archive, and requirements
-  configs/               Timeline and grid-search configuration
-  framework/             Backtesting framework code
-  scripts/               Strategy, evaluation, maintenance, and distribution scripts
-  strategies/            Strategy implementations
-  tests/                 Tests
-  README.md              Root project overview
-```
-
-## Important Documents
-
-| Document | Purpose |
+| Path | Purpose |
 | --- | --- |
-| [Project Guide](DOCS/project-guide.md) | Installation, running instructions, project structure, and code summary |
-| [Branch Archive](DOCS/branch-archive.md) | Coursework branch map and evidence notes |
-| [EDA Stage 4 Overview](EDA/docs/stage4-overview.md) | Current EDA workflow, chart set, commands, and tracked outputs |
-| [Latest EDA Analysis](EDA/docs/latest-analysis.md) | Extracted EDA analysis values from the latest run |
-| [Latest EDA Run](EDA/docs/latest-run.md) | Latest run status, logs, and generated output summary |
-| [EDA Notebook](EDA/notebooks/EDA_Report_and_Justification.ipynb) | Executed notebook version of the current EDA report |
-| [Requirements](DOCS/requirements.txt) | Python dependency list |
+| `EDA/docs/stage4-overview.md` | EDA workflow and chart-family explanation. |
+| `EDA/docs/latest-analysis.md` | Extracted EDA statistics used for report discussion. |
+| `EDA/output/stage4_overview/` | Compact EDA overview charts and CSV summaries. |
+| `output/coursework_1_stage5_v1_archive/` | V1 matrix outputs across Part 1, Part 2, Part 3, and Part 1+2+3. |
+| `output/coursework_2_stage4_v2_archive/` | V2 generic workflow, transfer validation, and presubmission evidence. |
+| `output/coursework_3_stage2_v3_archive/` | Final V3 performance outputs across Part 1, Part 2, and Part 3. |
+| `output/cross_asset_scan_v1/summaries/` | Lightweight cross-asset scan summary evidence. |
+| `DOC/chapter3/` | Report-ready Chapter 3 V2 diagnosis, V3 refinement, and V2/V3 comparison packs. |
+| `DOCS/final-submission-merge-summary.md` | Explanation of what was merged and why full branch merges were avoided. |
 
-## Environment
+## Data
 
-On this machine, the EDA batch runner auto-detects the Anaconda environment:
+The final branch keeps the latest main data layout:
 
 ```text
-D:\Anacoda\envs\comp396\python.exe
+DATA/PART1/
+DATA/PART2/
+DATA/PART3/
+DATA/PART123/
 ```
 
-If needed, install dependencies with:
+`PART123` is the combined Part 1 + Part 2 + Part 3 dataset used by the EDA overview workflow.
+
+## Reproduction Notes
+
+Run the final strategy through the normal backtester:
 
 ```powershell
-pip install -r DOCS\requirements.txt
+python main.py --strategy team01
 ```
 
-## EDA Workflow
-
-Run the full EDA workflow:
+Run the versioned V3 alias:
 
 ```powershell
-.\EDA\run_all_eda.bat ALL
+python main.py --strategy team01_v3 --strategy-class Team01V3Strategy
 ```
 
-Run only the tracked overview:
+Regenerate compact archive summaries:
+
+```powershell
+python scripts\run_coursework_1_stage5_archive_matrix.py
+python scripts\run_coursework_2_stage4_archive_matrix.py
+```
+
+Regenerate Chapter 3 report packs:
+
+```powershell
+python scripts\generate_coursework_3_chapter3_analysis.py
+python scripts\generate_part3_331_doc_pack.py
+python scripts\generate_part3_332_doc_pack.py
+python scripts\generate_part3_333_doc_pack.py
+python scripts\generate_part3_335_doc_pack.py
+python scripts\generate_part3_35_v3_workflow_pack.py
+python scripts\generate_part3_36_comparison_pack.py
+```
+
+Run EDA overview:
 
 ```powershell
 .\EDA\run_all_eda.bat OVERVIEW
 ```
-
-Run one dataset:
-
-```powershell
-.\EDA\run_all_eda.bat PART1
-.\EDA\run_all_eda.bat PART2
-.\EDA\run_all_eda.bat PART3
-.\EDA\run_all_eda.bat PART123
-```
-
-Each run refreshes:
-
-```text
-EDA/docs/latest-run.md
-EDA/docs/latest-analysis.md
-EDA/notebooks/EDA_Report_and_Justification.ipynb
-```
-
-The tracked overview outputs are stored in:
-
-```text
-EDA/output/stage4_overview/
-```
-
-Detailed per-dataset chart folders under `EDA/output/PART1`, `EDA/output/PART2`, `EDA/output/PART3`, and `EDA/output/PART123` are generated locally and ignored by Git by default.
-
-## Active EDA Settings
-
-The current EDA workflow does not use a fixed calendar sub-period for charts. It uses the requested dataset and applies strategy-relevant rolling windows from `EDA/settings.py`:
-
-- Trading days per year: `252`
-- ACF/PACF lags: `40`
-- Hurst rolling window: `252`
-- Volatility windows: `20` and `60`
-- ATR window: `14`
-- Quantile tests: `STR_21D` and `MOM_126D`, both evaluated on 21-day forward returns
-
-## Data Timeline
-
-Current data partitions:
-
-| Dataset | Date range |
-| --- | --- |
-| `PART1` | 2069-12-08 to 2072-09-02 |
-| `PART2` | 2072-09-03 to 2075-05-30 |
-| `PART3` | 2075-05-31 to 2078-02-23 |
-| `PART123` | 2069-12-08 to 2078-02-23 |
-
-The canonical timeline is stored in `configs/timeline.json`.
-
-## Backtester
-
-The project still includes the main backtesting framework and strategy scripts. Basic usage:
-
-```powershell
-python main.py --strategy <strategy_name>
-```
-
-For the broader project guide and strategy archive notes, see:
-
-```text
-DOCS/project-guide.md
-DOCS/branch-archive.md
-```
-
-## Git Notes
-
-This branch intentionally keeps only the EDA-relevant workflow active. Generated detailed chart folders are ignored, while the compact Stage 4 overview and EDA documentation are kept for reporting.

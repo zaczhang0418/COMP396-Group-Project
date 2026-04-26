@@ -1,0 +1,4 @@
+dataset,strategy_id,output_path,final_value,true_pd_ratio,open_pnl_pd_ratio,activity_pct,bankrupt,bankrupt_date,s_mult
+part1,team01_v3,output/coursework_3_stage2_v3_archive/team01_v3_final/part1,969048.3374399992,-0.5152514404434659,-0.017201494634421558,36.93693693693694,false,,2.0
+part2,team01_v3,output/coursework_3_stage2_v3_archive/team01_v3_final/part2,1083657.9416200002,2.2074778266722106,3.482592415448784,46.1,false,,2.0
+part3,team01_v3,output/coursework_3_stage2_v3_archive/team01_v3_final/part3,1210964.7031100001,8.288420999261717,9.092636959308761,53.3,false,,2.0

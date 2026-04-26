@@ -1,0 +1,7 @@
+Theme,V2,V3,Interpretation
+Deployed mapping,TF series_1 + MR series_10 + GARCH series_7,TF series_1 + MR series_9,V3 removed hard binding to MR10 and dropped the weak GARCH leg.
+TF transfer evidence,OOS 0.704 / Part 2 0.896,OOS 0.704 / Part 2 0.896,TF on series_1 was the only leg with stable evidence across stages.
+MR leg evidence,MR10: OOS 1.213 / Part 2 -0.898,MR09: OOS 2.351 / Part 2 -0.126,"MR09 still weakened in transfer, but materially less than MR10."
+Dropped GARCH leg,GARCH07: OOS -0.505 / Part 2 -0.642,Not deployed,V3 avoided carrying forward the weakest transferred leg.
+Allocation logic,Static 0.45 / 0.45 / 0.10 leg weights,Dynamic TF/MR active weights around 0.65 / 0.35 base,V3 used portfolio-level adaptation rather than fixed leg budgeting.
+Concentration outcome,Top leg 84.71%; effective legs 1.37,Top leg 99.13%; effective legs 1.02,"Performance improved, but final return concentration became even more extreme in V3."

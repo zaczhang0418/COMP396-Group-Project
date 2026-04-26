@@ -1,0 +1,4 @@
+version,active_leg_count,active_series,top_leg,top_series,top_leg_abs_pnl_share_pct,portfolio_true_pd_ratio,portfolio_open_pnl_pd_ratio,portfolio_activity_pct
+V1,3,"series_1, series_7, series_10",tf,series_1,63.64897339602687,2.6625594853951133,3.197664436329178,88.18818818818819
+V2,3,"series_1, series_7, series_10",tf,series_1,84.70529335965614,1.3151762935104394,3.249928172271957,90.3
+V3,2,"series_1, series_9",tf,series_1,99.12796552568244,8.288420999261717,9.092636959308761,53.3
