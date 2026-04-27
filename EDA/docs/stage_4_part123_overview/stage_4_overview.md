@@ -1,4 +1,4 @@
-# EDA Stage 4 Overview
+﻿# EDA Stage 4 Overview
 
 Branch: `archive/eda/stage-4-part123-overview`
 
@@ -22,6 +22,7 @@ Stage 4 keeps the EDA chart families that map directly to the current strategy d
 - `garch`: volatility clustering and GARCH/regime evidence.
 - `hurst`: trend-persistence evidence used by the trend-following family.
 - `histograms`: return distribution and tail-risk context.
+- `price_overview`: normalised cross-asset price review.
 - `quantile_analysis`: momentum/reversal style signal checks.
 - `volatility`: ATR and volatility context used by position sizing, filters, and stops.
 
@@ -91,7 +92,7 @@ D:\Anacoda\envs\comp396\python.exe
 - `stage_4_row_coverage.png`
 - `stage_4_total_return_heatmap.png`
 
-Detailed chart folders under `EDA/output/stage_4_part123_overview/dataset_runs/PART1`, `PART2`, `PART3`, and `PART123` are generated locally and ignored by Git by default. The active per-asset view now contains 5 charts per asset: ACF/PACF, GARCH diagnostics, return histogram, Hurst, and volatility.
+Detailed chart folders under `EDA/output/stage_4_part123_overview/dataset_runs/PART1`, `PART2`, `PART3`, and `PART123` are generated locally and ignored by Git by default. Each detailed chart is written under `charts/<family>` with a `stage_4_...png` filename. The active per-asset view now contains 5 charts per asset: ACF/PACF, GARCH diagnostics, return histogram, Hurst, and volatility.
 
 ## Current Overview Snapshot
 

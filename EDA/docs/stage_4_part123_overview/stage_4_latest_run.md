@@ -1,8 +1,8 @@
-# Latest EDA Run
+﻿# Latest EDA Run
 
 - Requested command: `EDA/run_all_eda.bat ALL`
-- Started: `2026-04-22T12:01:39`
-- Finished: `2026-04-22T12:04:14`
+- Started: `2026-04-27T12:19:51`
+- Finished: `2026-04-27T12:22:27`
 - Python: `D:\Anacoda\envs\comp396\python.exe`
 - Exit code: `0`
 
@@ -15,6 +15,7 @@ The Stage 4 runner only generates strategy-relevant charts:
 - `garch`
 - `histograms`
 - `hurst`
+- `price_overview`
 - `quantile_analysis`
 - `volatility`
 
@@ -48,7 +49,7 @@ Removed from the active workflow: `candlesticks`, `seasonality`, `rsi_analysis`,
 - Output: `EDA\output\stage_4_part123_overview\dataset_runs\PART1`
 - Files: `112`
 - Size: `13.48 MB`
-- Chart families: `acf`, `correlation_heatmap`, `garch`, `histograms`, `hurst`, `quantile_analysis`, `volatility`
+- Chart families: `acf`, `correlation_heatmap`, `garch`, `histograms`, `hurst`, `price_overview`, `quantile_analysis`, `volatility`
 - Charts per asset: `5`
 
 | Script | Status | Log |
@@ -67,7 +68,7 @@ Removed from the active workflow: `candlesticks`, `seasonality`, `rsi_analysis`,
 - Output: `EDA\output\stage_4_part123_overview\dataset_runs\PART2`
 - Files: `112`
 - Size: `12.88 MB`
-- Chart families: `acf`, `correlation_heatmap`, `garch`, `histograms`, `hurst`, `quantile_analysis`, `volatility`
+- Chart families: `acf`, `correlation_heatmap`, `garch`, `histograms`, `hurst`, `price_overview`, `quantile_analysis`, `volatility`
 - Charts per asset: `5`
 
 | Script | Status | Log |
@@ -85,8 +86,8 @@ Removed from the active workflow: `candlesticks`, `seasonality`, `rsi_analysis`,
 
 - Output: `EDA\output\stage_4_part123_overview\dataset_runs\PART3`
 - Files: `112`
-- Size: `13.14 MB`
-- Chart families: `acf`, `correlation_heatmap`, `garch`, `histograms`, `hurst`, `quantile_analysis`, `volatility`
+- Size: `13.15 MB`
+- Chart families: `acf`, `correlation_heatmap`, `garch`, `histograms`, `hurst`, `price_overview`, `quantile_analysis`, `volatility`
 - Charts per asset: `5`
 
 | Script | Status | Log |
@@ -104,8 +105,8 @@ Removed from the active workflow: `candlesticks`, `seasonality`, `rsi_analysis`,
 
 - Output: `EDA\output\stage_4_part123_overview\dataset_runs\PART123`
 - Files: `112`
-- Size: `12.63 MB`
-- Chart families: `acf`, `correlation_heatmap`, `garch`, `histograms`, `hurst`, `quantile_analysis`, `volatility`
+- Size: `12.64 MB`
+- Chart families: `acf`, `correlation_heatmap`, `garch`, `histograms`, `hurst`, `price_overview`, `quantile_analysis`, `volatility`
 - Charts per asset: `5`
 
 | Script | Status | Log |

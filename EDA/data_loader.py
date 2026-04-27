@@ -116,7 +116,7 @@ if __name__ == "__main__":
     print(f"--- 正在以独立模式运行 (Data Loader) [Dataset: {dataset_name}] ---")
     
     DATA_PATH = f"./DATA/{dataset_name}/" 
-    SAVE_PATH = str(chart_dir(dataset_name) / "00_normalized_prices.png")
+    SAVE_PATH = str(chart_dir(dataset_name, "price_overview") / "stage_4_price_overview_normalized_prices.png")
     
     print(f"正在从 '{DATA_PATH}' 加载数据...")
     merged_prices = load_and_merge_data(DATA_PATH)

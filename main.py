@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 # =============================================================================
 # main.py — BT396 Backtrader harness entrypoint
 # =============================================================================
@@ -27,7 +27,7 @@ import backtrader as bt
 # These functions are responsible for producing the output plots and summaries
 # after a backtest completes. All images and tables are written to output_dir.
 # -----------------------------------------------------------------------------
-from framework.plotting import (
+from Framework.plotting import (
     save_equity_plot,
     save_per_series_pd,
     save_per_series_plots,
@@ -49,7 +49,7 @@ DEFAULT_CONFIG = {
     "s_mult": 1.0,                         # multiplier for 20% gap slippage model
     "plot": True,                          # enable plotting by default
     "data_dir": "./DATA/PART1",            # default path for 10 CSVs
-    "output_dir": "./output",              # directory to save reports/plots
+    "output_dir": "./Output",              # directory to save reports/plots
     "end_policy": "liquidate",             # final-day liquidation behavior
     "strategy": "coursework_3.stage_2_team01_v3_final",  # default strategy module
     "strategy_class": None,                # explicitly specify class if needed
@@ -150,7 +150,7 @@ def parse_args():
     ap = argparse.ArgumentParser(description="BT396 Backtrader harness")
 
     # Basic configuration options
-    ap.add_argument("--config", default="configs/config.yaml",
+    ap.add_argument("--config", default="Configs/config.yaml",
                     help="Path to YAML/JSON config file (optional).")
     ap.add_argument("--strategy", help="Strategy module name under /strategies, dotted paths allowed.")
     ap.add_argument("--strategy-class", help="Explicit class name (optional).")
@@ -201,15 +201,15 @@ def main():
     # Enabled explicitly via --debug or automatically when under pytest.
     debug_flag = bool(args.debug or os.environ.get("PYTEST_CURRENT_TEST"))
 
-    # Add project root to sys.path so that framework/ and strategies/ are importable.
+    # Add project root to sys.path so that Framework/ and Strategies/ are importable.
     root = Path(__file__).resolve().parent
     sys.path.insert(0, str(root))
 
     # Lazy imports (prevents circular deps if framework modules import back)
-    from framework.data_loader import add_10_csv_feeds
-    from framework.strategies_loader import load_strategy_class
-    from framework.analyzers import OpenOpenPnL, RealizedPnL, PDRatio, Activity, TruePortfolioPD
-    from framework.strategy_base import COMP396BrokerConfig
+    from Framework.data_loader import add_10_csv_feeds
+    from Framework.strategies_loader import load_strategy_class
+    from Framework.analyzers import OpenOpenPnL, RealizedPnL, PDRatio, Activity, TruePortfolioPD
+    from Framework.strategy_base import COMP396BrokerConfig
 
     # Resolve I/O directories
     data_dir = (root / cfg["data_dir"]).resolve()
@@ -370,7 +370,7 @@ def main():
 if __name__ == "__main__":
     # If run without arguments, print framework version and exit
     if len(sys.argv) <= 1:
-        from framework import __version__ as BT396_VERSION, __release_date__ as BT396_DATE
+        from Framework import __version__ as BT396_VERSION, __release_date__ as BT396_DATE
         print(f"{BT396_VERSION} ({BT396_DATE})")
     else:
         main()

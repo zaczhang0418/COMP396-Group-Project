@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """Unified project runner for common COMP396 final-branch tasks."""
 
 from __future__ import annotations
@@ -28,11 +28,11 @@ def main() -> int:
     backtest.add_argument(
         "--strategy",
         default="coursework_3.stage_2_team01_v3_final",
-        help="Strategy module name under strategies/, dotted paths allowed.",
+        help="Strategy module name under Strategies/, dotted paths allowed.",
     )
     backtest.add_argument("--strategy-class", help="Optional explicit strategy class.")
     backtest.add_argument("--data-dir", default="./DATA/PART1", help="Dataset folder.")
-    backtest.add_argument("--output-dir", default="./output/final_run", help="Output folder.")
+    backtest.add_argument("--output-dir", default="./Output/final_run", help="Output folder.")
     backtest.add_argument("--no-plot", action="store_true", help="Disable plot generation.")
     backtest.add_argument("--debug", action="store_true", help="Enable framework debug logs.")
 
@@ -48,7 +48,7 @@ def main() -> int:
 
     dist = sub.add_parser("dist", help="Build a clean distribution ZIP.")
     dist.add_argument("--name", default="COMP396-final-package.zip", help="ZIP filename.")
-    dist.add_argument("--no-output", action="store_true", help="Exclude output/ from the ZIP.")
+    dist.add_argument("--no-output", action="store_true", help="Exclude Output/ from the ZIP.")
 
     args = parser.parse_args()
     py = sys.executable
@@ -73,32 +73,32 @@ def main() -> int:
         return run(cmd)
 
     if args.command == "eda":
-        return run([str(ROOT / "EDA" / "run_all_eda.bat"), args.dataset])
+        return run([py, "EDA/scripts/run_eda_stage4.py", args.dataset])
 
     if args.command == "archive-cw1":
-        return run([py, "scripts/coursework_1/stage_5_generate_v1_evidence_matrix.py"])
+        return run([py, "Scripts/coursework_1/stage_5_generate_v1_evidence_matrix.py"])
 
     if args.command == "archive-cw2":
-        return run([py, "scripts/coursework_2/stage_4_generate_v2_evidence_summary.py"])
+        return run([py, "Scripts/coursework_2/stage_4_generate_v2_evidence_summary.py"])
 
     if args.command == "cross-scan":
         scripts = {
-            "run": "scripts/coursework_3/stage_1_cross_asset_scan/run_cross_asset_scan.py",
-            "summarize": "scripts/coursework_3/stage_1_cross_asset_scan/summarize_cross_asset_scan.py",
-            "validate-part2": "scripts/coursework_3/stage_1_cross_asset_scan/validate_cross_asset_scan_part2.py",
+            "run": "Scripts/coursework_3/stage_1_cross_asset_scan/run_cross_asset_scan.py",
+            "summarize": "Scripts/coursework_3/stage_1_cross_asset_scan/summarize_cross_asset_scan.py",
+            "validate-part2": "Scripts/coursework_3/stage_1_cross_asset_scan/validate_cross_asset_scan_part2.py",
         }
         extra_args = args.args[1:] if args.args[:1] == ["--"] else args.args
         return run([py, scripts[args.mode], *extra_args])
 
     if args.command == "chapter3":
         scripts = [
-            "scripts/coursework_3/stage_3_chapter3_evidence/generate_coursework_3_chapter3_analysis.py",
-            "scripts/coursework_3/stage_3_chapter3_evidence/generate_part3_331_doc_pack.py",
-            "scripts/coursework_3/stage_3_chapter3_evidence/generate_part3_332_doc_pack.py",
-            "scripts/coursework_3/stage_3_chapter3_evidence/generate_part3_333_doc_pack.py",
-            "scripts/coursework_3/stage_3_chapter3_evidence/generate_part3_335_doc_pack.py",
-            "scripts/coursework_3/stage_3_chapter3_evidence/generate_part3_35_v3_workflow_pack.py",
-            "scripts/coursework_3/stage_3_chapter3_evidence/generate_part3_36_comparison_pack.py",
+            "Scripts/coursework_3/stage_3_chapter3_evidence/generate_coursework_3_chapter3_analysis.py",
+            "Scripts/coursework_3/stage_3_chapter3_evidence/generate_part3_331_doc_pack.py",
+            "Scripts/coursework_3/stage_3_chapter3_evidence/generate_part3_332_doc_pack.py",
+            "Scripts/coursework_3/stage_3_chapter3_evidence/generate_part3_333_doc_pack.py",
+            "Scripts/coursework_3/stage_3_chapter3_evidence/generate_part3_335_doc_pack.py",
+            "Scripts/coursework_3/stage_3_chapter3_evidence/generate_part3_35_v3_workflow_pack.py",
+            "Scripts/coursework_3/stage_3_chapter3_evidence/generate_part3_36_comparison_pack.py",
         ]
         for script in scripts:
             code = run([py, script])
@@ -107,7 +107,7 @@ def main() -> int:
         return 0
 
     if args.command == "dist":
-        cmd = [py, "scripts/distribution/make_dist.py", "--name", args.name]
+        cmd = [py, "Scripts/distribution/make_dist.py", "--name", args.name]
         if args.no_output:
             cmd.append("--no-output")
         return run(cmd)

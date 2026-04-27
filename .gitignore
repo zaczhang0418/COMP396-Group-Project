@@ -32,7 +32,7 @@ ENV/
 *.env
 
 # Generated strategy and EDA outputs
-output/
+Output/
 EDA/output/
 EDA/charts/
 EDA/charts_by_asset/

@@ -1,4 +1,4 @@
-@echo off
+﻿@echo off
 CHCP 65001 > nul
 
 set PROJECT_ROOT=%~dp0..

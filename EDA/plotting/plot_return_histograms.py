@@ -203,7 +203,7 @@ if __name__ == "__main__":
             print(f"  正在处理: {asset_name}")
             asset_returns_series = log_returns[asset_name].dropna()
             
-            save_file_path = os.path.join(SAVE_DIR, f"{asset_name}_histogram_V2_zoomed.png")
+            save_file_path = os.path.join(SAVE_DIR, f"stage_4_histogram_asset_{asset_name}_zoomed.png")
             
             # 调用优化的函数
             save_histogram_plot(asset_returns_series, asset_name, bins="fd", save_path=save_file_path)

@@ -1,6 +1,6 @@
-# Latest EDA Analysis
+﻿# Latest EDA Analysis
 
-Generated: `2026-04-22T12:04:13`
+Generated: `2026-04-27T12:22:26`
 
 This report extracts the analysis values printed by the EDA scripts and combines them with the Stage 4 overview tables.
 
@@ -26,7 +26,7 @@ This report extracts the analysis values printed by the EDA scripts and combines
 
 ## PART1
 
-Chart families: `acf`, `correlation_heatmap`, `garch`, `histograms`, `hurst`, `quantile_analysis`, `volatility`
+Chart families: `acf`, `correlation_heatmap`, `garch`, `histograms`, `hurst`, `price_overview`, `quantile_analysis`, `volatility`
 
 ### Correlation
 
@@ -88,7 +88,7 @@ Chart families: `acf`, `correlation_heatmap`, `garch`, `histograms`, `hurst`, `q
 
 ## PART2
 
-Chart families: `acf`, `correlation_heatmap`, `garch`, `histograms`, `hurst`, `quantile_analysis`, `volatility`
+Chart families: `acf`, `correlation_heatmap`, `garch`, `histograms`, `hurst`, `price_overview`, `quantile_analysis`, `volatility`
 
 ### Correlation
 
@@ -150,7 +150,7 @@ Chart families: `acf`, `correlation_heatmap`, `garch`, `histograms`, `hurst`, `q
 
 ## PART3
 
-Chart families: `acf`, `correlation_heatmap`, `garch`, `histograms`, `hurst`, `quantile_analysis`, `volatility`
+Chart families: `acf`, `correlation_heatmap`, `garch`, `histograms`, `hurst`, `price_overview`, `quantile_analysis`, `volatility`
 
 ### Correlation
 
@@ -212,7 +212,7 @@ Chart families: `acf`, `correlation_heatmap`, `garch`, `histograms`, `hurst`, `q
 
 ## PART123
 
-Chart families: `acf`, `correlation_heatmap`, `garch`, `histograms`, `hurst`, `quantile_analysis`, `volatility`
+Chart families: `acf`, `correlation_heatmap`, `garch`, `histograms`, `hurst`, `price_overview`, `quantile_analysis`, `volatility`
 
 ### Correlation
 

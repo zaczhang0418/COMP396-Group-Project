@@ -142,8 +142,6 @@ def _chart_families(dataset_dir: Path) -> list[str]:
     if not charts_dir.exists():
         return []
     families = {path.name for path in charts_dir.iterdir() if path.is_dir()}
-    if (charts_dir / "correlation_heatmap.png").exists():
-        families.add("correlation_heatmap")
     return sorted(families)
 
 

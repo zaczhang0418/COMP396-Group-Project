@@ -260,7 +260,7 @@ def perform_quantile_analysis_v2(merged_prices_df, factor_lookback_days, forward
 
     # 7. 保存图表
     os.makedirs(QUANTILE_SAVE_DIR, exist_ok=True) # [修复] 确保在循环外创建
-    output_filename = f"quantile_analysis_v2_{factor_name}.png"
+    output_filename = f"stage_4_quantile_analysis_{factor_name}.png"
     output_path = os.path.join(QUANTILE_SAVE_DIR, output_filename)
     plt.savefig(output_path)
     print(f"  [V2] Chart saved to {output_path}")

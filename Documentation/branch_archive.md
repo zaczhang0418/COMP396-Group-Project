@@ -9,7 +9,7 @@ This document is the branch map for the coursework evidence archive. It should d
 - Keep `main` as the clean project baseline.
 - Keep historical coursework, EDA, and output evidence on `origin/archive/...` branches.
 - Do not merge every archive branch into `main`; only merge a final deliverable branch if the team agrees that `main` should contain those outputs.
-- If a branch contains generated `output/` files, that is intentional when the branch is used as report evidence or shared results for teammates.
+- If a branch contains generated `Output/` files, that is intentional when the branch is used as report evidence or shared results for teammates.
 
 ## Strategy Version Naming
 
@@ -187,7 +187,7 @@ Presubmission Team01 branch. This is the second combined strategy version and sh
 Report use:
 
 - Defines V2: the refined/presubmission combined strategy after the generic workflow was introduced.
-- Contains generated evidence under `output/ca3_stage2_presubmission_*`.
+- Contains generated evidence under `Output/ca3_stage2_presubmission_*`.
 - Main limitation: it improved packaging and validation, but did not yet fully exploit cross-asset strategy-family selection.
 
 ### `origin/archive/coursework_3/stage-1-cross-asset-scan`
@@ -197,8 +197,8 @@ Cross-asset scan branch. This is the final combined strategy version and should 
 Report use:
 
 - Defines V3: the final strategy informed by a 3 strategy families x 10 assets scan.
-- Contains cross-asset scan evidence under `output/cross_asset_scan_v1`.
-- Contains final stage outputs under `output/ca3_stage3_team01_part1` and `output/ca3_stage3_team01_part2`.
+- Contains cross-asset scan evidence under `Output/coursework_3/stage_1_cross_asset_scan`.
+- Contains final stage outputs under `Output/ca3_stage3_team01_part1` and `Output/ca3_stage3_team01_part2`.
 - This is the most important branch for explaining the final strategy choice and justification in CA3.
 
 ## Old Name To Archive Name Map
@@ -274,9 +274,9 @@ origin/archive/coursework_2/stage-3-presubmission-team01
 Known output evidence:
 
 ```text
-output/ca3_stage2_presubmission_part1/
-output/ca3_stage2_presubmission_part2/
-output/ca3_stage2_presubmission_part3_existing/
+Output/ca3_stage2_presubmission_part1/
+Output/ca3_stage2_presubmission_part2/
+Output/ca3_stage2_presubmission_part3_existing/
 ```
 
 ### Coursework 3
@@ -290,9 +290,9 @@ origin/archive/coursework_3/stage-1-cross-asset-scan
 Known output evidence:
 
 ```text
-output/ca3_stage3_team01_part1/
-output/ca3_stage3_team01_part2/
-output/cross_asset_scan_v1/
+Output/ca3_stage3_team01_part1/
+Output/ca3_stage3_team01_part2/
+Output/coursework_3/stage_1_cross_asset_scan/
 ```
 
 ## Local Cleanup Notes

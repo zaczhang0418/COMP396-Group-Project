@@ -177,7 +177,7 @@ def analyze_and_plot_garch(price_series, asset_name, save_dir):
 
     # 5. 保存图表
     os.makedirs(save_dir, exist_ok=True) # [修复] 确保在函数内创建
-    output_filename = f"garch_diagnostics_{asset_name}.png"
+    output_filename = f"stage_4_garch_diagnostics_asset_{asset_name}.png"
     output_path = os.path.join(save_dir, output_filename)
     
     plt.savefig(output_path)

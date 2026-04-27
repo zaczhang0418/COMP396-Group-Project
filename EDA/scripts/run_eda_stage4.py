@@ -1,4 +1,4 @@
-import argparse
+﻿import argparse
 from datetime import datetime
 import os
 import shutil
@@ -153,8 +153,6 @@ def _chart_families(output_dir: Path) -> list[str]:
     if not charts_dir.exists():
         return []
     families = {path.name for path in charts_dir.iterdir() if path.is_dir()}
-    if (charts_dir / "correlation_heatmap.png").exists():
-        families.add("correlation_heatmap")
     return sorted(families)
 
 
@@ -237,13 +235,14 @@ def run_overview() -> int:
     print("[overview] Building stage4 overview", flush=True)
     proc = subprocess.run(command, cwd=ROOT, env=_env())
     output_dir = STAGE_4_OUTPUT
-    file_count, mb = _file_stats(output_dir)
+    files = sorted(path for path in output_dir.glob("*") if path.is_file())
+    total_bytes = sum(path.stat().st_size for path in files)
     RUN_REPORT["overview"] = {
         "returncode": proc.returncode,
         "output_dir": str(output_dir.relative_to(ROOT)),
-        "file_count": file_count,
-        "mb": mb,
-        "files": sorted(path.name for path in output_dir.glob("*") if path.is_file()),
+        "file_count": len(files),
+        "mb": round(total_bytes / (1024 * 1024), 2),
+        "files": [path.name for path in files],
     }
     return proc.returncode
 
@@ -284,6 +283,7 @@ def _write_run_report() -> None:
         "garch",
         "histograms",
         "hurst",
+        "price_overview",
         "quantile_analysis",
         "volatility",
     ]:

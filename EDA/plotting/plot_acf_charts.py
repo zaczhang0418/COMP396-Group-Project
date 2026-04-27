@@ -298,7 +298,7 @@ if __name__ == "__main__":
                 print("    >> 论据发现: 数据是非平稳的 (p > 0.05)，支持动量。")
             # --- [ADF 结束] ---
             
-            save_file_path = os.path.join(SAVE_DIR, f"{asset_name}_acf_pacf_V3_zoomed.png")
+            save_file_path = os.path.join(SAVE_DIR, f"stage_4_acf_pacf_asset_{asset_name}_zoomed.png")
             
             save_acf_pacf_plot_v3(
                 asset_log_returns, 

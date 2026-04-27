@@ -211,7 +211,7 @@ def save_rolling_hurst_v2(price_series, asset_name, window_size, save_dir):
     
     # --- 保存图表 ---
     os.makedirs(save_dir, exist_ok=True)
-    output_filename = f"hurst_v2_dual_axis_{asset_name}_w{window_size}.png"
+    output_filename = f"stage_4_hurst_asset_{asset_name}_w{window_size}.png"
     output_path = os.path.join(save_dir, output_filename)
     plt.savefig(output_path, bbox_inches='tight')
     print(f"  [V2] Dual-Axis chart saved to {output_path}")

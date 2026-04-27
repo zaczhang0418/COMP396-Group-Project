@@ -222,7 +222,7 @@ if __name__ == "__main__":
         
         if full_df is not None:
             # 2. 构造保存路径
-            save_file_path = os.path.join(SAVE_DIR, f"{asset_name}_volatility_v2_atr.png")
+            save_file_path = os.path.join(SAVE_DIR, f"stage_4_volatility_atr_asset_{asset_name}.png")
             
             # 3. 调用我们新的“保存”函数
             save_volatility_analysis_v2(full_df, asset_name, save_path=save_file_path)

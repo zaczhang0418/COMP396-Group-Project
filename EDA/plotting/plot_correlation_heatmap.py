@@ -175,7 +175,7 @@ if __name__ == "__main__":
     print(f"--- 正在以独立模式运行 (Correlation Heatmap Plotter) [Dataset: {dataset_name}] ---")
     
     DATA_PATH = f"./DATA/{dataset_name}/" 
-    SAVE_FILE = str(chart_dir(dataset_name) / "correlation_heatmap.png")
+    SAVE_FILE = str(chart_dir(dataset_name, "correlation_heatmap") / "stage_4_correlation_heatmap.png")
     
     print(f"正在从 '{DATA_PATH}' 加载数据...")
     merged_prices = load_and_merge_data(DATA_PATH) 

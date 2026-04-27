@@ -4,25 +4,25 @@ This folder contains the evidence pack for Chapter 3.3.1 on Part 3 equity curve 
 
 ## Where The Original Analysis Output Lives
 
-- Main analysis output: `output/coursework_3_stage3_v2v3_analysis/part3_drawdown_analysis/`
-- This DOC pack: `DOC/coursework_3_stage3_v2v3_3_3_1/`
+- Main analysis output: `Output/coursework_3/stage_3_chapter3_evidence/part3_drawdown_analysis/`
+- This documentation pack: `Documentation/chapter3_analysis_evidence/3.3/3.3.1/`
 
 ## Suggested Main-Text Figures
 
 1. Figure 3.3.1a: [Part 3 equity and drawdown comparison](figures/figure_3_3_1a_part3_equity_drawdown_comparison.png)
-   Data source: `output/coursework_3_stage3_v2v3_analysis/part3_drawdown_analysis/v2_part3_bar_trace.csv` and `output/coursework_3_stage3_v2v3_analysis/part3_drawdown_analysis/v3_part3_bar_trace.csv`
+   Data source: `Output/coursework_3/stage_3_chapter3_evidence/part3_drawdown_analysis/v2_part3_bar_trace.csv` and `Output/coursework_3/stage_3_chapter3_evidence/part3_drawdown_analysis/v3_part3_bar_trace.csv`
    Why to use it: this is the cleanest one-chart comparison showing that V3 both compounded more and stayed shallower underwater than V2.
 
 2. Figure 3.3.1b: [V2 drawdown event window](figures/figure_3_3_1b_v2_drawdown_event_window.png)
-   Data source: `output/coursework_3_stage3_v2v3_analysis/part3_drawdown_analysis/v2_part3_bar_trace.csv`
+   Data source: `Output/coursework_3/stage_3_chapter3_evidence/part3_drawdown_analysis/v2_part3_bar_trace.csv`
    Why to use it: this isolates the V2 peak-to-trough sequence and shows that the deepest loss phase was carried mainly by the TF leg while the other legs were largely inactive.
 
 3. Figure 3.3.1c: [V3 drawdown event window](figures/figure_3_3_1c_v3_drawdown_event_window.png)
-   Data source: `output/coursework_3_stage3_v2v3_analysis/part3_drawdown_analysis/v3_part3_bar_trace.csv`
+   Data source: `Output/coursework_3/stage_3_chapter3_evidence/part3_drawdown_analysis/v3_part3_bar_trace.csv`
    Why to use it: this shows that V3's deepest drawdown was shorter and linked mainly to a single MR09 short, not a broad multi-leg failure.
 
 4. Figure 3.3.1d: [Zoomed max-drawdown windows](figures/figure_3_3_1d_zoomed_drawdown_windows.png)
-   Data source: `output/coursework_3_stage3_v2v3_analysis/part3_drawdown_analysis/v2_part3_bar_trace.csv`, `v3_part3_bar_trace.csv`, and `part3_max_drawdown_summary.csv`
+   Data source: `Output/coursework_3/stage_3_chapter3_evidence/part3_drawdown_analysis/v2_part3_bar_trace.csv`, `v3_part3_bar_trace.csv`, and `part3_max_drawdown_summary.csv`
    Why to use it: this is the best figure for visually comparing the depth, duration, and recovery speed of the worst drawdown episode in each version.
 
 ## Suggested Main-Text Table
@@ -42,10 +42,10 @@ Recommended fields to cite:
 - [part3_max_drawdown_window.csv](part3_max_drawdown_window.csv)
   Use this when you want line-by-line evidence for the +/- 5 trading days around each trough.
 
-- `output/coursework_3_stage2_v3_archive/team01_v3_final/part3/equity_dashboard_combined.png`
+- `Output/coursework_3/stage_2_team01_v3_final/team01_v3_final/part3/equity_dashboard_combined.png`
   This is still useful as a fuller single-version dashboard for V3, but it is better as appendix support than as the main comparative figure.
 
-- `output/coursework_3_stage2_v3_archive/team01_v3_final/part3/portfolio_underwater.png`
+- `Output/coursework_3/stage_2_team01_v3_final/team01_v3_final/part3/portfolio_underwater.png`
   This is useful if you want a standalone V3 underwater chart, again mainly as appendix material.
 
 ## Core Numbers For 3.3.1
