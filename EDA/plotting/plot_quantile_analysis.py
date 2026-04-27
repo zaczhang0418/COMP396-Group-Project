@@ -4,16 +4,23 @@ import matplotlib.pyplot as plt
 import os
 import glob
 import sys # 确保导入 sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[2]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
 from scipy import stats
 from EDA.settings import (
     N_QUANTILES as SETTINGS_N_QUANTILES,
     QUANTILE_TESTS,
     TRADING_DAYS_PER_YEAR,
 )
+from EDA.stage_paths import chart_dir
 
 # --- 配置 ---
 # [路径修复] 修正为 Zac 的本地路径
-QUANTILE_SAVE_DIR = "./EDA/output/charts/quantile_analysis/" 
+QUANTILE_SAVE_DIR = str(chart_dir("PART1", "quantile_analysis"))
 DATA_DIR_PATH = "./DATA/PART1/" 
 # ---
 
@@ -266,7 +273,7 @@ def main():
 
     local_data_dir = f"./DATA/{dataset_name}/"
     global QUANTILE_SAVE_DIR
-    QUANTILE_SAVE_DIR = f"./EDA/output/{dataset_name}/charts/quantile_analysis/"
+    QUANTILE_SAVE_DIR = str(chart_dir(dataset_name, "quantile_analysis"))
 
     print(f"--- Quantile analysis [Dataset: {dataset_name}] ---")
     print(f"Charts will be saved to: {QUANTILE_SAVE_DIR}")

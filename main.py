@@ -40,7 +40,7 @@ from framework.plotting import (
 )
 
 # -----------------------------------------------------------------------------
-# Default configuration used when no config.yaml/json is found.
+# Default configuration used when no external config file is found.
 # This ensures consistent baseline behavior even without external config.
 # -----------------------------------------------------------------------------
 DEFAULT_CONFIG = {
@@ -51,7 +51,7 @@ DEFAULT_CONFIG = {
     "data_dir": "./DATA/PART1",            # default path for 10 CSVs
     "output_dir": "./output",              # directory to save reports/plots
     "end_policy": "liquidate",             # final-day liquidation behavior
-    "strategy": "example_buy_and_hold",    # default strategy module
+    "strategy": "coursework_3.stage_2_team01_v3_final",  # default strategy module
     "strategy_class": None,                # explicitly specify class if needed
     "strategy_params": {},                 # deprecated; CLI params override instead
     "debug": True,                         # enables verbose logging in the framework
@@ -150,9 +150,9 @@ def parse_args():
     ap = argparse.ArgumentParser(description="BT396 Backtrader harness")
 
     # Basic configuration options
-    ap.add_argument("--config", default="config.yaml",
+    ap.add_argument("--config", default="configs/config.yaml",
                     help="Path to YAML/JSON config file (optional).")
-    ap.add_argument("--strategy", help="Strategy module name (in /strategies).")
+    ap.add_argument("--strategy", help="Strategy module name under /strategies, dotted paths allowed.")
     ap.add_argument("--strategy-class", help="Explicit class name (optional).")
 
     # Simulation-level overrides

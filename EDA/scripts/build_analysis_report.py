@@ -1,6 +1,11 @@
 import re
 from datetime import datetime
 from pathlib import Path
+import sys
+
+ROOT = Path(__file__).resolve().parents[2]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 import pandas as pd
 
@@ -15,11 +20,14 @@ from EDA.settings import (
     VOL_LONG_WINDOW,
     VOL_SHORT_WINDOW,
 )
+from EDA.stage_paths import (
+    STAGE_4_ANALYSIS_REPORT,
+    STAGE_4_DATASET_RUNS,
+    STAGE_4_DATASET_SUMMARY,
+    STAGE_4_OUTPUT,
+)
 
-ROOT = Path(__file__).resolve().parents[2]
-EDA_OUTPUT = ROOT / "EDA" / "output"
-EDA_DOCS = ROOT / "EDA" / "docs"
-REPORT_PATH = EDA_DOCS / "latest-analysis.md"
+REPORT_PATH = STAGE_4_ANALYSIS_REPORT
 
 
 def _read_text(path: Path) -> str:
@@ -37,16 +45,18 @@ def _fmt_float(value: float, digits: int = 4) -> str:
 
 
 def _dataset_dirs() -> list[Path]:
+    if not STAGE_4_DATASET_RUNS.exists():
+        return []
     order = {"PART1": 1, "PART2": 2, "PART3": 3, "PART123": 4}
     return [
         path
-        for path in sorted(EDA_OUTPUT.iterdir(), key=lambda item: order.get(item.name.upper(), 99))
+        for path in sorted(STAGE_4_DATASET_RUNS.iterdir(), key=lambda item: order.get(item.name.upper(), 99))
         if path.is_dir() and path.name.upper().startswith("PART")
     ]
 
 
 def _load_dataset_summary() -> pd.DataFrame:
-    path = EDA_OUTPUT / "stage4_overview" / "dataset_summary.csv"
+    path = STAGE_4_OUTPUT / STAGE_4_DATASET_SUMMARY
     if not path.exists():
         return pd.DataFrame()
     return pd.read_csv(path)
@@ -223,7 +233,7 @@ def _build_dataset_section(dataset_dir: Path) -> list[str]:
 
 
 def build_report() -> None:
-    EDA_DOCS.mkdir(parents=True, exist_ok=True)
+    REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
     lines = [
         "# Latest EDA Analysis",
         "",

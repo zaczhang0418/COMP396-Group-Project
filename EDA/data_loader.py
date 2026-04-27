@@ -1,8 +1,16 @@
 import pandas as pd
-import numpy as np 
+import numpy as np
 import matplotlib.pyplot as plt
 import glob
 import os
+from pathlib import Path
+import sys
+
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from EDA.stage_paths import chart_dir
 
 # --- 1. API 函数 (给 Notebook 调用) ---
 
@@ -108,7 +116,7 @@ if __name__ == "__main__":
     print(f"--- 正在以独立模式运行 (Data Loader) [Dataset: {dataset_name}] ---")
     
     DATA_PATH = f"./DATA/{dataset_name}/" 
-    SAVE_PATH = f"./EDA/output/{dataset_name}/charts/00_normalized_prices.png" 
+    SAVE_PATH = str(chart_dir(dataset_name) / "00_normalized_prices.png")
     
     print(f"正在从 '{DATA_PATH}' 加载数据...")
     merged_prices = load_and_merge_data(DATA_PATH)

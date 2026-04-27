@@ -3,8 +3,15 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 import glob
-from EDA.settings import HURST_WINDOW
 import sys # 确保导入 sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[2]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from EDA.settings import HURST_WINDOW
+from EDA.stage_paths import chart_dir
 
 # --- [!! 关键依赖 !!] ---
 # 这个脚本需要 'hurst' 库。
@@ -22,7 +29,7 @@ except ImportError:
 
 # --- 配置 ---
 # [路径修复] 修正为 Zac 的本地路径
-HURST_SAVE_DIR = "./EDA/output/charts/hurst/"
+HURST_SAVE_DIR = str(chart_dir("PART1", "hurst"))
 DATA_DIR_PATH = "./DATA/PART1/" 
 # ---
 
@@ -219,7 +226,7 @@ def main():
         dataset_name = sys.argv[1]
 
     local_data_dir = f"./DATA/{dataset_name}/"
-    local_save_dir = f"./EDA/output/{dataset_name}/charts/hurst/"
+    local_save_dir = str(chart_dir(dataset_name, "hurst"))
 
     print(f"--- 正在运行 Hurst 分析脚本 [Dataset: {dataset_name}] ---")
     

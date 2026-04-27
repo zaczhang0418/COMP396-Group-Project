@@ -4,7 +4,14 @@ import matplotlib.pyplot as plt
 import seaborn as sns # 导入
 import os
 import sys
-import glob 
+import glob
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[2]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from EDA.stage_paths import chart_dir
 
 # -----------------------------------------------------------------
 # (数据加载函数，使用我们昨天的“最终修复版-老师的逻辑”)
@@ -168,7 +175,7 @@ if __name__ == "__main__":
     print(f"--- 正在以独立模式运行 (Correlation Heatmap Plotter) [Dataset: {dataset_name}] ---")
     
     DATA_PATH = f"./DATA/{dataset_name}/" 
-    SAVE_FILE = f"./EDA/output/{dataset_name}/charts/correlation_heatmap.png" 
+    SAVE_FILE = str(chart_dir(dataset_name) / "correlation_heatmap.png")
     
     print(f"正在从 '{DATA_PATH}' 加载数据...")
     merged_prices = load_and_merge_data(DATA_PATH) 

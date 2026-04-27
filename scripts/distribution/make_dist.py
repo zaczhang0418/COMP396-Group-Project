@@ -2,7 +2,7 @@
 """
 make_dist.py
 -------------
-Create a clean ZIP archive of the BT396 project for distribution, excluding
+Create a clean ZIP archive of the COMP396 project for distribution, excluding
 editor/VCS metadata and Python bytecode caches.
 
 Excluded by default:
@@ -17,9 +17,9 @@ Optionally exclude the output/ folder (recommended) via --no-output to keep
 ZIP small and avoid bundling generated images/json.
 
 Usage (run from project root or anywhere):
-  python scripts/distribution/make_dist.py                # produces BT396-dist.zip in project root
+  python scripts/distribution/make_dist.py                # produces COMP396-final-package.zip in project root
   python scripts/distribution/make_dist.py --no-output    # also exclude the output/ folder
-  python scripts/distribution/make_dist.py --name BT396_0.1.0_win.zip
+  python scripts/distribution/make_dist.py --name COMP396-final-package.zip
 """
 from __future__ import annotations
 import argparse
@@ -40,6 +40,7 @@ EXCLUDE_FILES = {
 }
 
 PROJECT_ROOT_SENTINELS = {
+    'run_project.py',
     'main.py',
     'framework',
     'strategies',
@@ -59,6 +60,8 @@ def should_skip(path: Path, exclude_output: bool, root: Path) -> bool:
         return True
     # Skip excluded files by name
     if path.name in EXCLUDE_FILES:
+        return True
+    if path.suffix.lower() == '.zip':
         return True
     # Optionally skip output folder content
     if exclude_output:
@@ -86,7 +89,7 @@ def make_zip(zip_name: str | None = None, exclude_output: bool = False):
     cwd = Path.cwd()
     root = find_project_root(cwd)
     if zip_name is None:
-        zip_name = 'BT396-dist.zip'
+        zip_name = 'COMP396-final-package.zip'
     zip_path = root / zip_name
 
     # Build a file list
@@ -117,8 +120,8 @@ def make_zip(zip_name: str | None = None, exclude_output: bool = False):
 
 
 def main():
-    ap = argparse.ArgumentParser(description='Create a clean distribution ZIP for BT396.')
-    ap.add_argument('--name', help='Output zip file name (default: BT396-dist.zip)')
+    ap = argparse.ArgumentParser(description='Create a clean distribution ZIP for COMP396.')
+    ap.add_argument('--name', help='Output zip file name (default: COMP396-final-package.zip)')
     ap.add_argument('--no-output', action='store_true', help='Exclude the output/ folder from the archive')
     args = ap.parse_args()
     make_zip(zip_name=args.name, exclude_output=args.no_output)

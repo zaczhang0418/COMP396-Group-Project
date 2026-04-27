@@ -4,6 +4,13 @@ import matplotlib.pyplot as plt
 import os
 import glob
 import sys # 确保导入 sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[2]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from EDA.stage_paths import chart_dir
 
 # --- [!! 关键依赖 !!] ---
 # 这个脚本需要 'arch' 库。
@@ -23,7 +30,7 @@ except ImportError:
 
 # --- 配置 ---
 # [路径修复] 修正为 Zac 的本地路径
-GARCH_SAVE_DIR = "./EDA/output/charts/garch/" 
+GARCH_SAVE_DIR = str(chart_dir("PART1", "garch"))
 DATA_DIR_PATH = "./DATA/PART1/" 
 # ---
 
@@ -186,7 +193,7 @@ def main():
         dataset_name = sys.argv[1]
 
     local_data_dir = f"./DATA/{dataset_name}/"
-    local_save_dir = f"./EDA/output/{dataset_name}/charts/garch/"
+    local_save_dir = str(chart_dir(dataset_name, "garch"))
 
     print(f"--- F 正在运行 GARCH 分析脚本 [Dataset: {dataset_name}] ---")
     

@@ -4,11 +4,17 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import os
 import sys
-import glob 
+import glob
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[2]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 # --- 优化点 1: 导入 'acf', 'pacf' 和 'adfuller' (来自队友) ---
 from statsmodels.tsa.stattools import acf, pacf, adfuller
 from EDA.settings import ACF_LAGS, ACF_YLIM
+from EDA.stage_paths import chart_dir
 
 # -----------------------------------------------------------------
 # (数据加载函数，使用我们昨天的“最终修复版-老师的逻辑”)
@@ -253,7 +259,7 @@ if __name__ == "__main__":
     print(f"--- 正在以独立模式运行 (ACF/PACF Plotter) [Dataset: {dataset_name}] ---")
     
     DATA_PATH = f"./DATA/{dataset_name}/" 
-    SAVE_DIR = f"./EDA/output/{dataset_name}/charts/acf/" 
+    SAVE_DIR = str(chart_dir(dataset_name, "acf"))
     
     LAG_PERIODS = ACF_LAGS
     ZOOMED_YLIM = ACF_YLIM

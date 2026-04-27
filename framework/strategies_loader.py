@@ -16,12 +16,6 @@ import inspect
 import backtrader as bt
 from framework.strategy_base import COMP396Base
 
-
-import importlib
-import inspect
-import backtrader as bt
-from framework.strategy_base import COMP396Base
-
 def _wrap_with_comp396(student_cls: type) -> type:
     # capture student hooks
     student_init = getattr(student_cls, "__init__", None)
@@ -74,7 +68,10 @@ def _wrap_with_comp396(student_cls: type) -> type:
 
 def load_strategy_class(module_name: str, explicit_class: str | None):
     """
-    Import strategies.<module_name>, find a Backtrader Strategy class,
+    Import strategies.<module_name>, find a Backtrader Strategy class.
+    Dotted module names are supported, for example
+    ``coursework_3.stage_2_team01_v3_final``.
+
     and return a class that is guaranteed to enforce COMP396 rules.
 
     - If the found class already subclasses COMP396Base, return it as-is.

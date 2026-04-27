@@ -6,12 +6,19 @@ import subprocess
 import sys
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[2]
-DATA_ROOT = ROOT / "DATA"
-EDA_OUTPUT = ROOT / "EDA" / "output"
-EDA_DOCS = ROOT / "EDA" / "docs"
-LATEST_RUN_REPORT = EDA_DOCS / "latest-run.md"
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from EDA.stage_paths import (
+    DATA_ROOT,
+    EDA_DOCS,
+    STAGE_4_OUTPUT,
+    STAGE_4_RUN_REPORT,
+    dataset_output_dir,
+)
+
+LATEST_RUN_REPORT = STAGE_4_RUN_REPORT
 
 DATASET_ALIASES = {
     "ALL_PARTS": "PART123",
@@ -99,7 +106,7 @@ def _merge_dataset(dataset: str) -> None:
 
 
 def _reset_output_dir(dataset: str) -> Path:
-    output_dir = EDA_OUTPUT / dataset
+    output_dir = dataset_output_dir(dataset)
     if output_dir.exists():
         shutil.rmtree(output_dir)
     (output_dir / "charts").mkdir(parents=True, exist_ok=True)
@@ -229,7 +236,7 @@ def run_overview() -> int:
     ]
     print("[overview] Building stage4 overview", flush=True)
     proc = subprocess.run(command, cwd=ROOT, env=_env())
-    output_dir = EDA_OUTPUT / "stage4_overview"
+    output_dir = STAGE_4_OUTPUT
     file_count, mb = _file_stats(output_dir)
     RUN_REPORT["overview"] = {
         "returncode": proc.returncode,

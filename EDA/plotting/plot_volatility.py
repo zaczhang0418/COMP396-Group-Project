@@ -6,7 +6,14 @@ import matplotlib.ticker as mticker
 import seaborn as sns 
 import glob # 确保导入
 import sys # 确保导入
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[2]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
 from EDA.settings import ATR_WINDOW, TRADING_DAYS_PER_YEAR, VOL_LONG_WINDOW, VOL_SHORT_WINDOW
+from EDA.stage_paths import chart_dir
 
 # -----------------------------------------------------------------
 # (数据加载函数 - 这是一个独立的 OHLCV 加载器)
@@ -172,7 +179,7 @@ if __name__ == "__main__":
     print(f"--- 正在以独立模式运行 (Volatility Plotter) [Dataset: {dataset_name}] ---")
     
     DATA_PATH = f"./DATA/{dataset_name}/" 
-    SAVE_DIR = f"./EDA/output/{dataset_name}/charts/volatility/" 
+    SAVE_DIR = str(chart_dir(dataset_name, "volatility"))
 
     print(f"正在从 '{DATA_PATH}' 加载数据...")
     csv_files = glob.glob(os.path.join(DATA_PATH, '*.csv'))

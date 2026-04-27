@@ -1,5 +1,10 @@
 import argparse
 from pathlib import Path
+import sys
+
+ROOT = Path(__file__).resolve().parents[2]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 import matplotlib
 
@@ -9,10 +14,17 @@ import numpy as np
 import pandas as pd
 
 from EDA.settings import TRADING_DAYS_PER_YEAR
+from EDA.stage_paths import (
+    DATA_ROOT,
+    STAGE_4_ASSET_SUMMARY,
+    STAGE_4_DATASET_SUMMARY,
+    STAGE_4_OUTPUT,
+    STAGE_4_RISK_RETURN_OVERVIEW,
+    STAGE_4_ROW_COVERAGE,
+    STAGE_4_TOTAL_RETURN_HEATMAP,
+)
 
-ROOT = Path(__file__).resolve().parents[2]
-DATA_ROOT = ROOT / "DATA"
-OUTPUT_DIR = ROOT / "EDA" / "output" / "stage4_overview"
+OUTPUT_DIR = STAGE_4_OUTPUT
 
 
 def _read_asset(path: Path) -> pd.DataFrame:
@@ -186,12 +198,12 @@ def main() -> None:
     asset_summary = build_summaries(datasets)
     dataset_summary = _dataset_summary(asset_summary)
 
-    asset_summary.to_csv(OUTPUT_DIR / "asset_summary.csv", index=False)
-    dataset_summary.to_csv(OUTPUT_DIR / "dataset_summary.csv", index=False)
+    asset_summary.to_csv(OUTPUT_DIR / STAGE_4_ASSET_SUMMARY, index=False)
+    dataset_summary.to_csv(OUTPUT_DIR / STAGE_4_DATASET_SUMMARY, index=False)
 
-    _plot_total_return_heatmap(asset_summary, OUTPUT_DIR / "total_return_heatmap.png")
-    _plot_risk_return(asset_summary, OUTPUT_DIR / "risk_return_overview.png")
-    _plot_row_coverage(asset_summary, OUTPUT_DIR / "row_coverage.png")
+    _plot_total_return_heatmap(asset_summary, OUTPUT_DIR / STAGE_4_TOTAL_RETURN_HEATMAP)
+    _plot_risk_return(asset_summary, OUTPUT_DIR / STAGE_4_RISK_RETURN_OVERVIEW)
+    _plot_row_coverage(asset_summary, OUTPUT_DIR / STAGE_4_ROW_COVERAGE)
 
     print(f"[success] Overview saved to {OUTPUT_DIR.relative_to(ROOT)}")
 
