@@ -1,8 +1,8 @@
-﻿# Latest EDA Run
+# Latest EDA Run
 
 - Requested command: `EDA/run_all_eda.bat ALL`
-- Started: `2026-04-27T12:19:51`
-- Finished: `2026-04-27T12:22:27`
+- Started: `2026-04-28T12:51:52`
+- Finished: `2026-04-28T12:54:27`
 - Python: `D:\Anacoda\envs\comp396\python.exe`
 - Exit code: `0`
 

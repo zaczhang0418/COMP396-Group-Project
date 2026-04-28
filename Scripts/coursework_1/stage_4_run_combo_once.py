@@ -8,7 +8,7 @@ PROJ = Path(__file__).resolve().parents[2]
 if str(PROJ) not in sys.path:
     sys.path.insert(0, str(PROJ))
 
-from Scripts.path_utils.common_paths import get_stage_dir, rel_path  # noqa: E402
+from Scripts.path_utils.common_paths import get_coursework_1_stage4_dir, rel_path  # noqa: E402
 
 MAIN = PROJ / "main.py"
 DATA_DIR = PROJ / "DATA" / "PART1"
@@ -88,16 +88,16 @@ if __name__ == "__main__":
     output_root = (
         Path(args.output_root)
         if args.output_root
-        else get_stage_dir(args.experiment_tag, "part1", "combo", "combo")
+        else get_coursework_1_stage4_dir(args.experiment_tag, "part1", "combo", "combo")
     )
     output_root.mkdir(parents=True, exist_ok=True)
     COM_ROOT = output_root / run_id
     COM_ROOT.mkdir(parents=True, exist_ok=True)
 
     meta_paths = {
-        "tf": get_stage_dir(args.experiment_tag, "part1", "tf", "grid_search", create=False),
-        "mr": get_stage_dir(args.experiment_tag, "part1", "mr", "grid_search", create=False),
-        "ga": get_stage_dir(args.experiment_tag, "part1", "garch", "grid_search", create=False),
+        "tf": get_coursework_1_stage4_dir(args.experiment_tag, "part1", "tf", "grid_search", create=False),
+        "mr": get_coursework_1_stage4_dir(args.experiment_tag, "part1", "mr", "grid_search", create=False),
+        "ga": get_coursework_1_stage4_dir(args.experiment_tag, "part1", "garch", "grid_search", create=False),
     }
     tf_data = load_params_file(Path(args.meta_tf_dir) if args.meta_tf_dir else meta_paths["tf"], "tf")
     mr_data = load_params_file(Path(args.meta_mr_dir) if args.meta_mr_dir else meta_paths["mr"], "mr")

@@ -4,11 +4,17 @@ import argparse, json, subprocess, sys, time
 from pathlib import Path
 
 PROJ = Path(__file__).resolve().parents[4]
+if str(PROJ) not in sys.path:
+    sys.path.insert(0, str(PROJ))
+
+from Scripts.path_utils.common_paths import get_coursework_2_stage2_dir  # noqa: E402
+
 MAIN = PROJ / "main.py"
 DATA_DIR = PROJ / "DATA" / "PART1"
 ASSET_TAG = "asset01"
 DATA_NAME = "series_1"
 STRATEGY  = "coursework_2.stage_2_tf_generic_v2"
+STRATEGY_KEY = "tf"
 
 def norm_split_token(s): return s.replace("-", "")
 DEFAULT_P_MIN_W_FOR_1 = 0.03
@@ -30,7 +36,7 @@ def run_once(
     if output_root:
         out_dir = Path(output_root) / run_id
     else:
-        out_dir = PROJ / "Output" / "part1" / asset_tag / tag / run_id
+        out_dir = get_coursework_2_stage2_dir(tag, "part1", STRATEGY_KEY, "best_runs") / run_id
     out_dir.mkdir(parents=True, exist_ok=True)
 
     best = json.loads(Path(params_path).read_text(encoding="utf-8"))

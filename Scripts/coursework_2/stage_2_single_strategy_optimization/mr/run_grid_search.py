@@ -13,7 +13,7 @@ PROJ = Path(__file__).resolve().parents[4]
 if str(PROJ) not in sys.path:
     sys.path.insert(0, str(PROJ))
 
-from Scripts.path_utils.common_paths import get_stage_dir, load_timeline  # noqa: E402
+from Scripts.path_utils.common_paths import get_coursework_2_stage2_dir, load_timeline  # noqa: E402
 
 MAIN = PROJ / "main.py"
 DATA_DIR = PROJ / "DATA" / "PART1"
@@ -132,7 +132,7 @@ if __name__ == "__main__":
     search_keys = list(search_space.keys())
     fixed_keys = list(fixed_params.keys())
 
-    out_root = Path(args.output_root) if args.output_root else get_stage_dir(args.experiment_tag, "part1", "mr", "grid_search")
+    out_root = Path(args.output_root) if args.output_root else get_coursework_2_stage2_dir(args.experiment_tag, "part1", "mr", "grid_search")
     out_root.mkdir(parents=True, exist_ok=True)
     csv_out = out_root / "results.csv"
     if csv_out.exists():

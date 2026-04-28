@@ -130,14 +130,32 @@ Available commands:
     cross-scan     Run or summarize the Coursework 3 cross-asset scan.
     chapter3       Regenerate Chapter 3 report evidence packs.
     dist           Build a clean submission ZIP.
+    full           Run the complete final workflow with progress and ETA.
 
 Run the final Team01 strategy on PART3:
 
-    python run_project.py backtest --data-dir ./DATA/PART3 --output-dir ./Output/final_run
+    python run_project.py backtest --data-dir ./DATA/PART3 --output-dir ./Output/coursework_3/stage_2_team01_v3_final/manual_backtest/part3
 
 Run the final Team01 strategy without plots:
 
-    python run_project.py backtest --data-dir ./DATA/PART3 --output-dir ./Output/final_run --no-plot
+    python run_project.py backtest --data-dir ./DATA/PART3 --output-dir ./Output/coursework_3/stage_2_team01_v3_final/manual_backtest/part3 --no-plot
+
+Run the complete final workflow in one command:
+
+    python run_project.py full --plots --skip-cross-scan-run
+
+This reruns tests, EDA, V1/V2 archive summaries, Chapter 3 evidence packs, and
+final V3 backtests while reusing the tracked cross-asset scan summary evidence.
+
+To recompute the raw cross-asset scan from scratch as part of the same command,
+run:
+
+    python run_project.py full --plots
+
+The raw cross-asset scan can take a long time because it evaluates many
+strategy/asset combinations. The --skip-cross-scan-run command is the
+recommended full verification command when the existing summary evidence is
+sufficient.
 
 Run the EDA overview:
 
@@ -194,16 +212,22 @@ and runs:
 
 then the project commands should use that environment through sys.executable.
 
-There is not one mandatory "run absolutely everything" command, because some
-workflows are intentionally expensive. The recommended full evidence refresh is:
+The one-command full verification workflow is:
+
+    python run_project.py full --plots --skip-cross-scan-run
+
+This command checks the existing cross-asset summary evidence instead of
+recomputing the raw scan. To also rerun the raw scan, use:
+
+    python run_project.py full --plots
+
+The raw scan can take a long time. The equivalent manual evidence refresh is:
 
     python run_project.py eda OVERVIEW
     python run_project.py archive-cw1
     python run_project.py archive-cw2
-    python run_project.py cross-scan --mode summarize
-    python run_project.py cross-scan --mode validate-part2
     python run_project.py chapter3
-    python run_project.py backtest --data-dir ./DATA/PART3 --output-dir ./Output/final_run
+    python run_project.py backtest --data-dir ./DATA/PART3 --output-dir ./Output/coursework_3/stage_2_team01_v3_final/manual_backtest/part3
 
 If the cross-asset raw scan must be recomputed from scratch, run:
 

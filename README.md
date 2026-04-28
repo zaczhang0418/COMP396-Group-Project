@@ -21,12 +21,31 @@ Use the root-level runner for common final-branch tasks:
 ```powershell
 python run_project.py backtest
 python run_project.py eda OVERVIEW
+python run_project.py full --plots --skip-cross-scan-run
 python run_project.py cross-scan --mode summarize -- --help
 python run_project.py chapter3
 python run_project.py dist
 ```
 
 `main.py` remains the lower-level Backtrader harness used by the workflow scripts.
+
+To run the complete final workflow in one command, use:
+
+```powershell
+python run_project.py full --plots --skip-cross-scan-run
+```
+
+This reruns tests, EDA, archive summaries, Chapter 3 evidence packs, and final
+V3 backtests while reusing the tracked cross-asset scan summary evidence. To
+recompute the raw cross-asset scan from scratch as well, run:
+
+```powershell
+python run_project.py full --plots
+```
+
+The raw cross-asset scan evaluates many strategy/asset combinations and can take
+a long time, so the `--skip-cross-scan-run` command is the recommended full
+verification command when the existing summary evidence is sufficient.
 
 ## Final Strategy Versions
 
@@ -85,6 +104,21 @@ Run the final strategy through the normal backtester:
 ```powershell
 python run_project.py backtest
 ```
+
+Run the full final workflow with progress and ETA:
+
+```powershell
+python run_project.py full --plots --skip-cross-scan-run
+```
+
+Run the same workflow and also recompute the raw cross-asset scan:
+
+```powershell
+python run_project.py full --plots
+```
+
+The raw cross-asset scan can take substantially longer than the rest of the
+workflow because it evaluates multiple strategy and asset combinations.
 
 Regenerate compact archive summaries:
 

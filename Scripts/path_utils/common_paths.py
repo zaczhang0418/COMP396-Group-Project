@@ -9,7 +9,9 @@ from pathlib import Path
 
 PROJ = Path(__file__).resolve().parents[2]
 OUTPUT_ROOT = PROJ / "Output"
-EXPERIMENTS_ROOT = OUTPUT_ROOT / "experiments"
+EXPERIMENTS_ROOT = OUTPUT_ROOT / "coursework_2" / "stage_1_part1_params_on_part2_validation"
+COURSEWORK_1_STAGE4_ROOT = OUTPUT_ROOT / "coursework_1" / "stage_4_initial_combo_team01_v1"
+COURSEWORK_2_STAGE2_ROOT = OUTPUT_ROOT / "coursework_2" / "stage_2_single_strategy_optimization"
 TIMELINE_PATH = PROJ / "Configs" / "timeline.json"
 
 PART_DATA_DIRS = {
@@ -85,6 +87,38 @@ def get_stage_dir(
         path = combo_root(experiment_tag, part, create=create)
     else:
         base = part_root(experiment_tag, part, create=create)
+        asset_dir = STRATEGY_LAYOUT[strategy_key]["asset_dir"]
+        path = base / strategy_key / asset_dir / stage
+    return ensure_dir(path) if create else path
+
+
+def get_coursework_2_stage2_dir(
+    experiment_tag: str,
+    part: str,
+    strategy_key: str,
+    stage: str,
+    create: bool = True,
+) -> Path:
+    base = COURSEWORK_2_STAGE2_ROOT / experiment_tag / part
+    if strategy_key == "combo":
+        path = base / "combo" / stage
+    else:
+        asset_dir = STRATEGY_LAYOUT[strategy_key]["asset_dir"]
+        path = base / strategy_key / asset_dir / stage
+    return ensure_dir(path) if create else path
+
+
+def get_coursework_1_stage4_dir(
+    experiment_tag: str,
+    part: str,
+    strategy_key: str,
+    stage: str,
+    create: bool = True,
+) -> Path:
+    base = COURSEWORK_1_STAGE4_ROOT / experiment_tag / part
+    if strategy_key == "combo":
+        path = base / "combo" / stage
+    else:
         asset_dir = STRATEGY_LAYOUT[strategy_key]["asset_dir"]
         path = base / strategy_key / asset_dir / stage
     return ensure_dir(path) if create else path

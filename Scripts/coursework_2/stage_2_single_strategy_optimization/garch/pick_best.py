@@ -11,7 +11,7 @@ PROJ = Path(__file__).resolve().parents[4]
 if str(PROJ) not in sys.path:
     sys.path.insert(0, str(PROJ))
 
-from Scripts.path_utils.common_paths import get_stage_dir, load_timeline  # noqa: E402
+from Scripts.path_utils.common_paths import get_coursework_2_stage2_dir, load_timeline  # noqa: E402
 from Scripts.coursework_2.stage_2_single_strategy_optimization.common.pick_best_common import (  # noqa: E402
     load_grid_spec,
     parse_results,
@@ -76,10 +76,10 @@ if __name__ == "__main__":
 
     timeline = load_timeline()["part1"]
     search_keys, fixed_params = load_grid_spec(resolve_path(args.grid_config))
-    out_root = get_stage_dir(args.experiment_tag, "part1", "garch", "grid_search")
+    out_root = get_coursework_2_stage2_dir(args.experiment_tag, "part1", "garch", "grid_search")
     results = out_root / "results.csv"
     best_out = out_root / "best_params.json"
-    best_runs_root = get_stage_dir(args.experiment_tag, "part1", "garch", "best_runs")
+    best_runs_root = get_coursework_2_stage2_dir(args.experiment_tag, "part1", "garch", "best_runs")
     run_tag = args.tag or args.experiment_tag
 
     if not results.exists():

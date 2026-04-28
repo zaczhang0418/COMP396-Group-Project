@@ -2,7 +2,7 @@
   {
     "dataset": "PART1",
     "strategy_id": "tf_asset01_v1",
-    "output_dir": "output\\coursework_1_stage5_v1_archive\\PART1\\tf_asset01_v1",
+    "output_dir": "Output\\coursework_1\\stage_5_team01_v1_archive\\PART1\\tf_asset01_v1",
     "final_value": 1148068.51767629,
     "bankrupt": false,
     "bankrupt_date": null,
@@ -15,7 +15,7 @@
   {
     "dataset": "PART1",
     "strategy_id": "mr_asset10_v1",
-    "output_dir": "output\\coursework_1_stage5_v1_archive\\PART1\\mr_asset10_v1",
+    "output_dir": "Output\\coursework_1\\stage_5_team01_v1_archive\\PART1\\mr_asset10_v1",
     "final_value": 1090352.1556395788,
     "bankrupt": false,
     "bankrupt_date": null,
@@ -28,7 +28,7 @@
   {
     "dataset": "PART1",
     "strategy_id": "garch_asset07_v1",
-    "output_dir": "output\\coursework_1_stage5_v1_archive\\PART1\\garch_asset07_v1",
+    "output_dir": "Output\\coursework_1\\stage_5_team01_v1_archive\\PART1\\garch_asset07_v1",
     "final_value": 1002568.3785637203,
     "bankrupt": false,
     "bankrupt_date": null,
@@ -41,7 +41,7 @@
   {
     "dataset": "PART1",
     "strategy_id": "combo_tf01_mr10_garch07_v1",
-    "output_dir": "output\\coursework_1_stage5_v1_archive\\PART1\\combo_tf01_mr10_garch07_v1",
+    "output_dir": "Output\\coursework_1\\stage_5_team01_v1_archive\\PART1\\combo_tf01_mr10_garch07_v1",
     "final_value": 998083.9547470001,
     "bankrupt": false,
     "bankrupt_date": null,
@@ -54,7 +54,7 @@
   {
     "dataset": "PART2",
     "strategy_id": "tf_asset01_v1",
-    "output_dir": "output\\coursework_1_stage5_v1_archive\\PART2\\tf_asset01_v1",
+    "output_dir": "Output\\coursework_1\\stage_5_team01_v1_archive\\PART2\\tf_asset01_v1",
     "final_value": 997663.144812902,
     "bankrupt": false,
     "bankrupt_date": null,
@@ -67,7 +67,7 @@
   {
     "dataset": "PART2",
     "strategy_id": "mr_asset10_v1",
-    "output_dir": "output\\coursework_1_stage5_v1_archive\\PART2\\mr_asset10_v1",
+    "output_dir": "Output\\coursework_1\\stage_5_team01_v1_archive\\PART2\\mr_asset10_v1",
     "final_value": 955611.352040227,
     "bankrupt": false,
     "bankrupt_date": null,
@@ -80,7 +80,7 @@
   {
     "dataset": "PART2",
     "strategy_id": "garch_asset07_v1",
-    "output_dir": "output\\coursework_1_stage5_v1_archive\\PART2\\garch_asset07_v1",
+    "output_dir": "Output\\coursework_1\\stage_5_team01_v1_archive\\PART2\\garch_asset07_v1",
     "final_value": 988387.0761424601,
     "bankrupt": false,
     "bankrupt_date": null,
@@ -93,7 +93,7 @@
   {
     "dataset": "PART2",
     "strategy_id": "combo_tf01_mr10_garch07_v1",
-    "output_dir": "output\\coursework_1_stage5_v1_archive\\PART2\\combo_tf01_mr10_garch07_v1",
+    "output_dir": "Output\\coursework_1\\stage_5_team01_v1_archive\\PART2\\combo_tf01_mr10_garch07_v1",
     "final_value": 1036933.2518324994,
     "bankrupt": false,
     "bankrupt_date": null,
@@ -106,7 +106,7 @@
   {
     "dataset": "PART3",
     "strategy_id": "tf_asset01_v1",
-    "output_dir": "output\\coursework_1_stage5_v1_archive\\PART3\\tf_asset01_v1",
+    "output_dir": "Output\\coursework_1\\stage_5_team01_v1_archive\\PART3\\tf_asset01_v1",
     "final_value": 1026463.8526598209,
     "bankrupt": false,
     "bankrupt_date": null,
@@ -119,7 +119,7 @@
   {
     "dataset": "PART3",
     "strategy_id": "mr_asset10_v1",
-    "output_dir": "output\\coursework_1_stage5_v1_archive\\PART3\\mr_asset10_v1",
+    "output_dir": "Output\\coursework_1\\stage_5_team01_v1_archive\\PART3\\mr_asset10_v1",
     "final_value": 827948.5554786443,
     "bankrupt": false,
     "bankrupt_date": null,
@@ -132,7 +132,7 @@
   {
     "dataset": "PART3",
     "strategy_id": "garch_asset07_v1",
-    "output_dir": "output\\coursework_1_stage5_v1_archive\\PART3\\garch_asset07_v1",
+    "output_dir": "Output\\coursework_1\\stage_5_team01_v1_archive\\PART3\\garch_asset07_v1",
     "final_value": 999267.2984375,
     "bankrupt": false,
     "bankrupt_date": null,
@@ -145,7 +145,7 @@
   {
     "dataset": "PART3",
     "strategy_id": "combo_tf01_mr10_garch07_v1",
-    "output_dir": "output\\coursework_1_stage5_v1_archive\\PART3\\combo_tf01_mr10_garch07_v1",
+    "output_dir": "Output\\coursework_1\\stage_5_team01_v1_archive\\PART3\\combo_tf01_mr10_garch07_v1",
     "final_value": 1195196.4626874998,
     "bankrupt": false,
     "bankrupt_date": null,
@@ -158,7 +158,7 @@
   {
     "dataset": "PART123",
     "strategy_id": "tf_asset01_v1",
-    "output_dir": "output\\coursework_1_stage5_v1_archive\\PART123\\tf_asset01_v1",
+    "output_dir": "Output\\coursework_1\\stage_5_team01_v1_archive\\PART123\\tf_asset01_v1",
     "final_value": -98448.59733705781,
     "bankrupt": true,
     "bankrupt_date": "2076-07-30",
@@ -171,7 +171,7 @@
   {
     "dataset": "PART123",
     "strategy_id": "mr_asset10_v1",
-    "output_dir": "output\\coursework_1_stage5_v1_archive\\PART123\\mr_asset10_v1",
+    "output_dir": "Output\\coursework_1\\stage_5_team01_v1_archive\\PART123\\mr_asset10_v1",
     "final_value": 918148.7360567985,
     "bankrupt": false,
     "bankrupt_date": null,
@@ -184,7 +184,7 @@
   {
     "dataset": "PART123",
     "strategy_id": "garch_asset07_v1",
-    "output_dir": "output\\coursework_1_stage5_v1_archive\\PART123\\garch_asset07_v1",
+    "output_dir": "Output\\coursework_1\\stage_5_team01_v1_archive\\PART123\\garch_asset07_v1",
     "final_value": 989402.0995595005,
     "bankrupt": false,
     "bankrupt_date": null,
@@ -197,7 +197,7 @@
   {
     "dataset": "PART123",
     "strategy_id": "combo_tf01_mr10_garch07_v1",
-    "output_dir": "output\\coursework_1_stage5_v1_archive\\PART123\\combo_tf01_mr10_garch07_v1",
+    "output_dir": "Output\\coursework_1\\stage_5_team01_v1_archive\\PART123\\combo_tf01_mr10_garch07_v1",
     "final_value": 1218435.7376536606,
     "bankrupt": false,
     "bankrupt_date": null,
